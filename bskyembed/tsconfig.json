@@ -17,7 +17,11 @@
     "jsx": "react",
     "jsxFactory": "h",
     "jsxFragmentFactory": "Fragment",
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "baseUrl": "..",
+    "paths": {
+      "#/*": ["./src/*"]
+    }
   },
   "include": ["src", "snippet", "vite.config.ts", "*.config.cjs", ".eslintrc.cjs"]
 }

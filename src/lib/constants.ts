@@ -3,19 +3,19 @@ import {type AppBskyActorDefs, BSKY_LABELER_DID} from '@atproto/api'
 
 import {type ProxyHeaderValue} from '#/state/session/agent'
 import {BLUESKY_PROXY_DID, CHAT_PROXY_DID} from '#/env'
+import {AppSettings} from '#/indie-settings/settings'
 
 export const LOCAL_DEV_SERVICE =
   Platform.OS === 'android' ? 'http://10.0.2.2:2583' : 'http://localhost:2583'
-export const STAGING_SERVICE = 'https://staging.bsky.dev'
-export const BSKY_SERVICE = 'https://bsky.social'
-export const BSKY_SERVICE_DID = 'did:web:bsky.social'
-export const PUBLIC_BSKY_SERVICE = 'https://public.api.bsky.app'
+export const STAGING_SERVICE = AppSettings.STAGING_SERVICE
+export const BSKY_SERVICE = AppSettings.BSKY_SERVICE
+export const BSKY_SERVICE_DID = AppSettings.BSKY_SERVICE_DID
+export const PUBLIC_BSKY_SERVICE = AppSettings.PUBLIC_BSKY_SERVICE
 export const DEFAULT_SERVICE = BSKY_SERVICE
-const HELP_DESK_LANG = 'en-us'
-export const HELP_DESK_URL = `https://blueskyweb.zendesk.com/hc/${HELP_DESK_LANG}`
-export const EMBED_SERVICE = 'https://embed.bsky.app'
+export const HELP_DESK_URL = AppSettings.HELP_DESK_URL
+export const EMBED_SERVICE = AppSettings.BSKY_SERVICE_DID
 export const EMBED_SCRIPT = `${EMBED_SERVICE}/static/embed.js`
-export const BSKY_DOWNLOAD_URL = 'https://bsky.app/download'
+export const BSKY_DOWNLOAD_URL = AppSettings.BSKY_DOWNLOAD_URL
 export const STARTER_PACK_MAX_SIZE = 150
 export const CARD_ASPECT_RATIO = 1200 / 630
 
@@ -80,22 +80,6 @@ export function IS_PROD_SERVICE(url?: string) {
   return url && url !== STAGING_SERVICE && !url.startsWith(LOCAL_DEV_SERVICE)
 }
 
-export const PROD_DEFAULT_FEED = (rkey: string) =>
-  `at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/${rkey}`
-
-export const STAGING_DEFAULT_FEED = (rkey: string) =>
-  `at://did:plc:yofh3kx63drvfljkibw5zuxo/app.bsky.feed.generator/${rkey}`
-
-export const PROD_FEEDS = [
-  `feedgen|${PROD_DEFAULT_FEED('whats-hot')}`,
-  `feedgen|${PROD_DEFAULT_FEED('thevids')}`,
-]
-
-export const STAGING_FEEDS = [
-  `feedgen|${STAGING_DEFAULT_FEED('whats-hot')}`,
-  `feedgen|${STAGING_DEFAULT_FEED('thevids')}`,
-]
-
 export const POST_IMG_MAX = {
   width: 2000,
   height: 2000,
@@ -139,16 +123,14 @@ export const BSKY_FEED_OWNER_DIDS = [
   'did:plc:q6gjnaw2blty4crticxkmujt',
 ]
 
-export const DISCOVER_FEED_URI =
-  'at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/whats-hot'
-export const VIDEO_FEED_URI =
-  'at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/thevids'
-export const STAGING_VIDEO_FEED_URI =
-  'at://did:plc:yofh3kx63drvfljkibw5zuxo/app.bsky.feed.generator/thevids'
+export const DISCOVER_FEED_URI = AppSettings.DISCOVER_FEED_URI
+export const VIDEO_FEED_URI = AppSettings.VIDEO_FEED_URI
+export const STAGING_VIDEO_FEED_URI = AppSettings.STAGING_VIDEO_FEED_URI
+
 export const VIDEO_FEED_URIS = [VIDEO_FEED_URI, STAGING_VIDEO_FEED_URI]
 export const DISCOVER_SAVED_FEED = {
   type: 'feed',
-  value: DISCOVER_FEED_URI,
+  value: AppSettings.DISCOVER_FEED_URI,
   pinned: true,
 }
 export const TIMELINE_SAVED_FEED = {
@@ -158,9 +140,19 @@ export const TIMELINE_SAVED_FEED = {
 }
 export const VIDEO_SAVED_FEED = {
   type: 'feed',
-  value: VIDEO_FEED_URI,
+  value: AppSettings.VIDEO_FEED_URI,
   pinned: true,
 }
+
+export const PROD_FEEDS = [
+  `feedgen|${AppSettings.DISCOVER_FEED_URI}`,
+  `feedgen|${AppSettings.VIDEO_FEED_URI}`,
+]
+
+export const STAGING_FEEDS = [
+  `feedgen|${AppSettings.STAGING_DEFAULT_FEED_URI}`,
+  `feedgen|${AppSettings.STAGING_VIDEO_FEED_URI}`,
+]
 
 export const RECOMMENDED_SAVED_FEEDS: Pick<
   AppBskyActorDefs.SavedFeed,

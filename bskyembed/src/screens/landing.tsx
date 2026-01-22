@@ -19,9 +19,6 @@ import {Post} from '../components/post'
 import * as bsky from '../types/bsky'
 import {niceDate} from '../util/nice-date'
 
-export const EMBED_SERVICE = 'https://embed.bsky.app'
-export const EMBED_SCRIPT = `${EMBED_SERVICE}/static/embed.js`
-
 const root = document.getElementById('app')
 if (!root) throw new Error('No root element')
 
@@ -82,7 +79,7 @@ function LandingPage() {
               atUri = `at://${did}/app.bsky.feed.post/${rkey}`
             } catch (err) {
               console.log(err)
-              throw new Error('Invalid Bluesky URL')
+              throw new Error(`Invalid ${AppSettings.APP_NAME} URL`)
             }
           }
         }
@@ -259,7 +256,7 @@ function Snippet({
       thread.post.author.handle,
     )}</a>) <a href="${escapeHtml(href)}">${escapeHtml(
       niceDate(thread.post.indexedAt),
-    )}</a></blockquote><script async src="${EMBED_SCRIPT}" charset="utf-8"></script>`
+    )}</a></blockquote><script async src="${AppSettings.EMBED_SCRIPT}" charset="utf-8"></script>`
   }, [thread, colorMode])
 
   return (

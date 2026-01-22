@@ -3,7 +3,6 @@ import {View} from 'react-native'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
-import {PROD_DEFAULT_FEED} from '#/lib/constants'
 import {logger} from '#/logger'
 import {
   usePreferencesQuery,
@@ -17,6 +16,7 @@ import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {InlineLinkText} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
+import {AppSettings} from '#/indie-settings/settings'
 
 export function FeedShutdownMsg({feedUri}: {feedUri: string}) {
   const t = useTheme()
@@ -32,7 +32,7 @@ export function FeedShutdownMsg({feedUri}: {feedUri: string}) {
     f => f.value === feedUri && f.pinned,
   )
   const discoverFeedConfig = preferences?.savedFeeds?.find(
-    f => f.value === PROD_DEFAULT_FEED('whats-hot'),
+    f => f.value === AppSettings.DISCOVER_FEED_URI,
   )
   const hasFeedPinned = Boolean(feedConfig)
   const hasDiscoverPinned = Boolean(discoverFeedConfig?.pinned)
@@ -44,7 +44,7 @@ export function FeedShutdownMsg({feedUri}: {feedUri: string}) {
         Toast.show(_(msg`Removed from your feeds`))
       }
       if (hasDiscoverPinned) {
-        setSelectedFeed(`feedgen|${PROD_DEFAULT_FEED('whats-hot')}`)
+        setSelectedFeed(`feedgen|${AppSettings.DISCOVER_FEED_URI}`)
       }
     } catch (err: any) {
       Toast.show(
@@ -63,7 +63,7 @@ export function FeedShutdownMsg({feedUri}: {feedUri: string}) {
         forYouFeedConfig: feedConfig,
         discoverFeedConfig,
       })
-      setSelectedFeed(`feedgen|${PROD_DEFAULT_FEED('whats-hot')}`)
+      setSelectedFeed(`feedgen|${AppSettings.DISCOVER_FEED_URI}`)
       Toast.show(_(msg`The feed has been replaced with Discover.`))
     } catch (err: any) {
       Toast.show(

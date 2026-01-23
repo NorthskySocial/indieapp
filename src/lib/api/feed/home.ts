@@ -1,6 +1,6 @@
 import {type AppBskyFeedDefs, type BskyAgent} from '@atproto/api'
 
-import {PROD_DEFAULT_FEED} from '#/lib/constants'
+import {AppSettings} from '#/indie-settings/settings'
 import {CustomFeedAPI} from './custom'
 import {FollowingFeedAPI} from './following'
 import {type FeedAPI, type FeedAPIResponse} from './types'
@@ -45,7 +45,7 @@ export class HomeFeedAPI implements FeedAPI {
     this.following = new FollowingFeedAPI({agent})
     this.discover = new CustomFeedAPI({
       agent,
-      feedParams: {feed: PROD_DEFAULT_FEED('whats-hot')},
+      feedParams: {feed: AppSettings.DISCOVER_FEED_URI},
     })
     this.userInterests = userInterests
   }
@@ -54,7 +54,7 @@ export class HomeFeedAPI implements FeedAPI {
     this.following = new FollowingFeedAPI({agent: this.agent})
     this.discover = new CustomFeedAPI({
       agent: this.agent,
-      feedParams: {feed: PROD_DEFAULT_FEED('whats-hot')},
+      feedParams: {feed: AppSettings.DISCOVER_FEED_URI},
       userInterests: this.userInterests,
     })
     this.usingDiscover = false

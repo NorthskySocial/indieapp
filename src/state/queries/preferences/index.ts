@@ -6,7 +6,6 @@ import {
 } from '@atproto/api'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 
-import {PROD_DEFAULT_FEED} from '#/lib/constants'
 import {replaceEqualDeep} from '#/lib/functions'
 import {getAge} from '#/lib/strings/time'
 import {logger} from '#/logger'
@@ -24,6 +23,7 @@ import {useAgent} from '#/state/session'
 import {saveLabelers} from '#/state/session/agent-config'
 import {useAgeAssurance} from '#/ageAssurance'
 import {makeAgeRestrictedModerationPrefs} from '#/ageAssurance/util'
+import {AppSettings} from '#/indie-settings/settings'
 
 export * from '#/state/queries/preferences/const'
 export * from '#/state/queries/preferences/moderation'
@@ -273,7 +273,7 @@ export function useReplaceForYouWithDiscoverFeedMutation() {
         await agent.addSavedFeeds([
           {
             type: 'feed',
-            value: PROD_DEFAULT_FEED('whats-hot'),
+            value: AppSettings.DISCOVER_FEED_URI,
             pinned: true,
           },
         ])

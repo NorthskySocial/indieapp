@@ -11,8 +11,8 @@ import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {HITSLOP_20} from '#/lib/constants'
+import {clamp} from '#/lib/numbers'
 import {type EmbedPlayerParams} from '#/lib/strings/embed-player'
-import {isWeb} from '#/platform/detection'
 import {useAutoplayDisabled} from '#/state/preferences'
 import {useLargeAltBadgeEnabled} from '#/state/preferences/large-alt-badge'
 import {atoms as a, useTheme} from '#/alf'
@@ -21,6 +21,7 @@ import {Loader} from '#/components/Loader'
 import * as Prompt from '#/components/Prompt'
 import {Text} from '#/components/Typography'
 import {PlayButtonIcon} from '#/components/video/PlayButtonIcon'
+import {IS_WEB} from '#/env'
 import {GifView} from '../../../../../modules/expo-bluesky-gif-view'
 import {type GifViewStateChangeEvent} from '../../../../../modules/expo-bluesky-gif-view/src/GifView.types'
 
@@ -111,6 +112,15 @@ export function GifEmbed({
     playerRef.current?.toggleAsync()
   }, [])
 
+  let aspectRatio = 1
+  if (params.dimensions) {
+    aspectRatio = clamp(
+      params.dimensions.width / params.dimensions.height,
+      0.75,
+      4,
+    )
+  }
+
   return (
     <View
       style={[
@@ -118,7 +128,8 @@ export function GifEmbed({
         a.overflow_hidden,
         a.border,
         t.atoms.border_contrast_low,
-        {aspectRatio: params.dimensions!.width / params.dimensions!.height},
+        {backgroundColor: t.palette.black},
+        {aspectRatio},
         style,
       ]}>
       <View
@@ -207,18 +218,18 @@ const styles = StyleSheet.create({
   altContainer: {
     backgroundColor: 'rgba(0, 0, 0, 0.75)',
     borderRadius: 6,
-    paddingHorizontal: isWeb ? 8 : 6,
-    paddingVertical: isWeb ? 6 : 3,
+    paddingHorizontal: IS_WEB ? 8 : 6,
+    paddingVertical: IS_WEB ? 6 : 3,
     position: 'absolute',
     // Related to margin/gap hack. This keeps the alt label in the same position
     // on all platforms
-    right: isWeb ? 8 : 5,
-    bottom: isWeb ? 8 : 5,
+    right: IS_WEB ? 8 : 5,
+    bottom: IS_WEB ? 8 : 5,
     zIndex: 2,
   },
   alt: {
     color: 'white',
-    fontSize: isWeb ? 10 : 7,
+    fontSize: IS_WEB ? 10 : 7,
     fontWeight: '600',
   },
 })

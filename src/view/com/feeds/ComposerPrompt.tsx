@@ -1,6 +1,6 @@
 import {useCallback, useState} from 'react'
 import {Keyboard, Pressable, View} from 'react-native'
-import {msg} from '@lingui/macro'
+import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
@@ -10,8 +10,6 @@ import {
   useVideoLibraryPermission,
 } from '#/lib/hooks/usePermissions'
 import {openCamera, openUnifiedPicker} from '#/lib/media/picker'
-import {logger} from '#/logger'
-import {isNative} from '#/platform/detection'
 import {useCurrentAccountProfile} from '#/state/queries/useCurrentAccountProfile'
 import {MAX_IMAGES} from '#/view/com/composer/state/composer'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
@@ -22,10 +20,13 @@ import {Camera_Stroke2_Corner0_Rounded as CameraIcon} from '#/components/icons/C
 import {Image_Stroke2_Corner0_Rounded as ImageIcon} from '#/components/icons/Image'
 import {SubtleHover} from '#/components/SubtleHover'
 import {Text} from '#/components/Typography'
+import {useAnalytics} from '#/analytics'
+import {IS_NATIVE} from '#/env'
 
 export function ComposerPrompt() {
-  const {_} = useLingui()
   const t = useTheme()
+  const ax = useAnalytics()
+  const {_} = useLingui()
   const {openComposer} = useOpenComposer()
   const profile = useCurrentAccountProfile()
   const [hover, setHover] = useState(false)
@@ -35,15 +36,15 @@ export function ComposerPrompt() {
   const sheetWrapper = useSheetWrapper()
 
   const onPress = useCallback(() => {
-    logger.metric('composerPrompt:press', {})
+    ax.metric('composerPrompt:press', {})
     openComposer({})
-  }, [openComposer])
+  }, [ax, openComposer])
 
   const onPressImage = useCallback(async () => {
-    logger.metric('composerPrompt:gallery:press', {})
+    ax.metric('composerPrompt:gallery:press', {})
 
     // On web, open the composer with the gallery picker auto-opening
-    if (!isNative) {
+    if (!IS_NATIVE) {
       openComposer({openGallery: true})
       return
     }
@@ -87,10 +88,11 @@ export function ComposerPrompt() {
       }
     } catch (err: any) {
       if (!String(err).toLowerCase().includes('cancel')) {
-        logger.warn('Error opening image picker', {error: err})
+        ax.logger.error('Error opening image picker', {error: err})
       }
     }
   }, [
+    ax,
     openComposer,
     requestPhotoAccessIfNeeded,
     requestVideoAccessIfNeeded,
@@ -98,14 +100,14 @@ export function ComposerPrompt() {
   ])
 
   const onPressCamera = useCallback(async () => {
-    logger.metric('composerPrompt:camera:press', {})
+    ax.metric('composerPrompt:camera:press', {})
 
     try {
       if (!(await requestCameraAccessIfNeeded())) {
         return
       }
 
-      if (isNative && Keyboard.isVisible()) {
+      if (IS_NATIVE && Keyboard.isVisible()) {
         Keyboard.dismiss()
       }
 
@@ -122,14 +124,14 @@ export function ComposerPrompt() {
       ]
 
       openComposer({
-        imageUris: isNative ? imageUris : undefined,
+        imageUris: IS_NATIVE ? imageUris : undefined,
       })
     } catch (err: any) {
       if (!String(err).toLowerCase().includes('cancel')) {
-        logger.warn('Error opening camera', {error: err})
+        ax.logger.error('Error opening camera', {error: err})
       }
     }
-  }, [openComposer, requestCameraAccessIfNeeded])
+  }, [ax, openComposer, requestCameraAccessIfNeeded])
 
   if (!profile) {
     return null
@@ -148,8 +150,6 @@ export function ComposerPrompt() {
         a.relative,
         a.flex_row,
         a.align_start,
-        a.border_t,
-        t.atoms.border_contrast_low,
         {
           paddingLeft: 18,
           paddingRight: 15,
@@ -168,7 +168,7 @@ export function ComposerPrompt() {
       <SubtleHover hover={hover} />
       <UserAvatar
         avatar={profile.avatar}
-        size={40}
+        size={42}
         type={profile.associated?.labeler ? 'labeler' : 'user'}
       />
       <View
@@ -184,16 +184,14 @@ export function ComposerPrompt() {
         ]}>
         <Text
           style={[
-            t.atoms.text_contrast_low,
+            t.atoms.text_contrast_medium,
             a.text_md,
-            {
-              includeFontPadding: false,
-            },
+            {includeFontPadding: false},
           ]}>
-          {_(msg`What's up?`)}
+          <Trans>What's up?</Trans>
         </Text>
         <View style={[a.flex_row, a.gap_md]}>
-          {isNative && (
+          {IS_NATIVE && (
             <Button
               onPress={e => {
                 e.stopPropagation()

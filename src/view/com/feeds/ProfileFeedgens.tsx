@@ -20,9 +20,9 @@ import {useQueryClient} from '@tanstack/react-query'
 
 import {cleanError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
-import {isIOS, isNative, isWeb} from '#/platform/detection'
 import {usePreferencesQuery} from '#/state/queries/preferences'
 import {RQKEY, useProfileFeedgensQuery} from '#/state/queries/profile-feedgens'
+import {useSession} from '#/state/session'
 import {EmptyState} from '#/view/com/util/EmptyState'
 import {ErrorMessage} from '#/view/com/util/error/ErrorMessage'
 import {List, type ListRef} from '#/view/com/util/List'
@@ -32,6 +32,7 @@ import {atoms as a, ios, useTheme} from '#/alf'
 import * as FeedCard from '#/components/FeedCard'
 import {HashtagWide_Stroke1_Corner0_Rounded as HashtagWideIcon} from '#/components/icons/Hashtag'
 import {ListFooter} from '#/components/Lists'
+import {IS_IOS, IS_NATIVE, IS_WEB} from '#/env'
 
 const LOADING = {_reactKey: '__loading__'}
 const EMPTY = {_reactKey: '__empty__'}
@@ -81,6 +82,8 @@ export function ProfileFeedgens({
   const isEmpty = !isPending && !data?.pages[0]?.feeds.length
   const {data: preferences} = usePreferencesQuery()
   const navigation = useNavigation()
+  const {currentAccount} = useSession()
+  const isSelf = currentAccount?.did === did
 
   const items = useMemo(() => {
     let items: any[] = []
@@ -108,7 +111,7 @@ export function ProfileFeedgens({
 
   const onScrollToTop = useCallback(() => {
     scrollElRef.current?.scrollToOffset({
-      animated: isNative,
+      animated: IS_NATIVE,
       offset: -headerOffset,
     })
     queryClient.invalidateQueries({queryKey: RQKEY(did)})
@@ -152,15 +155,23 @@ export function ProfileFeedgens({
           <EmptyState
             style={{width: '100%'}}
             icon={HashtagWideIcon}
-            message={_(msg`You haven't made any custom feeds yet.`)}
+            message={
+              isSelf
+                ? _(msg`You haven't made any custom feeds yet.`)
+                : _(msg`No custom feeds yet`)
+            }
             textStyle={[t.atoms.text_contrast_medium, a.font_medium]}
-            button={{
-              label: _(msg`Browse custom feeds`),
-              text: _(msg`Browse custom feeds`),
-              onPress: () => navigation.navigate('Feeds' as never),
-              size: 'small',
-              color: 'secondary',
-            }}
+            button={
+              isSelf
+                ? {
+                    label: _(msg`Browse custom feeds`),
+                    text: _(msg`Browse custom feeds`),
+                    onPress: () => navigation.navigate('Feeds' as never),
+                    size: 'small',
+                    color: 'secondary',
+                  }
+                : undefined
+            }
           />
         )
       } else if (item === ERROR_ITEM) {
@@ -183,7 +194,7 @@ export function ProfileFeedgens({
         return (
           <View
             style={[
-              (index !== 0 || isWeb) && a.border_t,
+              (index !== 0 || IS_WEB) && a.border_t,
               t.atoms.border_contrast_low,
               a.px_lg,
               a.py_lg,
@@ -194,11 +205,20 @@ export function ProfileFeedgens({
       }
       return null
     },
-    [_, t, error, refetch, onPressRetryLoadMore, preferences, navigation],
+    [
+      _,
+      t,
+      error,
+      refetch,
+      onPressRetryLoadMore,
+      preferences,
+      navigation,
+      isSelf,
+    ],
   )
 
   useEffect(() => {
-    if (isIOS && enabled && scrollElRef.current) {
+    if (IS_IOS && enabled && scrollElRef.current) {
       const nativeTag = findNodeHandle(scrollElRef.current)
       setScrollViewTag(nativeTag)
     }

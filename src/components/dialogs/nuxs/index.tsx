@@ -8,9 +8,7 @@ import {
 } from 'react'
 import {type AppBskyActorDefs} from '@atproto/api'
 
-import {useGate} from '#/lib/statsig/statsig'
 import {logger} from '#/logger'
-import {isNative} from '#/platform/detection'
 import {STALE} from '#/state/queries'
 import {Nux, useNuxs, useResetNuxs, useSaveNux} from '#/state/queries/nuxs'
 import {
@@ -20,12 +18,14 @@ import {
 import {useProfileQuery} from '#/state/queries/profile'
 import {type SessionAccount, useSession} from '#/state/session'
 import {useOnboardingState} from '#/state/shell'
+import {
+  enabled as isLiveNowBetaDialogEnabled,
+  LiveNowBetaDialog,
+} from '#/components/dialogs/nuxs/LiveNowBetaDialog'
 import {isSnoozed, snooze, unsnooze} from '#/components/dialogs/nuxs/snoozing'
-/*
- * NUXs
- */
-import {FindContactsAnnouncement} from './FindContactsAnnouncement'
-import {isExistingUserAsOf} from './utils'
+import {type EnabledCheckProps} from '#/components/dialogs/nuxs/utils'
+import {useAnalytics} from '#/analytics'
+import {useGeolocation} from '#/geolocation'
 
 type Context = {
   activeNux: Nux | undefined
@@ -34,21 +34,11 @@ type Context = {
 
 const queuedNuxs: {
   id: Nux
-  enabled?: (props: {
-    gate: ReturnType<typeof useGate>
-    currentAccount: SessionAccount
-    currentProfile: AppBskyActorDefs.ProfileViewDetailed
-    preferences: UsePreferencesQueryResponse
-  }) => boolean
+  enabled?: (props: EnabledCheckProps) => boolean
 }[] = [
   {
-    id: Nux.FindContactsAnnouncement,
-    enabled: ({currentProfile}) => {
-      return (
-        isNative &&
-        isExistingUserAsOf('2025-12-16T00:00:00.000Z', currentProfile.createdAt)
-      )
-    },
+    id: Nux.LiveNowBetaDialog,
+    enabled: isLiveNowBetaDialogEnabled,
   },
 ]
 
@@ -98,7 +88,8 @@ function Inner({
   currentProfile: AppBskyActorDefs.ProfileViewDetailed
   preferences: UsePreferencesQueryResponse
 }) {
-  const gate = useGate()
+  const ax = useAnalytics()
+  const geolocation = useGeolocation()
   const {nuxs} = useNuxs()
   const [snoozed, setSnoozed] = useState(() => {
     return isSnoozed()
@@ -141,7 +132,13 @@ function Inner({
       // then check gate (track exposure)
       if (
         enabled &&
-        !enabled({gate, currentAccount, currentProfile, preferences})
+        !enabled({
+          features: ax.features,
+          currentAccount,
+          currentProfile,
+          preferences,
+          geolocation,
+        })
       ) {
         continue
       }
@@ -168,14 +165,15 @@ function Inner({
       break
     }
   }, [
+    ax.features,
     nuxs,
     snoozed,
     snoozeNuxDialog,
     saveNux,
-    gate,
     currentAccount,
     currentProfile,
     preferences,
+    geolocation,
   ])
 
   const ctx = useMemo(() => {
@@ -188,9 +186,7 @@ function Inner({
   return (
     <Context.Provider value={ctx}>
       {/*For example, activeNux === Nux.NeueTypography && <NeueTypography />*/}
-      {activeNux === Nux.FindContactsAnnouncement && (
-        <FindContactsAnnouncement />
-      )}
+      {activeNux === Nux.LiveNowBetaDialog && <LiveNowBetaDialog />}
     </Context.Provider>
   )
 }

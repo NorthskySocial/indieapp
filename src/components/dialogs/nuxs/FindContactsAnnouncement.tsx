@@ -5,29 +5,36 @@ import {LinearGradient} from 'expo-linear-gradient'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
-import {logger} from '#/logger'
-import {isWeb} from '#/platform/detection'
 import {atoms as a, useTheme, web} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
-import {useIsFindContactsFeatureEnabledBasedOnGeolocation} from '#/components/contacts/country-allowlist'
+import {isFindContactsFeatureEnabled} from '#/components/contacts/country-allowlist'
 import * as Dialog from '#/components/Dialog'
 import {useNuxDialogContext} from '#/components/dialogs/nuxs'
+import {
+  createIsEnabledCheck,
+  isExistingUserAsOf,
+} from '#/components/dialogs/nuxs/utils'
 import {Text} from '#/components/Typography'
+import {useAnalytics} from '#/analytics'
+import {IS_E2E, IS_NATIVE, IS_WEB} from '#/env'
 import {navigate} from '#/Navigation'
 
+export const enabled = createIsEnabledCheck(props => {
+  return (
+    !IS_E2E &&
+    IS_NATIVE &&
+    isExistingUserAsOf(
+      '2025-12-16T00:00:00.000Z',
+      props.currentProfile.createdAt,
+    ) &&
+    isFindContactsFeatureEnabled(props.geolocation.countryCode)
+  )
+})
+
 export function FindContactsAnnouncement() {
-  const isFeatureEnabled = useIsFindContactsFeatureEnabledBasedOnGeolocation()
-
-  if (!isFeatureEnabled) {
-    return null
-  }
-
-  return <Inner />
-}
-
-function Inner() {
   const t = useTheme()
   const {_} = useLingui()
+  const ax = useAnalytics()
   const nuxDialogs = useNuxDialogContext()
   const control = Dialog.useDialogControl()
 
@@ -82,7 +89,7 @@ function Inner() {
                 a.font_bold,
                 a.text_center,
                 {
-                  fontSize: isWeb ? 28 : 32,
+                  fontSize: IS_WEB ? 28 : 32,
                   maxWidth: 300,
                 },
               ]}>
@@ -108,7 +115,7 @@ function Inner() {
             size="large"
             color="primary"
             onPress={() => {
-              logger.metric('contacts:nux:ctaPressed', {})
+              ax.metric('contacts:nux:ctaPressed', {})
               control.close(() => {
                 navigate('FindContactsFlow')
               })

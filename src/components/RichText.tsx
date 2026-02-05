@@ -11,9 +11,6 @@ import {RichTextTag} from '#/components/RichTextTag'
 import {Text, type TextProps} from '#/components/Typography'
 
 const WORD_WRAP = {wordWrap: 1}
-// lifted from facet detection in `RichText` impl, _without_ `gm` flags
-const URL_REGEX =
-  /(^|\s|\()((https?:\/\/[\S]+)|((?<domain>[a-z][a-z0-9]*(\.[a-z0-9]+)+)[\S]*))/i
 
 export type RichTextProps = TextStyleProp &
   Pick<TextProps, 'selectable' | 'onLayout' | 'onTextLayout'> & {
@@ -118,8 +115,7 @@ export function RichText({
         </ProfileHoverCard>,
       )
     } else if (link && AppBskyRichtextFacet.validateLink(link).success) {
-      const isValidLink = URL_REGEX.test(link.uri)
-      if (!isValidLink || disableLinks) {
+      if (disableLinks) {
         els.push(toShortUrl(segment.text))
       } else {
         els.push(

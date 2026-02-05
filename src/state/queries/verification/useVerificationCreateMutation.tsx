@@ -2,13 +2,12 @@ import {type AppBskyActorGetProfile} from '@atproto/api'
 import {useMutation} from '@tanstack/react-query'
 
 import {until} from '#/lib/async/until'
+import {logger} from '#/logger'
 import {useUpdateProfileVerificationCache} from '#/state/queries/verification/useUpdateProfileVerificationCache'
 import {useAgent, useSession} from '#/state/session'
-import {useAnalytics} from '#/analytics'
 import type * as bsky from '#/types/bsky'
 
 export function useVerificationCreateMutation() {
-  const ax = useAnalytics()
   const agent = useAgent()
   const {currentAccount} = useSession()
   const updateProfileVerificationCache = useUpdateProfileVerificationCache()
@@ -47,7 +46,7 @@ export function useVerificationCreateMutation() {
       )
     },
     async onSuccess(_, {profile}) {
-      ax.metric('verification:create', {})
+      logger.metric('verification:create', {}, {statsig: true})
       await updateProfileVerificationCache({profile})
     },
   })

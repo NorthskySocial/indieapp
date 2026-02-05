@@ -20,12 +20,8 @@ export function TrendingTopic({
   topic: raw,
   size,
   style,
-  hovered,
-}: {
-  topic: TrendingTopic
-  size?: 'large' | 'small'
-  hovered?: boolean
-} & ViewStyleProp) {
+}: {topic: TrendingTopic; size?: 'large' | 'small'} & ViewStyleProp) {
+  const t = useTheme()
   const topic = useTopic(raw)
 
   const isSmall = size === 'small'
@@ -37,14 +33,18 @@ export function TrendingTopic({
       style={[
         a.flex_row,
         a.align_center,
+        a.rounded_full,
+        a.border,
+        t.atoms.border_contrast_medium,
+        t.atoms.bg,
         isSmall
           ? [
               {
-                paddingVertical: 2,
-                paddingHorizontal: 4,
+                paddingVertical: 5,
+                paddingHorizontal: 10,
               },
             ]
-          : [a.py_xs, a.px_sm],
+          : [a.py_sm, a.px_md],
         hasIcon && {gap: 6},
         style,
       ]}>
@@ -93,7 +93,6 @@ export function TrendingTopic({
           a.font_semi_bold,
           a.leading_tight,
           isSmall ? [a.text_sm] : [a.text_md, {paddingBottom: 1}],
-          hovered && {textDecorationLine: 'underline'},
         ]}
         numberOfLines={1}>
         {topic.displayName}

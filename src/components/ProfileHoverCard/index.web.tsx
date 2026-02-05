@@ -11,6 +11,7 @@ import {useLingui} from '@lingui/react'
 import {useNavigation} from '@react-navigation/native'
 
 import {useActorStatus} from '#/lib/actor-status'
+import {isTouchDevice} from '#/lib/browser'
 import {getModerationCauseKey} from '#/lib/moderation'
 import {makeProfileLink} from '#/lib/routes/links'
 import {type NavigationProp} from '#/lib/routes/types'
@@ -42,7 +43,6 @@ import {RichText} from '#/components/RichText'
 import {Text} from '#/components/Typography'
 import {useSimpleVerificationState} from '#/components/verification'
 import {VerificationCheck} from '#/components/verification/VerificationCheck'
-import {IS_WEB_TOUCH_DEVICE} from '#/env'
 import {type ProfileHoverCardProps} from './types'
 
 const floatingMiddlewares = [
@@ -70,7 +70,7 @@ export function ProfileHoverCard(props: ProfileHoverCardProps) {
     }
   }
 
-  if (props.disable || IS_WEB_TOUCH_DEVICE) {
+  if (props.disable || isTouchDevice) {
     return props.children
   } else {
     return (
@@ -389,7 +389,6 @@ let Card = ({
       {data && moderationOpts ? (
         status.isActive ? (
           <LiveStatus
-            status={status}
             profile={data}
             embed={status.embed}
             padding="lg"

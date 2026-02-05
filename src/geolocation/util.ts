@@ -1,6 +1,6 @@
 import {type LocationGeocodedAddress} from 'expo-location'
 
-import {IS_ANDROID} from '#/env'
+import {isAndroid} from '#/platform/detection'
 import {logger} from '#/geolocation/logger'
 import {type Geolocation} from '#/geolocation/types'
 
@@ -81,7 +81,7 @@ export function normalizeDeviceLocation(
   /*
    * Android doesn't give us ISO 3166-2 short codes. We need these for US
    */
-  if (IS_ANDROID) {
+  if (isAndroid) {
     if (region && isoCountryCode === 'US') {
       /*
        * We need short codes for US states. If we can't remap it, just drop it

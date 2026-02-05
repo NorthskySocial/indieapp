@@ -1,9 +1,11 @@
 import {useCallback, useImperativeHandle, useRef, useState} from 'react'
-import {useWindowDimensions, View} from 'react-native'
+import {View} from 'react-native'
+import {useWindowDimensions} from 'react-native'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {BSKY_SERVICE} from '#/lib/constants'
+import {logger} from '#/logger'
 import * as persisted from '#/state/persisted'
 import {useSession} from '#/state/session'
 import {atoms as a, platform, useBreakpoints, useTheme, web} from '#/alf'
@@ -15,7 +17,6 @@ import * as TextField from '#/components/forms/TextField'
 import {Globe_Stroke2_Corner0_Rounded as Globe} from '#/components/icons/Globe'
 import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
 
 type SegmentedControlOptions = typeof BSKY_SERVICE | 'custom'
 
@@ -26,7 +27,6 @@ export function ServerInputDialog({
   control: Dialog.DialogOuterProps['control']
   onSelect: (url: string) => void
 }) {
-  const ax = useAnalytics()
   const {height} = useWindowDimensions()
   const formRef = useRef<DialogInnerRef>(null)
 
@@ -43,10 +43,10 @@ export function ServerInputDialog({
         setPreviousCustomAddress(result)
       }
     }
-    ax.metric('signin:hostingProviderPressed', {
+    logger.metric('signin:hostingProviderPressed', {
       hostingProviderDidChange: fixedOption !== BSKY_SERVICE,
     })
-  }, [ax, onSelect, fixedOption])
+  }, [onSelect, fixedOption])
 
   return (
     <Dialog.Outer

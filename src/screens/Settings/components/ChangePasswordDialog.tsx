@@ -7,6 +7,7 @@ import * as EmailValidator from 'email-validator'
 import {cleanError, isNetworkError} from '#/lib/strings/errors'
 import {checkAndFormatResetCode} from '#/lib/strings/password'
 import {logger} from '#/logger'
+import {isNative} from '#/platform/detection'
 import {useAgent, useSession} from '#/state/session'
 import {ErrorMessage} from '#/view/com/util/error/ErrorMessage'
 import {android, atoms as a, web} from '#/alf'
@@ -15,7 +16,6 @@ import * as Dialog from '#/components/Dialog'
 import * as TextField from '#/components/forms/TextField'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
-import {IS_NATIVE} from '#/env'
 
 enum Stages {
   RequestCode = 'RequestCode',
@@ -242,7 +242,7 @@ function Inner() {
                   <Trans>Already have a code?</Trans>
                 </ButtonText>
               </Button>
-              {IS_NATIVE && (
+              {isNative && (
                 <Button
                   label={_(msg`Cancel`)}
                   color="secondary"

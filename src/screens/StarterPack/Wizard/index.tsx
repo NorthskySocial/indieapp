@@ -22,6 +22,7 @@ import {
   type CommonNavigatorParams,
   type NavigationProp,
 } from '#/lib/routes/types'
+import {logEvent} from '#/lib/statsig/statsig'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {enforceLen} from '#/lib/strings/helpers'
@@ -30,6 +31,7 @@ import {
   parseStarterPackUri,
 } from '#/lib/strings/starter-pack'
 import {logger} from '#/logger'
+import {isNative} from '#/platform/detection'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useAllListMembersQuery} from '#/state/queries/list-members'
 import {useProfileQuery} from '#/state/queries/profile'
@@ -57,8 +59,6 @@ import {ListMaybePlaceholder} from '#/components/Lists'
 import {Loader} from '#/components/Loader'
 import {WizardEditListDialog} from '#/components/StarterPack/Wizard/WizardEditListDialog'
 import {Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
-import {IS_NATIVE} from '#/env'
 import type * as bsky from '#/types/bsky'
 import {Provider} from './State'
 
@@ -167,7 +167,6 @@ function WizardInner({
   onSuccess?: () => void
 }) {
   const navigation = useNavigation<NavigationProp>()
-  const ax = useAnalytics()
   const {_} = useLingui()
   const setMinimalShellMode = useSetMinimalShellMode()
   const [state, dispatch] = useWizardState()
@@ -223,7 +222,7 @@ function WizardInner({
 
   const onSuccessCreate = (data: {uri: string; cid: string}) => {
     const rkey = new AtUri(data.uri).rkey
-    ax.metric('starterPack:create', {
+    logEvent('starterPack:create', {
       setName: state.name != null,
       setDescription: state.description != null,
       profilesCount: state.profiles.length,
@@ -237,7 +236,7 @@ function WizardInner({
       onSuccess?.()
     } else {
       navigation.replace('StarterPack', {
-        name: profile.handle,
+        name: profile!.handle,
         rkey,
         new: true,
       })
@@ -436,7 +435,7 @@ function Footer({
         {
           paddingBottom: a.pb_lg.paddingBottom + bottomInset,
         },
-        IS_NATIVE && [
+        isNative && [
           a.border_l,
           a.border_r,
           t.atoms.shadow_md,
@@ -602,7 +601,7 @@ function Footer({
           a.w_full,
           a.align_center,
           a.gap_2xl,
-          IS_NATIVE ? a.mt_sm : a.mt_md,
+          isNative ? a.mt_sm : a.mt_md,
         ]}>
         {state.currentStep === 'Profiles' && items.length < 8 && (
           <Text

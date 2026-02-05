@@ -23,7 +23,7 @@ export {
   useExternalEmbedsPrefs,
   useSetExternalEmbedPref,
 } from './external-embeds-prefs'
-export {useHiddenPosts, useHiddenPostsApi} from './hidden-posts'
+export * from './hidden-posts'
 export {useLabelDefinitions} from './label-defs'
 export {useLanguagePrefs, useLanguagePrefsApi} from './languages'
 export {useSetSubtitlesEnabled, useSubtitlesEnabled} from './subtitles'

@@ -4,6 +4,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
+import {isAndroid, isWeb} from '#/platform/detection'
 import {useOnboardingDispatch} from '#/state/shell'
 import {useOnboardingInternalState} from '#/screens/Onboarding/state'
 import {
@@ -20,7 +21,6 @@ import {ArrowLeft_Stroke2_Corner0_Rounded as ArrowLeft} from '#/components/icons
 import {HEADER_SLOT_SIZE} from '#/components/Layout'
 import {createPortalGroup} from '#/components/Portal'
 import {P, Text} from '#/components/Typography'
-import {IS_ANDROID, IS_WEB} from '#/env'
 import {IS_INTERNAL} from '#/env'
 
 const ONBOARDING_COL_WIDTH = 420
@@ -58,7 +58,7 @@ export function Layout({children}: React.PropsWithChildren<{}>) {
       aria-label={dialogLabel}
       accessibilityLabel={dialogLabel}
       accessibilityHint={_(msg`Customizes your Bluesky experience`)}
-      style={[IS_WEB ? a.fixed : a.absolute, a.inset_0, a.flex_1, t.atoms.bg]}>
+      style={[isWeb ? a.fixed : a.absolute, a.inset_0, a.flex_1, t.atoms.bg]}>
       {!gtMobile ? (
         <View
           style={[
@@ -151,7 +151,7 @@ export function Layout({children}: React.PropsWithChildren<{}>) {
           paddingTop: gtMobile ? 40 : headerHeight,
           paddingBottom: footerHeight,
         }}
-        showsVerticalScrollIndicator={!IS_ANDROID}
+        showsVerticalScrollIndicator={!isAndroid}
         scrollIndicatorInsets={{bottom: footerHeight - insets.bottom}}
         // @ts-expect-error web only --prf
         dataSet={{'stable-gutters': 1}}
@@ -167,14 +167,14 @@ export function Layout({children}: React.PropsWithChildren<{}>) {
       <View
         onLayout={evt => setFooterHeight(evt.nativeEvent.layout.height)}
         style={[
-          IS_WEB ? a.fixed : a.absolute,
+          isWeb ? a.fixed : a.absolute,
           {bottom: 0, left: 0, right: 0},
           t.atoms.bg,
           t.atoms.border_contrast_low,
           a.border_t,
           a.align_center,
           gtMobile ? a.px_5xl : a.px_xl,
-          IS_WEB
+          isWeb
             ? a.py_2xl
             : {
                 paddingTop: tokens.space.md,

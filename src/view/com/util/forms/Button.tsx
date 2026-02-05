@@ -153,9 +153,9 @@ export function Button({
     async (event: GestureResponderEvent) => {
       event.stopPropagation()
       event.preventDefault()
-      if (withLoading) setIsLoading(true)
+      withLoading && setIsLoading(true)
       await onPress?.(event)
-      if (withLoading) setIsLoading(false)
+      withLoading && setIsLoading(false)
     },
     [onPress, withLoading],
   )

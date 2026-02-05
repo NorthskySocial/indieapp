@@ -3,6 +3,7 @@ import {ScrollView, View} from 'react-native'
 import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
+import {logEvent} from '#/lib/statsig/statsig'
 import {
   useTrendingSettings,
   useTrendingSettingsApi,
@@ -18,7 +19,6 @@ import {Trending2_Stroke2_Corner2_Rounded as Graph} from '#/components/icons/Tre
 import * as Prompt from '#/components/Prompt'
 import {TrendingTopicLink} from '#/components/TrendingTopics'
 import {Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
 
 export function TrendingInterstitial() {
   const {enabled} = useTrendingConfig()
@@ -29,7 +29,6 @@ export function TrendingInterstitial() {
 export function Inner() {
   const t = useTheme()
   const {_} = useLingui()
-  const ax = useAnalytics()
   const gutters = useGutters([0, 'base', 0, 'base'])
   const trendingPrompt = Prompt.usePromptControl()
   const {setTrendingDisabled} = useTrendingSettingsApi()
@@ -37,12 +36,12 @@ export function Inner() {
   const noTopics = !isLoading && !error && !trending?.topics?.length
 
   const onConfirmHide = React.useCallback(() => {
-    ax.metric('trendingTopics:hide', {context: 'interstitial'})
+    logEvent('trendingTopics:hide', {context: 'interstitial'})
     setTrendingDisabled(true)
-  }, [ax, setTrendingDisabled])
+  }, [setTrendingDisabled])
 
   return error || noTopics ? null : (
-    <View style={[t.atoms.border_contrast_low, a.border_t, a.border_b]}>
+    <View style={[t.atoms.border_contrast_low, a.border_t]}>
       <BlockDrawerGesture>
         <ScrollView
           horizontal
@@ -95,16 +94,15 @@ export function Inner() {
                     key={topic.link}
                     topic={topic}
                     onPress={() => {
-                      ax.metric('trendingTopic:click', {
-                        context: 'interstitial',
-                      })
+                      logEvent('trendingTopic:click', {context: 'interstitial'})
                     }}>
                     <View style={[a.py_lg]}>
                       <Text
                         style={[
-                          t.atoms.text_contrast_medium,
+                          t.atoms.text,
                           a.text_sm,
                           a.font_semi_bold,
+                          {opacity: 0.7}, // NOTE: we use opacity 0.7 instead of a color to match the color of the home pager tab bar
                         ]}>
                         {topic.topic}
                       </Text>

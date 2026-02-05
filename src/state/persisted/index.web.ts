@@ -22,8 +22,6 @@ const UPDATE_EVENT = 'BSKY_UPDATE'
 let _state: Schema = defaults
 const _emitter = new EventEmitter()
 
-// async, to match native implementation
-// eslint-disable-next-line @typescript-eslint/require-await
 export async function init() {
   broadcast.onmessage = onBroadcastMessage
   window.onstorage = onStorage
@@ -39,7 +37,6 @@ export function get<K extends keyof Schema>(key: K): Schema[K] {
 }
 get satisfies PersistedApi['get']
 
-// eslint-disable-next-line @typescript-eslint/require-await
 export async function write<K extends keyof Schema>(
   key: K,
   value: Schema[K],
@@ -85,7 +82,6 @@ export function onUpdate<K extends keyof Schema>(
 }
 onUpdate satisfies PersistedApi['onUpdate']
 
-// eslint-disable-next-line @typescript-eslint/require-await
 export async function clearStorage() {
   try {
     localStorage.removeItem(BSKY_STORAGE)
@@ -106,7 +102,6 @@ function onStorage() {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await
 async function onBroadcastMessage({data}: MessageEvent) {
   if (
     typeof data === 'object' &&

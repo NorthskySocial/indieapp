@@ -12,7 +12,7 @@ import {TimesLarge_Stroke2_Corner0_Rounded as X} from '#/components/icons/Times'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {useAgeAssurance} from '#/ageAssurance'
-import {useAnalytics} from '#/analytics'
+import {logger} from '#/ageAssurance'
 
 export function useInternalState() {
   const aa = useAgeAssurance()
@@ -23,7 +23,6 @@ export function useInternalState() {
   const visible = useMemo(() => {
     if (aa.state.access === aa.Access.Full) return false
     if (aa.state.lastInitiatedAt) return false
-    if (aa.state.error === 'config') return false
     if (hidden) return false
     if (nux && nux.completed) return false
     return true
@@ -42,7 +41,6 @@ export function useInternalState() {
 
 export function AgeAssuranceDismissibleFeedBanner() {
   const t = useTheme()
-  const ax = useAnalytics()
   const {_} = useLingui()
   const {visible, close} = useInternalState()
   const copy = useAgeAssuranceCopy()
@@ -67,7 +65,7 @@ export function AgeAssuranceDismissibleFeedBanner() {
         to="/settings/account"
         onPress={() => {
           close()
-          ax.metric('ageAssurance:navigateToSettings', {})
+          logger.metric('ageAssurance:navigateToSettings', {})
         }}
         style={[a.w_full, a.justify_between, a.align_center, a.gap_md]}>
         <View
@@ -106,7 +104,7 @@ export function AgeAssuranceDismissibleFeedBanner() {
         size="small"
         onPress={() => {
           close()
-          ax.metric('ageAssurance:dismissFeedBanner', {})
+          logger.metric('ageAssurance:dismissFeedBanner', {})
         }}
         style={[
           a.absolute,

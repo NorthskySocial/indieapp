@@ -9,6 +9,7 @@ import {
   type OtherSelfLabel,
   type SelfLabel,
 } from '#/lib/moderation'
+import {isWeb} from '#/platform/detection'
 import {atoms as a, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
@@ -17,7 +18,6 @@ import {Check_Stroke2_Corner0_Rounded as Check} from '#/components/icons/Check'
 import {TinyChevronBottom_Stroke2_Corner0_Rounded as TinyChevronIcon} from '#/components/icons/Chevron'
 import {Shield_Stroke2_Corner0_Rounded} from '#/components/icons/Shield'
 import {Text} from '#/components/Typography'
-import {IS_WEB} from '#/env'
 
 export function LabelsBtn({
   labels,
@@ -218,7 +218,7 @@ function DialogInner({
           label={_(msg`Done`)}
           onPress={() => control.close()}
           color="primary"
-          size={IS_WEB ? 'small' : 'large'}
+          size={isWeb ? 'small' : 'large'}
           variant="solid"
           testID="confirmBtn">
           <ButtonText>

@@ -2,9 +2,6 @@ import {createContext, useContext, useMemo} from 'react'
 
 import {useLanguagePrefs} from '#/state/preferences/languages'
 import {useServiceConfigQuery} from '#/state/queries/service-config'
-import {useSession} from '#/state/session'
-import {useAnalytics} from '#/analytics'
-import {IS_DEV} from '#/env'
 import {device} from '#/storage'
 
 type TrendingContext = {
@@ -21,7 +18,7 @@ const TrendingContext = createContext<TrendingContext>({
 })
 TrendingContext.displayName = 'TrendingContext'
 
-const LiveNowContext = createContext<LiveNowContext>([])
+const LiveNowContext = createContext<LiveNowContext | null>(null)
 LiveNowContext.displayName = 'LiveNowContext'
 
 const CheckEmailConfirmedContext = createContext<boolean | null>(null)
@@ -52,6 +49,10 @@ export function Provider({children}: {children: React.ReactNode}) {
       return {enabled: Boolean(cachedEnabled)}
     }
 
+    /*
+     * Doing an extra check here to reduce hits to statsig. If it's disabled on
+     * the server, we can exit early.
+     */
     const enabled = Boolean(config?.topicsEnabled)
 
     // update cache
@@ -81,34 +82,19 @@ export function useTrendingConfig() {
   return useContext(TrendingContext)
 }
 
-const DEFAULT_LIVE_ALLOWED_DOMAINS = [
-  'twitch.tv',
-  'www.twitch.tv',
-  'stream.place',
-  'bluecast.app',
-  'www.bluecast.app',
-]
-export type LiveNowConfig = {
-  allowedDomains: Set<string>
-}
-export function useLiveNowConfig(): LiveNowConfig {
+export function useLiveNowConfig() {
   const ctx = useContext(LiveNowContext)
-  const canGoLive = useCanGoLive()
-  const {currentAccount} = useSession()
-  if (!currentAccount?.did || !canGoLive) return {allowedDomains: new Set()}
-  const vip = ctx.find(live => live.did === currentAccount.did)
-  return {
-    allowedDomains: new Set(
-      DEFAULT_LIVE_ALLOWED_DOMAINS.concat(vip ? vip.domains : []),
-    ),
+  if (!ctx) {
+    throw new Error(
+      'useLiveNowConfig must be used within a ServiceConfigManager',
+    )
   }
+  return ctx
 }
 
-export function useCanGoLive() {
-  const ax = useAnalytics()
-  const {hasSession} = useSession()
-  if (!hasSession) return false
-  return IS_DEV ? true : !ax.features.enabled(ax.features.LiveNowBetaDisable)
+export function useCanGoLive(did?: string) {
+  const config = useLiveNowConfig()
+  return !!config.find(cfg => cfg.did === did)
 }
 
 export function useCheckEmailConfirmed() {

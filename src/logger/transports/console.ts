@@ -2,7 +2,7 @@ import format from 'date-fns/format'
 
 import {LogLevel, type Transport} from '#/logger/types'
 import {prepareMetadata} from '#/logger/util'
-import {IS_WEB} from '#/env'
+import {isWeb} from '#/platform/detection'
 
 /**
  * Used in dev mode to nicely log to the console
@@ -33,10 +33,10 @@ export const consoleTransport: Transport = (
     msg += ` ${message.toString()}`
   }
 
-  if (IS_WEB) {
+  if (isWeb) {
     if (hasMetadata) {
       console.groupCollapsed(msg)
-      console.log(prepareMetadata(metadata))
+      console.log(metadata)
       console.groupEnd()
     } else {
       console.log(msg)

@@ -138,7 +138,7 @@ export function Trigger({
       <RadixTriggerPassThrough>
         {props =>
           children({
-            IS_NATIVE: false,
+            isNative: false,
             control,
             state: {
               hovered,
@@ -262,7 +262,6 @@ export function Item({children, label, onPress, style, ...rest}: ItemProps) {
           a.gap_lg,
           a.py_sm,
           a.rounded_xs,
-          a.overflow_hidden,
           {minHeight: 32, paddingHorizontal: 10},
           web({outline: 0}),
           (hovered || focused) &&
@@ -303,7 +302,7 @@ export function ItemText({children, style}: ItemTextProps) {
   )
 }
 
-export function ItemIcon({icon: Comp, position = 'left', fill}: ItemIconProps) {
+export function ItemIcon({icon: Comp, position = 'left'}: ItemIconProps) {
   const t = useTheme()
   const {disabled} = useMenuItemContext()
   return (
@@ -320,11 +319,9 @@ export function ItemIcon({icon: Comp, position = 'left', fill}: ItemIconProps) {
       <Comp
         size="md"
         fill={
-          fill
-            ? fill({disabled})
-            : disabled
-              ? t.atoms.text_contrast_low.color
-              : t.atoms.text_contrast_medium.color
+          disabled
+            ? t.atoms.text_contrast_low.color
+            : t.atoms.text_contrast_medium.color
         }
       />
     </View>

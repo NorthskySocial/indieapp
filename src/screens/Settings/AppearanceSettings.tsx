@@ -12,6 +12,7 @@ import {
   type CommonNavigatorParams,
   type NativeStackScreenProps,
 } from '#/lib/routes/types'
+import {isNative} from '#/platform/detection'
 import {useSetThemePrefs, useThemePrefs} from '#/state/shell'
 import {SettingsListItem as AppIconSettingsListItem} from '#/screens/Settings/AppIconSettings/SettingsListItem'
 import {type Alf, atoms as a, native, useAlf, useTheme} from '#/alf'
@@ -23,7 +24,6 @@ import {TextSize_Stroke2_Corner0_Rounded as TextSize} from '#/components/icons/T
 import {TitleCase_Stroke2_Corner0_Rounded as Aa} from '#/components/icons/TitleCase'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
-import {IS_NATIVE} from '#/env'
 import {IS_INTERNAL} from '#/env'
 import * as SettingsList from './components/SettingsList'
 
@@ -165,7 +165,7 @@ export function AppearanceSettingsScreen({}: Props) {
                 onChange={onChangeFontScale}
               />
 
-              {IS_NATIVE && IS_INTERNAL && (
+              {isNative && IS_INTERNAL && (
                 <>
                   <SettingsList.Divider />
                   <AppIconSettingsListItem />

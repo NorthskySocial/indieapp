@@ -2,10 +2,10 @@ import * as SystemUI from 'expo-system-ui'
 import {type Theme} from '@bsky.app/alf'
 
 import {logger} from '#/logger'
-import {IS_ANDROID} from '#/env'
+import {isAndroid} from '#/platform/detection'
 
 export function setSystemUITheme(themeType: 'theme' | 'lightbox', t: Theme) {
-  if (IS_ANDROID) {
+  if (isAndroid) {
     try {
       if (themeType === 'theme') {
         SystemUI.setBackgroundColorAsync(t.atoms.bg.backgroundColor)

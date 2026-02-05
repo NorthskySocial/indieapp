@@ -18,6 +18,7 @@ import {isNetworkError} from '#/lib/strings/errors'
 import {cleanError} from '#/lib/strings/errors'
 import {createFullHandle} from '#/lib/strings/handles'
 import {logger} from '#/logger'
+import {isIOS} from '#/platform/detection'
 import {useSetHasCheckedForStarterPack} from '#/state/preferences/used-starter-packs'
 import {useSessionApi} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
@@ -31,7 +32,6 @@ import {Lock_Stroke2_Corner0_Rounded as Lock} from '#/components/icons/Lock'
 import {Ticket_Stroke2_Corner0_Rounded as Ticket} from '#/components/icons/Ticket'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
-import {IS_IOS} from '#/env'
 import {FormContainer} from './FormContainer'
 
 type ServiceDescription = ComAtprotoServerDescribeServer.OutputSchema
@@ -201,7 +201,7 @@ export const LoginForm = ({
               inputRef={identifierRef}
               label={_(msg`Username or email address`)}
               autoCapitalize="none"
-              autoFocus={!IS_IOS}
+              autoFocus={!isIOS}
               autoCorrect={false}
               autoComplete="username"
               returnKeyType="next"

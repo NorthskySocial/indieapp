@@ -4,6 +4,7 @@ import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {cleanError} from '#/lib/strings/errors'
+import {isNative, isWeb} from '#/platform/detection'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {getFeedTypeFromUri} from '#/state/queries/feed'
 import {useProfileQuery} from '#/state/queries/profile'
@@ -14,7 +15,6 @@ import {Divider} from '#/components/Divider'
 import {Warning_Stroke2_Corner0_Rounded as WarningIcon} from '#/components/icons/Warning'
 import * as ProfileCard from '#/components/ProfileCard'
 import {Text} from '#/components/Typography'
-import {IS_NATIVE, IS_WEB} from '#/env'
 
 export function MissingFeed({
   style,
@@ -83,7 +83,7 @@ export function MissingFeed({
                 a.italic,
               ]}
               numberOfLines={1}>
-              {IS_WEB ? (
+              {isWeb ? (
                 <Trans>Click for information</Trans>
               ) : (
                 <Trans>Tap for information</Trans>
@@ -205,7 +205,7 @@ function DialogInner({
           </>
         )}
       </View>
-      {IS_NATIVE && (
+      {isNative && (
         <Button
           label={_(msg`Close`)}
           onPress={() => control.close()}

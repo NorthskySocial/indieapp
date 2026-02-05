@@ -4,8 +4,9 @@ import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {MAX_ALT_TEXT} from '#/lib/constants'
-import {isOverMaxGraphemeCount} from '#/lib/strings/helpers'
+import {useEnforceMaxGraphemeCount} from '#/lib/strings/helpers'
 import {LANGUAGES} from '#/locale/languages'
+import {isWeb} from '#/platform/detection'
 import {useLanguagePrefs} from '#/state/preferences'
 import {atoms as a, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
@@ -16,7 +17,6 @@ import {PageText_Stroke2_Corner0_Rounded as PageTextIcon} from '#/components/ico
 import {TimesLarge_Stroke2_Corner0_Rounded as X} from '#/components/icons/Times'
 import {Warning_Stroke2_Corner0_Rounded as WarningIcon} from '#/components/icons/Warning'
 import {Text} from '#/components/Typography'
-import {IS_WEB} from '#/env'
 import {SubtitleFilePicker} from './SubtitleFilePicker'
 
 const MAX_NUM_CAPTIONS = 1
@@ -37,9 +37,9 @@ export function SubtitleDialogBtn(props: Props) {
   return (
     <View style={[a.flex_row, a.my_xs]}>
       <Button
-        label={IS_WEB ? _(msg`Captions & alt text`) : _(msg`Alt text`)}
+        label={isWeb ? _(msg`Captions & alt text`) : _(msg`Alt text`)}
         accessibilityHint={
-          IS_WEB
+          isWeb
             ? _(msg`Opens captions and alt text dialog`)
             : _(msg`Opens alt text dialog`)
         }
@@ -52,11 +52,7 @@ export function SubtitleDialogBtn(props: Props) {
         }}>
         <ButtonIcon icon={CCIcon} />
         <ButtonText>
-          {IS_WEB ? (
-            <Trans>Captions & alt text</Trans>
-          ) : (
-            <Trans>Alt text</Trans>
-          )}
+          {isWeb ? <Trans>Captions & alt text</Trans> : <Trans>Alt text</Trans>}
         </ButtonText>
       </Button>
       <Dialog.Outer control={control}>
@@ -76,6 +72,7 @@ function SubtitleDialogInner({
   const control = Dialog.useDialogContext()
   const {_} = useLingui()
   const t = useTheme()
+  const enforceLen = useEnforceMaxGraphemeCount()
   const {primaryLanguage} = useLanguagePrefs()
 
   const [altText, setAltText] = useState(defaultAltText)
@@ -97,23 +94,18 @@ function SubtitleDialogInner({
 
   const subtitleMissingLanguage = captions.some(sub => sub.lang === '')
 
-  const isOverMaxLength = isOverMaxGraphemeCount({
-    text: altText,
-    maxCount: MAX_ALT_TEXT,
-  })
-
   return (
     <Dialog.ScrollableInner label={_(msg`Video settings`)}>
       <View style={a.gap_md}>
         <Text style={[a.text_xl, a.font_semi_bold, a.leading_tight]}>
           <Trans>Alt text</Trans>
         </Text>
-        <TextField.Root isInvalid={isOverMaxLength}>
+        <TextField.Root>
           <Dialog.Input
             label={_(msg`Alt text`)}
             placeholder={_(msg`Add alt text (optional)`)}
             value={altText}
-            onChangeText={setAltText}
+            onChangeText={evt => setAltText(enforceLen(evt, MAX_ALT_TEXT))}
             maxLength={MAX_ALT_TEXT * 10}
             multiline
             style={{maxHeight: 300}}
@@ -126,19 +118,7 @@ function SubtitleDialogInner({
           />
         </TextField.Root>
 
-        {isOverMaxLength && (
-          <Text
-            style={[
-              a.text_md,
-              {color: t.palette.negative_500},
-              a.leading_snug,
-              a.mt_md,
-            ]}>
-            <Trans>Alt text must be less than {MAX_ALT_TEXT} characters.</Trans>
-          </Text>
-        )}
-
-        {IS_WEB && (
+        {isWeb && (
           <>
             <View
               style={[
@@ -186,15 +166,14 @@ function SubtitleDialogInner({
         <View style={web([a.flex_row, a.justify_end])}>
           <Button
             label={_(msg`Done`)}
-            size={IS_WEB ? 'small' : 'large'}
+            size={isWeb ? 'small' : 'large'}
             color="primary"
             variant="solid"
             onPress={() => {
               saveAltText(altText)
               control.close()
             }}
-            style={a.mt_lg}
-            disabled={isOverMaxLength}>
+            style={a.mt_lg}>
             <ButtonText>
               <Trans>Done</Trans>
             </ButtonText>

@@ -4,10 +4,11 @@ import {type AnimatedStyle} from 'react-native-reanimated'
 import {type AppBskyFeedPostgate} from '@atproto/api'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
-import deepEqual from 'fast-deep-equal'
+import deepEqual from 'lodash.isequal'
 
 import {isNetworkError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
+import {isNative} from '#/platform/detection'
 import {usePostInteractionSettingsMutation} from '#/state/queries/post-interaction-settings'
 import {createPostgateRecord} from '#/state/queries/postgate/util'
 import {usePreferencesQuery} from '#/state/queries/preferences'
@@ -24,8 +25,6 @@ import {Earth_Stroke2_Corner0_Rounded as EarthIcon} from '#/components/icons/Glo
 import {Group3_Stroke2_Corner0_Rounded as GroupIcon} from '#/components/icons/Group'
 import * as Tooltip from '#/components/Tooltip'
 import {Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
-import {IS_NATIVE} from '#/env'
 import {useThreadgateNudged} from '#/storage/hooks/threadgate-nudged'
 
 export function ThreadgateBtn({
@@ -43,7 +42,6 @@ export function ThreadgateBtn({
   style?: StyleProp<AnimatedStyle<ViewStyle>>
 }) {
   const {_} = useLingui()
-  const ax = useAnalytics()
   const control = Dialog.useDialogControl()
   const [threadgateNudged, setThreadgateNudged] = useThreadgateNudged()
   const [showTooltip, setShowTooltip] = useState(false)
@@ -68,11 +66,11 @@ export function ThreadgateBtn({
   const [persist, setPersist] = useState(false)
 
   const onPress = () => {
-    ax.metric('composer:threadgate:open', {
+    logger.metric('composer:threadgate:open', {
       nudged: tooltipWasShown,
     })
 
-    if (IS_NATIVE && Keyboard.isVisible()) {
+    if (isNative && Keyboard.isVisible()) {
       Keyboard.dismiss()
     }
 

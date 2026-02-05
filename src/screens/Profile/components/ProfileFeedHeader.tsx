@@ -5,11 +5,13 @@ import {msg, Plural, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {useHaptics} from '#/lib/haptics'
-import {makeCustomFeedLink, makeProfileLink} from '#/lib/routes/links'
+import {makeProfileLink} from '#/lib/routes/links'
+import {makeCustomFeedLink} from '#/lib/routes/links'
 import {shareUrl} from '#/lib/sharing'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {toShareUrl} from '#/lib/strings/url-helpers'
 import {logger} from '#/logger'
+import {isWeb} from '#/platform/detection'
 import {type FeedSourceFeedInfo} from '#/state/queries/feed'
 import {useLikeMutation, useUnlikeMutation} from '#/state/queries/like'
 import {
@@ -50,8 +52,6 @@ import {
 } from '#/components/moderation/ReportDialog'
 import {RichText} from '#/components/RichText'
 import {Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
-import {IS_WEB} from '#/env'
 
 export function ProfileFeedHeaderSkeleton() {
   const t = useTheme()
@@ -86,7 +86,6 @@ export function ProfileFeedHeaderSkeleton() {
 export function ProfileFeedHeader({info}: {info: FeedSourceFeedInfo}) {
   const t = useTheme()
   const {_, i18n} = useLingui()
-  const ax = useAnalytics()
   const {hasSession} = useSession()
   const {gtMobile} = useBreakpoints()
   const infoControl = Dialog.useDialogControl()
@@ -121,7 +120,7 @@ export function ProfileFeedHeader({info}: {info: FeedSourceFeedInfo}) {
       if (savedFeedConfig) {
         await removeFeed(savedFeedConfig)
         Toast.show(_(msg`Removed from your feeds`))
-        ax.metric('feed:unsave', {feedUrl: info.uri})
+        logger.metric('feed:unsave', {feedUrl: info.uri})
       } else {
         await addSavedFeeds([
           {
@@ -131,7 +130,7 @@ export function ProfileFeedHeader({info}: {info: FeedSourceFeedInfo}) {
           },
         ])
         Toast.show(_(msg`Saved to your feeds`))
-        ax.metric('feed:save', {feedUrl: info.uri})
+        logger.metric('feed:save', {feedUrl: info.uri})
       }
     } catch (err) {
       Toast.show(
@@ -159,10 +158,10 @@ export function ProfileFeedHeader({info}: {info: FeedSourceFeedInfo}) {
 
         if (pinned) {
           Toast.show(_(msg`Pinned ${info.displayName} to Home`))
-          ax.metric('feed:pin', {feedUrl: info.uri})
+          logger.metric('feed:pin', {feedUrl: info.uri})
         } else {
           Toast.show(_(msg`Unpinned ${info.displayName} from Home`))
-          ax.metric('feed:unpin', {feedUrl: info.uri})
+          logger.metric('feed:unpin', {feedUrl: info.uri})
         }
       } else {
         await addSavedFeeds([
@@ -173,7 +172,7 @@ export function ProfileFeedHeader({info}: {info: FeedSourceFeedInfo}) {
           },
         ])
         Toast.show(_(msg`Pinned ${info.displayName} to Home`))
-        ax.metric('feed:pin', {feedUrl: info.uri})
+        logger.metric('feed:pin', {feedUrl: info.uri})
       }
     } catch (e) {
       Toast.show(_(msg`There was an issue contacting the server`), 'xmark')
@@ -193,7 +192,7 @@ export function ProfileFeedHeader({info}: {info: FeedSourceFeedInfo}) {
               style={[
                 a.justify_start,
                 {
-                  paddingVertical: IS_WEB ? 2 : 4,
+                  paddingVertical: isWeb ? 2 : 4,
                   paddingRight: 8,
                 },
               ]}
@@ -212,7 +211,7 @@ export function ProfileFeedHeader({info}: {info: FeedSourceFeedInfo}) {
                       t.atoms.bg_contrast_25,
                       {
                         opacity: 0,
-                        left: IS_WEB ? -2 : -4,
+                        left: isWeb ? -2 : -4,
                         right: 0,
                       },
                       pressed && {
@@ -389,7 +388,6 @@ function DialogInner({
 }) {
   const t = useTheme()
   const {_} = useLingui()
-  const ax = useAnalytics()
   const {hasSession} = useSession()
   const playHaptic = useHaptics()
   const control = Dialog.useDialogContext()
@@ -409,11 +407,11 @@ function DialogInner({
       if (isLiked && likeUri) {
         await unlikeFeed({uri: likeUri})
         setLikeUri('')
-        ax.metric('feed:unlike', {feedUrl: info.uri})
+        logger.metric('feed:unlike', {feedUrl: info.uri})
       } else {
         const res = await likeFeed({uri: info.uri, cid: info.cid})
         setLikeUri(res.uri)
-        ax.metric('feed:like', {feedUrl: info.uri})
+        logger.metric('feed:like', {feedUrl: info.uri})
       }
     } catch (err) {
       Toast.show(
@@ -430,7 +428,7 @@ function DialogInner({
     playHaptic()
     const url = toShareUrl(info.route.href)
     shareUrl(url)
-    ax.metric('feed:share', {feedUrl: info.uri})
+    logger.metric('feed:share', {feedUrl: info.uri})
   }, [info, playHaptic])
 
   const onPressReport = React.useCallback(() => {

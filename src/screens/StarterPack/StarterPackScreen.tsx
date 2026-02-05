@@ -23,19 +23,19 @@ import {
   type CommonNavigatorParams,
   type NavigationProp,
 } from '#/lib/routes/types'
+import {logEvent} from '#/lib/statsig/statsig'
 import {cleanError} from '#/lib/strings/errors'
 import {getStarterPackOgCard} from '#/lib/strings/starter-pack'
 import {logger} from '#/logger'
+import {isWeb} from '#/platform/detection'
 import {updateProfileShadow} from '#/state/cache/profile-shadow'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {getAllListMembers} from '#/state/queries/list-members'
 import {useResolvedStarterPackShortLink} from '#/state/queries/resolve-short-link'
 import {useResolveDidQuery} from '#/state/queries/resolve-uri'
 import {useShortenLink} from '#/state/queries/shorten-link'
-import {
-  useDeleteStarterPackMutation,
-  useStarterPackQuery,
-} from '#/state/queries/starter-packs'
+import {useDeleteStarterPackMutation} from '#/state/queries/starter-packs'
+import {useStarterPackQuery} from '#/state/queries/starter-packs'
 import {useAgent, useSession} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {
@@ -72,8 +72,6 @@ import {ProfilesList} from '#/components/StarterPack/Main/ProfilesList'
 import {QrCodeDialog} from '#/components/StarterPack/QrCodeDialog'
 import {ShareDialog} from '#/components/StarterPack/ShareDialog'
 import {Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
-import {IS_WEB} from '#/env'
 import * as bsky from '#/types/bsky'
 
 type StarterPackScreeProps = NativeStackScreenProps<
@@ -186,7 +184,6 @@ function StarterPackScreenLoaded({
   const showFeedsTab = Boolean(starterPack.feeds?.length)
   const showPostsTab = Boolean(starterPack.list)
   const {_} = useLingui()
-  const ax = useAnalytics()
 
   const tabs = [
     ...(showPeopleTab ? [_(msg`People`)] : []),
@@ -202,10 +199,10 @@ function StarterPackScreenLoaded({
   const [imageLoaded, setImageLoaded] = React.useState(false)
 
   React.useEffect(() => {
-    ax.metric('starterPack:opened', {
+    logEvent('starterPack:opened', {
       starterPack: starterPack.uri,
     })
-  }, [ax, starterPack.uri])
+  }, [starterPack.uri])
 
   const onOpenShareDialog = React.useCallback(() => {
     const rkey = new AtUri(starterPack.uri).rkey
@@ -246,7 +243,7 @@ function StarterPackScreenLoaded({
           ? ({headerHeight, scrollElRef}) => (
               <ProfilesList
                 // Validated above
-                listUri={starterPack.list!.uri}
+                listUri={starterPack!.list!.uri}
                 headerHeight={headerHeight}
                 // @ts-expect-error
                 scrollElRef={scrollElRef}
@@ -269,7 +266,7 @@ function StarterPackScreenLoaded({
           ? ({headerHeight, scrollElRef}) => (
               <PostsList
                 // Validated above
-                listUri={starterPack.list!.uri}
+                listUri={starterPack!.list!.uri}
                 headerHeight={headerHeight}
                 // @ts-expect-error
                 scrollElRef={scrollElRef}
@@ -318,7 +315,6 @@ function Header({
   const {record, creator} = starterPack
   const isOwn = creator?.did === currentAccount?.did
   const joinedAllTimeCount = starterPack.joinedAllTimeCount ?? 0
-  const ax = useAnalytics()
 
   const navigation = useNavigation<NavigationProp>()
 
@@ -389,7 +385,7 @@ function Header({
     })
     Toast.show(_(msg`All accounts have been followed!`))
     captureAction(ProgressGuideAction.Follow, dids.length)
-    ax.metric('starterPack:followAll', {
+    logEvent('starterPack:followAll', {
       logContext: 'StarterPackProfilesList',
       starterPack: starterPack.uri,
       count: dids.length,
@@ -520,7 +516,6 @@ function OverflowMenu({
 }) {
   const t = useTheme()
   const {_} = useLingui()
-  const ax = useAnalytics()
   const {gtMobile} = useBreakpoints()
   const {currentAccount} = useSession()
   const reportDialogControl = useReportDialogControl()
@@ -533,7 +528,7 @@ function OverflowMenu({
     error: deleteError,
   } = useDeleteStarterPackMutation({
     onSuccess: () => {
-      ax.metric('starterPack:delete', {})
+      logEvent('starterPack:delete', {})
       deleteDialogControl.close(() => {
         if (navigation.canGoBack()) {
           navigation.popToTop()
@@ -559,7 +554,7 @@ function OverflowMenu({
       rkey: routeParams.rkey,
       listUri: starterPack.list.uri,
     })
-    ax.metric('starterPack:delete', {})
+    logEvent('starterPack:delete', {})
   }
 
   return (
@@ -613,21 +608,21 @@ function OverflowMenu({
               <Menu.Group>
                 <Menu.Item
                   label={
-                    IS_WEB
+                    isWeb
                       ? _(msg`Copy link to starter pack`)
                       : _(msg`Share via...`)
                   }
                   testID="shareStarterPackLinkBtn"
                   onPress={onOpenShareDialog}>
                   <Menu.ItemText>
-                    {IS_WEB ? (
+                    {isWeb ? (
                       <Trans>Copy link</Trans>
                     ) : (
                       <Trans>Share via...</Trans>
                     )}
                   </Menu.ItemText>
                   <Menu.ItemIcon
-                    icon={IS_WEB ? ChainLinkIcon : ArrowOutOfBoxIcon}
+                    icon={isWeb ? ChainLinkIcon : ArrowOutOfBoxIcon}
                     position="right"
                   />
                 </Menu.Item>

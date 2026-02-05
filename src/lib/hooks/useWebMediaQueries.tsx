@@ -1,6 +1,6 @@
 import {useMediaQuery} from 'react-responsive'
 
-import {IS_NATIVE} from '#/env'
+import {isNative} from '#/platform/detection'
 
 /**
  * @deprecated use `useBreakpoints` from `#/alf` instead
@@ -11,7 +11,7 @@ export function useWebMediaQueries() {
   const isMobile = useMediaQuery({maxWidth: 800 - 1})
   const isTabletOrMobile = isMobile || isTablet
   const isTabletOrDesktop = isDesktop || isTablet
-  if (IS_NATIVE) {
+  if (isNative) {
     return {
       isMobile: true,
       isTablet: false,

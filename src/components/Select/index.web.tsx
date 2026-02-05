@@ -68,7 +68,7 @@ export function Trigger({children, label}: TriggerProps) {
         <RadixTriggerPassThrough>
           {props =>
             children({
-              IS_NATIVE: false,
+              isNative: false,
               state: {
                 hovered,
                 focused,

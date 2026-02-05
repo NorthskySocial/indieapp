@@ -14,12 +14,6 @@ export function useCopyForSubject(subject: ParsedReportSubject) {
           subtitle: _(msg`Why should this user be reviewed?`),
         }
       }
-      case 'status': {
-        return {
-          title: _(msg`Report this livestream`),
-          subtitle: _(msg`Why should this livestream be reviewed?`),
-        }
-      }
       case 'post': {
         return {
           title: _(msg`Report this post`),

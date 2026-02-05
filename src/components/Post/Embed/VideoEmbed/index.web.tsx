@@ -11,18 +11,18 @@ import {type AppBskyEmbedVideo} from '@atproto/api'
 import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
+import {isFirefox} from '#/lib/browser'
 import {ErrorBoundary} from '#/view/com/util/ErrorBoundary'
+import {ConstrainedImage} from '#/view/com/util/images/AutoSizedImage'
 import {atoms as a, useTheme} from '#/alf'
 import {useIsWithinMessage} from '#/components/dms/MessageContext'
 import {useFullscreen} from '#/components/hooks/useFullscreen'
-import {ConstrainedImage} from '#/components/images/AutoSizedImage'
 import {MediaInsetBorder} from '#/components/MediaInsetBorder'
 import {
   HLSUnsupportedError,
   VideoEmbedInnerWeb,
   VideoNotFoundError,
 } from '#/components/Post/Embed/VideoEmbed/VideoEmbedInner/VideoEmbedInnerWeb'
-import {IS_WEB_FIREFOX} from '#/env'
 import {useActiveVideoWeb} from './ActiveVideoWebContext'
 import * as VideoFallback from './VideoEmbedInner/VideoFallback'
 
@@ -37,7 +37,7 @@ export function VideoEmbed({embed}: {embed: AppBskyEmbedVideo.View}) {
 
   useEffect(() => {
     if (!ref.current) return
-    if (isFullscreen && !IS_WEB_FIREFOX) return
+    if (isFullscreen && !isFirefox) return
     const observer = new IntersectionObserver(
       entries => {
         const entry = entries[0]
@@ -150,7 +150,7 @@ function ViewportObserver({
   // observing a div of 100vh height
   useEffect(() => {
     if (!ref.current) return
-    if (isFullscreen && !IS_WEB_FIREFOX) return
+    if (isFullscreen && !isFirefox) return
     const observer = new IntersectionObserver(
       entries => {
         const entry = entries[0]

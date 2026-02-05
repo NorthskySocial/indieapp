@@ -15,7 +15,6 @@ import * as Dialog from '#/components/Dialog'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
 import {logger} from '#/ageAssurance'
-import {useAnalytics} from '#/analytics'
 
 export function AgeAssuranceAppealDialog({
   control,
@@ -38,7 +37,6 @@ export function AgeAssuranceAppealDialog({
 
 function Inner({control}: {control: Dialog.DialogControlProps}) {
   const {_} = useLingui()
-  const ax = useAnalytics()
   const {currentAccount} = useSession()
   const {gtPhone} = useBreakpoints()
   const agent = useAgent()
@@ -48,7 +46,7 @@ function Inner({control}: {control: Dialog.DialogControlProps}) {
 
   const {mutate, isPending} = useMutation({
     mutationFn: async () => {
-      ax.metric('ageAssurance:appealDialogSubmit', {})
+      logger.metric('ageAssurance:appealDialogSubmit', {})
 
       await agent.createModerationReport(
         {

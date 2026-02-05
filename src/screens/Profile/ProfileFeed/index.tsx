@@ -17,6 +17,7 @@ import {type CommonNavigatorParams} from '#/lib/routes/types'
 import {type NavigationProp} from '#/lib/routes/types'
 import {makeRecordUri} from '#/lib/strings/url-helpers'
 import {s} from '#/lib/styles'
+import {isNative} from '#/platform/detection'
 import {listenSoftReset} from '#/state/events'
 import {FeedFeedbackProvider, useFeedFeedback} from '#/state/feed-feedback'
 import {
@@ -46,7 +47,6 @@ import {
 } from '#/screens/Profile/components/ProfileFeedHeader'
 import {HashtagWide_Stroke1_Corner0_Rounded as HashtagWideIcon} from '#/components/icons/Hashtag'
 import * as Layout from '#/components/Layout'
-import {IS_NATIVE} from '#/env'
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'ProfileFeed'>
 export function ProfileFeedScreen(props: Props) {
@@ -175,7 +175,7 @@ export function ProfileFeedScreenInner({
 
   const onScrollToTop = useCallback(() => {
     scrollElRef.current?.scrollToOffset({
-      animated: IS_NATIVE,
+      animated: isNative,
       offset: 0, // -headerHeight,
     })
     truncateAndInvalidate(queryClient, FEED_RQKEY(feed))
@@ -204,7 +204,7 @@ export function ProfileFeedScreenInner({
     const feedIsVideoMode =
       feedInfo.contentMode === AppBskyFeedDefs.CONTENTMODEVIDEO
     const _isVideoFeed = isBskyVideoFeed || feedIsVideoMode
-    return IS_NATIVE && _isVideoFeed
+    return isNative && _isVideoFeed
   }, [feedInfo])
 
   return (

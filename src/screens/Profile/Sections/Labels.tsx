@@ -10,6 +10,7 @@ import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {isLabelerSubscribed, lookupLabelValueDefinition} from '#/lib/moderation'
+import {isIOS, isNative} from '#/platform/detection'
 import {List, type ListRef} from '#/view/com/util/List'
 import {atoms as a, ios, tokens, useTheme} from '#/alf'
 import {Divider} from '#/components/Divider'
@@ -18,7 +19,6 @@ import {ListFooter} from '#/components/Lists'
 import {Loader} from '#/components/Loader'
 import {LabelerLabelPreference} from '#/components/moderation/LabelPreference'
 import {Text} from '#/components/Typography'
-import {IS_IOS, IS_NATIVE} from '#/env'
 import {ErrorState} from '../ErrorState'
 import {type SectionRef} from './types'
 
@@ -49,7 +49,7 @@ export function ProfileLabelsSection({
 
   const onScrollToTop = useCallback(() => {
     scrollElRef.current?.scrollToOffset({
-      animated: IS_NATIVE,
+      animated: isNative,
       offset: -headerHeight,
     })
   }, [scrollElRef, headerHeight])
@@ -59,7 +59,7 @@ export function ProfileLabelsSection({
   }))
 
   useEffect(() => {
-    if (IS_IOS && isFocused && scrollElRef.current) {
+    if (isIOS && isFocused && scrollElRef.current) {
       const nativeTag = findNodeHandle(scrollElRef.current)
       setScrollViewTag(nativeTag)
     }

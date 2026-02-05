@@ -20,7 +20,9 @@ import {
   VIDEO_SAVED_FEED,
 } from '#/lib/constants'
 import {useRequestNotificationsPermission} from '#/lib/notifications/notifications'
+import {logEvent, useGate} from '#/lib/statsig/statsig'
 import {logger} from '#/logger'
+import {isWeb} from '#/platform/detection'
 import {useSetHasCheckedForStarterPack} from '#/state/preferences/used-starter-packs'
 import {getAllListMembers} from '#/state/queries/list-members'
 import {preferencesQueryKey} from '#/state/queries/preferences'
@@ -45,14 +47,11 @@ import {atoms as a, useBreakpoints} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {ArrowRight_Stroke2_Corner0_Rounded as ArrowRight} from '#/components/icons/Arrow'
 import {Loader} from '#/components/Loader'
-import {useAnalytics} from '#/analytics'
-import {IS_WEB} from '#/env'
 import * as bsky from '#/types/bsky'
 import {ValuePropositionPager} from './ValuePropositionPager'
 
 export function StepFinished() {
   const {state, dispatch} = useOnboardingInternalState()
-  const ax = useAnalytics()
   const onboardDispatch = useOnboardingDispatch()
   const [saving, setSaving] = useState(false)
   const queryClient = useQueryClient()
@@ -62,6 +61,7 @@ export function StepFinished() {
   const setActiveStarterPack = useSetActiveStarterPack()
   const setHasCheckedForStarterPack = useSetHasCheckedForStarterPack()
   const {startProgressGuide} = useProgressGuideControls()
+  const gate = useGate()
 
   const finishOnboarding = useCallback(async () => {
     setSaving(true)
@@ -114,11 +114,13 @@ export function StepFinished() {
               ...TIMELINE_SAVED_FEED,
               id: TID.nextStr(),
             },
-            {
+          ]
+          if (gate('onboarding_add_video_feed')) {
+            feedsToSave.push({
               ...VIDEO_SAVED_FEED,
               id: TID.nextStr(),
-            },
-          ]
+            })
+          }
 
           // Any starter pack feeds will be pinned _after_ the defaults
           if (starterPack && starterPack.feeds?.length) {
@@ -166,7 +168,7 @@ export function StepFinished() {
             return next
           })
 
-          ax.metric('onboarding:finished:avatarResult', {
+          logEvent('onboarding:finished:avatarResult', {
             avatarResult: profileStepResults.isCreatedAvatar
               ? 'created'
               : profileStepResults.image
@@ -198,10 +200,12 @@ export function StepFinished() {
     setSaving(false)
     setActiveStarterPack(undefined)
     setHasCheckedForStarterPack(true)
-    startProgressGuide('follow-10')
+    startProgressGuide(
+      gate('old_postonboarding') ? 'like-10-and-follow-7' : 'follow-10',
+    )
     dispatch({type: 'finish'})
     onboardDispatch({type: 'finish'})
-    ax.metric('onboarding:finished:nextPressed', {
+    logEvent('onboarding:finished:nextPressed', {
       usedStarterPack: Boolean(starterPack),
       starterPackName:
         starterPack &&
@@ -217,14 +221,13 @@ export function StepFinished() {
       feedsPinned: starterPack?.feeds?.length ?? 0,
     })
     if (starterPack && listItems?.length) {
-      ax.metric('starterPack:followAll', {
+      logEvent('starterPack:followAll', {
         logContext: 'Onboarding',
         starterPack: starterPack.uri,
         count: listItems?.length,
       })
     }
   }, [
-    ax,
     queryClient,
     agent,
     dispatch,
@@ -235,6 +238,7 @@ export function StepFinished() {
     setActiveStarterPack,
     setHasCheckedForStarterPack,
     startProgressGuide,
+    gate,
   ])
 
   return (
@@ -257,7 +261,6 @@ function ValueProposition({
 }) {
   const [subStep, setSubStep] = useState<0 | 1 | 2>(0)
   const {_} = useLingui()
-  const ax = useAnalytics()
   const {gtMobile} = useBreakpoints()
 
   const onPress = () => {
@@ -265,10 +268,10 @@ function ValueProposition({
       finishOnboarding() // has its own metrics
     } else if (subStep === 1) {
       setSubStep(2)
-      ax.metric('onboarding:valueProp:stepTwo:nextPressed', {})
+      logger.metric('onboarding:valueProp:stepTwo:nextPressed', {})
     } else if (subStep === 0) {
       setSubStep(1)
-      ax.metric('onboarding:valueProp:stepOne:nextPressed', {})
+      logger.metric('onboarding:valueProp:stepOne:nextPressed', {})
     }
   }
 
@@ -283,7 +286,7 @@ function ValueProposition({
             size="small"
             label={_(msg`Skip introduction and start using your account`)}
             onPress={() => {
-              ax.metric('onboarding:valueProp:skipPressed', {})
+              logger.metric('onboarding:valueProp:skipPressed', {})
               finishOnboarding()
             }}
             style={[a.bg_transparent]}>
@@ -302,7 +305,7 @@ function ValueProposition({
 
       <OnboardingControls.Portal>
         <View style={gtMobile && [a.gap_md, a.flex_row]}>
-          {gtMobile && (IS_WEB ? subStep !== 2 : true) && (
+          {gtMobile && (isWeb ? subStep !== 2 : true) && (
             <Button
               disabled={saving}
               color="secondary"

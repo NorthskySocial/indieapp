@@ -3,15 +3,14 @@ import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {logger} from '#/logger'
+import {isWeb} from '#/platform/detection'
 import {type SessionAccount, useSessionApi} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import * as Toast from '#/view/com/util/Toast'
-import {useAnalytics} from '#/analytics'
-import {type Metrics} from '#/analytics/metrics'
-import {IS_WEB} from '#/env'
+import {logEvent} from '../statsig/statsig'
+import {type LogEvents} from '../statsig/statsig'
 
 export function useAccountSwitcher() {
-  const ax = useAnalytics()
   const [pendingDid, setPendingDid] = useState<string | null>(null)
   const {_} = useLingui()
   const {resumeSession} = useSessionApi()
@@ -20,7 +19,7 @@ export function useAccountSwitcher() {
   const onPressSwitchAccount = useCallback(
     async (
       account: SessionAccount,
-      logContext: Metrics['account:loggedIn']['logContext'],
+      logContext: LogEvents['account:loggedIn']['logContext'],
     ) => {
       if (pendingDid) {
         // The session API isn't resilient to race conditions so let's just ignore this.
@@ -29,7 +28,7 @@ export function useAccountSwitcher() {
       try {
         setPendingDid(account.did)
         if (account.accessJwt) {
-          if (IS_WEB) {
+          if (isWeb) {
             // We're switching accounts, which remounts the entire app.
             // On mobile, this gets us Home, but on the web we also need reset the URL.
             // We can't change the URL via a navigate() call because the navigator
@@ -38,7 +37,7 @@ export function useAccountSwitcher() {
             history.pushState(null, '', '/')
           }
           await resumeSession(account, true)
-          ax.metric('account:loggedIn', {logContext, withPassword: false})
+          logEvent('account:loggedIn', {logContext, withPassword: false})
           Toast.show(_(msg`Signed in as @${account.handle}`))
         } else {
           requestSwitchToAccount({requestedAccount: account.did})
@@ -60,7 +59,7 @@ export function useAccountSwitcher() {
         setPendingDid(null)
       }
     },
-    [_, ax, resumeSession, requestSwitchToAccount, pendingDid],
+    [_, resumeSession, requestSwitchToAccount, pendingDid],
   )
 
   return {onPressSwitchAccount, pendingDid}

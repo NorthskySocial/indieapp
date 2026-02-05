@@ -12,7 +12,6 @@ import {useResolveDidQuery} from '#/state/queries/resolve-uri'
 import {useSession} from '#/state/session'
 import {PeopleRemove2_Stroke1_Corner0_Rounded as PeopleRemoveIcon} from '#/components/icons/PeopleRemove2'
 import {ListFooter, ListMaybePlaceholder} from '#/components/Lists'
-import {useAnalytics} from '#/analytics'
 import {List} from '../util/List'
 import {ProfileCardWithFollowBtn} from './ProfileCard'
 
@@ -42,7 +41,6 @@ function keyExtractor(item: ActorDefs.ProfileViewBasic) {
 
 export function ProfileFollowers({name}: {name: string}) {
   const {_} = useLingui()
-  const ax = useAnalytics()
   const navigation = useNavigation()
   const initialNumToRender = useInitialNumToRender()
   const {currentAccount} = useSession()
@@ -90,14 +88,14 @@ export function ProfileFollowers({name}: {name: string}) {
       currentPageCount >= 3 &&
       currentPageCount > paginationTrackingRef.current.page
     ) {
-      ax.metric('profile:followers:paginate', {
+      logger.metric('profile:followers:paginate', {
         contextProfileDid: resolvedDid,
         itemCount: followers.length,
         page: currentPageCount,
       })
     }
     paginationTrackingRef.current.page = currentPageCount
-  }, [ax, data?.pages?.length, resolvedDid, followers.length])
+  }, [data?.pages?.length, resolvedDid, followers.length])
 
   const onRefresh = React.useCallback(async () => {
     setIsPTRing(true)
@@ -127,12 +125,12 @@ export function ProfileFollowers({name}: {name: string}) {
   // track pageview
   React.useEffect(() => {
     if (resolvedDid) {
-      ax.metric('profile:followers:view', {
+      logger.metric('profile:followers:view', {
         contextProfileDid: resolvedDid,
         isOwnProfile: isMe,
       })
     }
-  }, [ax, resolvedDid, isMe])
+  }, [resolvedDid, isMe])
 
   // track seen items
   const seenItemsRef = React.useRef<Set<string>>(new Set())
@@ -149,13 +147,17 @@ export function ProfileFollowers({name}: {name: string}) {
       if (position === 0) {
         return
       }
-      ax.metric('profileCard:seen', {
-        profileDid: item.did,
-        position,
-        ...(resolvedDid !== undefined && {contextProfileDid: resolvedDid}),
-      })
+      logger.metric(
+        'profileCard:seen',
+        {
+          profileDid: item.did,
+          position,
+          ...(resolvedDid !== undefined && {contextProfileDid: resolvedDid}),
+        },
+        {statsig: false},
+      )
     },
-    [ax, followers, resolvedDid],
+    [followers, resolvedDid],
   )
 
   if (followers.length < 1) {

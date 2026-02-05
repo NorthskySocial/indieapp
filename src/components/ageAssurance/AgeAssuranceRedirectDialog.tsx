@@ -5,6 +5,7 @@ import {useLingui} from '@lingui/react'
 
 import {retry} from '#/lib/async/retry'
 import {wait} from '#/lib/async/wait'
+import {isNative} from '#/platform/detection'
 import {useAgent} from '#/state/session'
 import {atoms as a, useTheme, web} from '#/alf'
 import {AgeAssuranceBadge} from '#/components/ageAssurance/AgeAssuranceBadge'
@@ -16,8 +17,7 @@ import {CircleInfo_Stroke2_Corner0_Rounded as ErrorIcon} from '#/components/icon
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
 import {refetchAgeAssuranceServerState} from '#/ageAssurance'
-import {useAnalytics} from '#/analytics'
-import {IS_NATIVE} from '#/env'
+import {logger} from '#/ageAssurance'
 
 export type AgeAssuranceRedirectDialogState = {
   result: 'success' | 'unknown'
@@ -81,7 +81,6 @@ export function AgeAssuranceRedirectDialog() {
 
 export function Inner({}: {optimisticState?: AgeAssuranceRedirectDialogState}) {
   const t = useTheme()
-  const ax = useAnalytics()
   const {_} = useLingui()
   const agent = useAgent()
   const polling = useRef(false)
@@ -95,7 +94,7 @@ export function Inner({}: {optimisticState?: AgeAssuranceRedirectDialogState}) {
 
     polling.current = true
 
-    ax.metric('ageAssurance:redirectDialogOpen', {})
+    logger.metric('ageAssurance:redirectDialogOpen', {})
 
     wait(
       3e3,
@@ -126,18 +125,18 @@ export function Inner({}: {optimisticState?: AgeAssuranceRedirectDialogState}) {
 
         setSuccess(true)
 
-        ax.metric('ageAssurance:redirectDialogSuccess', {})
+        logger.metric('ageAssurance:redirectDialogSuccess', {})
       })
       .catch(() => {
         if (unmounted.current) return
         setError(true)
-        ax.metric('ageAssurance:redirectDialogFail', {})
+        logger.metric('ageAssurance:redirectDialogFail', {})
       })
 
     return () => {
       unmounted.current = true
     }
-  }, [ax, agent, control])
+  }, [agent, control])
 
   if (success) {
     return (
@@ -167,7 +166,7 @@ export function Inner({}: {optimisticState?: AgeAssuranceRedirectDialogState}) {
             </Trans>
           </Text>
 
-          {IS_NATIVE && (
+          {isNative && (
             <View style={[a.w_full, a.pt_lg]}>
               <Button
                 label={_(msg`Close`)}
@@ -226,7 +225,7 @@ export function Inner({}: {optimisticState?: AgeAssuranceRedirectDialogState}) {
           )}
         </Text>
 
-        {error && IS_NATIVE && (
+        {error && isNative && (
           <View style={[a.w_full, a.pt_lg]}>
             <Button
               label={_(msg`Close`)}

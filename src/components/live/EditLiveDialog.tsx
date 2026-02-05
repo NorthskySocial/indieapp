@@ -18,6 +18,7 @@ import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import * as TextField from '#/components/forms/TextField'
 import {Clock_Stroke2_Corner0_Rounded as ClockIcon} from '#/components/icons/Clock'
+import {Warning_Stroke2_Corner0_Rounded as WarningIcon} from '#/components/icons/Warning'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
 import {LinkPreview} from './LinkPreview'
@@ -98,7 +99,7 @@ function DialogInner({
   } = useRemoveLiveStatusMutation()
 
   const {minutesUntilExpiry, expiryDateTime} = useMemo(() => {
-    void tick
+    tick!
 
     const expiry = new Date(status.expiresAt ?? new Date())
     return {
@@ -171,13 +172,26 @@ function DialogInner({
             </TextField.Root>
           </View>
           {(liveLinkError || linkMetaError) && (
-            <Admonition type="error">
-              {liveLinkError ? (
-                <Trans>This is not a valid link</Trans>
-              ) : (
-                cleanError(linkMetaError)
-              )}
-            </Admonition>
+            <View style={[a.flex_row, a.gap_xs, a.align_center]}>
+              <WarningIcon
+                style={[{color: t.palette.negative_500}]}
+                size="sm"
+              />
+              <Text
+                style={[
+                  a.text_sm,
+                  a.leading_snug,
+                  a.flex_1,
+                  a.font_semi_bold,
+                  {color: t.palette.negative_500},
+                ]}>
+                {liveLinkError ? (
+                  <Trans>This is not a valid link</Trans>
+                ) : (
+                  cleanError(linkMetaError)
+                )}
+              </Text>
+            </View>
           )}
 
           <LinkPreview linkMeta={linkMeta} loading={linkMetaLoading} />

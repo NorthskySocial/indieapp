@@ -6,23 +6,23 @@ import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {HITSLOP_10} from '#/lib/constants'
+import {logger} from '#/logger'
+import {isWeb} from '#/platform/detection'
 import {Nux, useNux, useSaveNux} from '#/state/queries/nuxs'
 import {atoms as a, useTheme} from '#/alf'
 import {Button} from '#/components/Button'
 import {TimesLarge_Stroke2_Corner0_Rounded as XIcon} from '#/components/icons/Times'
 import {Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
-import {IS_WEB} from '#/env'
 import {Link} from '../Link'
 import {useIsFindContactsFeatureEnabledBasedOnGeolocation} from './country-allowlist'
 
 export function FindContactsBannerNUX() {
   const t = useTheme()
   const {_} = useLingui()
-  const ax = useAnalytics()
   const {visible, close} = useInternalState()
+  const isFeatureEnabled = useIsFindContactsFeatureEnabledBasedOnGeolocation()
 
-  if (!visible) return null
+  if (!visible || !isFeatureEnabled) return null
 
   return (
     <View style={[a.w_full, a.p_lg, a.border_b, t.atoms.border_contrast_low]}>
@@ -31,7 +31,7 @@ export function FindContactsBannerNUX() {
           to={{screen: 'FindContactsFlow'}}
           label={_(msg`Import contacts to find your friends`)}
           onPress={() => {
-            ax.metric('contacts:nux:bannerPressed', {})
+            logger.metric('contacts:nux:bannerPressed', {})
           }}
           style={[
             a.w_full,
@@ -85,19 +85,16 @@ export function FindContactsBannerNUX() {
   )
 }
 function useInternalState() {
-  const ax = useAnalytics()
   const {nux} = useNux(Nux.FindContactsDismissibleBanner)
   const {mutate: save, variables} = useSaveNux()
   const hidden = !!variables
-  const isFeatureEnabled = useIsFindContactsFeatureEnabledBasedOnGeolocation()
 
   const visible = useMemo(() => {
-    if (IS_WEB) return false
+    if (isWeb) return false
     if (hidden) return false
     if (nux && nux.completed) return false
-    if (!isFeatureEnabled) return false
     return true
-  }, [hidden, nux, isFeatureEnabled])
+  }, [hidden, nux])
 
   const close = () => {
     save({
@@ -105,7 +102,7 @@ function useInternalState() {
       completed: true,
       data: undefined,
     })
-    ax.metric('contacts:nux:bannerDismissed', {})
+    logger.metric('contacts:nux:bannerDismissed', {})
   }
 
   return {visible, close}

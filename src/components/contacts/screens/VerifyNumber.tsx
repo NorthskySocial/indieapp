@@ -23,7 +23,6 @@ import * as Layout from '#/components/Layout'
 import {Loader} from '#/components/Loader'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
 import {OTPInput} from '../components/OTPInput'
 import {constructFullPhoneNumber, prettyPhoneNumber} from '../phone-number'
 import {type Action, type State, useOnPressBackButton} from '../state'
@@ -41,7 +40,6 @@ export function VerifyNumber({
 }) {
   const t = useTheme()
   const {_} = useLingui()
-  const ax = useAnalytics()
   const agent = useAgent()
   const gutters = useGutters([0, 'wide'])
 
@@ -85,7 +83,7 @@ export function VerifyNumber({
         })
       }, 1000)
 
-      ax.metric('contacts:phone:phoneVerified', {entryPoint: context})
+      logger.metric('contacts:phone:phoneVerified', {entryPoint: context})
     },
     onMutate: () => setError(null),
     onError: err => {

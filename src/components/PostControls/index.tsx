@@ -29,7 +29,6 @@ import {atoms as a, useBreakpoints} from '#/alf'
 import {Reply as Bubble} from '#/components/icons/Reply'
 import {useFormatPostStatCount} from '#/components/PostControls/util'
 import * as Skele from '#/components/Skeleton'
-import {useAnalytics} from '#/analytics'
 import {BookmarkButton} from './BookmarkButton'
 import {
   PostControlButton,
@@ -71,7 +70,6 @@ let PostControls = ({
   viaRepost?: {uri: string; cid: string}
   variant?: 'compact' | 'normal' | 'large'
 }): React.ReactNode => {
-  const ax = useAnalytics()
   const {_} = useLingui()
   const {openComposer} = useOpenComposer()
   const {feedDescriptor} = useFeedFeedbackContext()
@@ -176,12 +174,6 @@ let PostControls = ({
       feedContext,
       reqId,
     })
-    ax.metric('post:clickQuotePost', {
-      uri: post.uri,
-      authorDid: post.author.did,
-      logContext,
-      feedDescriptor,
-    })
     openComposer({
       quote: post,
       onPost: onPostReply,
@@ -225,16 +217,7 @@ let PostControls = ({
             testID="replyBtn"
             onPress={
               !replyDisabled
-                ? () =>
-                    requireAuth(() => {
-                      ax.metric('post:clickReply', {
-                        uri: post.uri,
-                        authorDid: post.author.did,
-                        logContext,
-                        feedDescriptor,
-                      })
-                      onPressReply()
-                    })
+                ? () => requireAuth(() => onPressReply())
                 : undefined
             }
             label={_(
@@ -332,7 +315,6 @@ let PostControls = ({
             left: secondaryControlSpacingStyles.gap / 2,
             right: secondaryControlSpacingStyles.gap / 2,
           }}
-          logContext={logContext}
         />
         <PostMenuButton
           testID="postDropdownBtn"
@@ -348,7 +330,6 @@ let PostControls = ({
           hitSlop={{
             left: secondaryControlSpacingStyles.gap / 2,
           }}
-          logContext={logContext}
         />
       </View>
     </View>

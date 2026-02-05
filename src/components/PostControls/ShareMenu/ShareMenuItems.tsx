@@ -9,6 +9,8 @@ import {makeProfileLink} from '#/lib/routes/links'
 import {type NavigationProp} from '#/lib/routes/types'
 import {shareText, shareUrl} from '#/lib/sharing'
 import {toShareUrl} from '#/lib/strings/url-helpers'
+import {logger} from '#/logger'
+import {isIOS} from '#/platform/detection'
 import {useProfileShadow} from '#/state/cache/profile-shadow'
 import {useSession} from '#/state/session'
 import * as Toast from '#/view/com/util/Toast'
@@ -22,8 +24,6 @@ import {Clipboard_Stroke2_Corner2_Rounded as ClipboardIcon} from '#/components/i
 import {PaperPlane_Stroke2_Corner0_Rounded as PaperPlaneIcon} from '#/components/icons/PaperPlane'
 import * as Menu from '#/components/Menu'
 import {useAgeAssurance} from '#/ageAssurance'
-import {useAnalytics} from '#/analytics'
-import {IS_IOS} from '#/env'
 import {useDevMode} from '#/storage/hooks/dev-mode'
 import {RecentChats} from './RecentChats'
 import {type ShareMenuItemsProps} from './ShareMenuItems.types'
@@ -32,7 +32,6 @@ let ShareMenuItems = ({
   post,
   onShare: onShareProp,
 }: ShareMenuItemsProps): React.ReactNode => {
-  const ax = useAnalytics()
   const {hasSession} = useSession()
   const {_} = useLingui()
   const navigation = useNavigation<NavigationProp>()
@@ -55,16 +54,16 @@ let ShareMenuItems = ({
   }, [postAuthor])
 
   const onSharePost = () => {
-    ax.metric('share:press:nativeShare', {})
+    logger.metric('share:press:nativeShare', {}, {statsig: true})
     const url = toShareUrl(href)
     shareUrl(url)
     onShareProp()
   }
 
   const onCopyLink = async () => {
-    ax.metric('share:press:copyLink', {})
+    logger.metric('share:press:copyLink', {}, {statsig: true})
     const url = toShareUrl(href)
-    if (IS_IOS) {
+    if (isIOS) {
       // iOS only
       await ExpoClipboard.setUrlAsync(url)
     } else {
@@ -101,7 +100,7 @@ let ShareMenuItems = ({
               testID="postDropdownSendViaDMBtn"
               label={_(msg`Send via direct message`)}
               onPress={() => {
-                ax.metric('share:press:openDmSearch', {})
+                logger.metric('share:press:openDmSearch', {}, {statsig: true})
                 sendViaChatControl.open()
               }}>
               <Menu.ItemText>

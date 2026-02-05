@@ -5,6 +5,7 @@ import {useLingui} from '@lingui/react'
 import {useQueryClient} from '@tanstack/react-query'
 
 import {useInitialNumToRender} from '#/lib/hooks/useInitialNumToRender'
+import {isIOS, isNative} from '#/platform/detection'
 import {
   type FeedDescriptor,
   RQKEY as FEED_RQKEY,
@@ -20,7 +21,6 @@ import {LoadLatestBtn} from '#/view/com/util/load-latest/LoadLatestBtn'
 import {atoms as a, ios, useTheme} from '#/alf'
 import {EditBig_Stroke1_Corner0_Rounded as EditIcon} from '#/components/icons/EditBig'
 import {Text} from '#/components/Typography'
-import {IS_IOS, IS_NATIVE} from '#/env'
 import {type SectionRef} from './types'
 
 interface FeedSectionProps {
@@ -53,13 +53,13 @@ export function ProfileFeedSection({
   const [hasNew, setHasNew] = useState(false)
   const [isScrolledDown, setIsScrolledDown] = useState(false)
   const shouldUseAdjustedNumToRender = feed.endsWith('posts_and_author_threads')
-  const isVideoFeed = IS_NATIVE && feed.endsWith('posts_with_video')
+  const isVideoFeed = isNative && feed.endsWith('posts_with_video')
   const adjustedInitialNumToRender = useInitialNumToRender({
     screenHeightOffset: headerHeight,
   })
   const onScrollToTop = useCallback(() => {
     scrollElRef.current?.scrollToOffset({
-      animated: IS_NATIVE,
+      animated: isNative,
       offset: -headerHeight,
     })
     truncateAndInvalidate(queryClient, FEED_RQKEY(feed))
@@ -85,7 +85,7 @@ export function ProfileFeedSection({
   }, [_, emptyStateButton, emptyStateIcon, emptyStateMessage])
 
   useEffect(() => {
-    if (IS_IOS && isFocused && scrollElRef.current) {
+    if (isIOS && isFocused && scrollElRef.current) {
       const nativeTag = findNodeHandle(scrollElRef.current)
       setScrollViewTag(nativeTag)
     }

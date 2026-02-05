@@ -14,41 +14,15 @@ import {useRequireAuth} from '#/state/session'
 import * as Toast from '#/view/com/util/Toast'
 import {atoms as a, useBreakpoints} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
-import {Check_Stroke2_Corner0_Rounded as CheckIcon} from '#/components/icons/Check'
-import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
-import {IS_IOS} from '#/env'
-import {GrowthHack} from './GrowthHack'
+import {Check_Stroke2_Corner0_Rounded as Check} from '#/components/icons/Check'
+import {PlusLarge_Stroke2_Corner0_Rounded as Plus} from '#/components/icons/Plus'
 
-export function ThreadItemAnchorFollowButton({
-  did,
-  enabled = true,
-}: {
-  did: string
-  enabled?: boolean
-}) {
-  if (IS_IOS) {
-    return (
-      <GrowthHack>
-        <ThreadItemAnchorFollowButtonInner did={did} enabled={enabled} />
-      </GrowthHack>
-    )
-  }
-
-  return <ThreadItemAnchorFollowButtonInner did={did} enabled={enabled} />
-}
-
-export function ThreadItemAnchorFollowButtonInner({
-  did,
-  enabled = true,
-}: {
-  did: string
-  enabled?: boolean
-}) {
+export function ThreadItemAnchorFollowButton({did}: {did: string}) {
   const {data: profile, isLoading} = useProfileQuery({did})
 
   // We will never hit this - the profile will always be cached or loaded above
   // but it keeps the typechecker happy
-  if (!enabled || isLoading || !profile) return null
+  if (isLoading || !profile) return null
 
   return <PostThreadFollowBtnLoaded profile={profile} />
 }
@@ -139,10 +113,15 @@ function PostThreadFollowBtnLoaded({
       label={_(msg`Follow ${profile.handle}`)}
       onPress={onPress}
       size="small"
+      variant="solid"
       color={isFollowing ? 'secondary' : 'secondary_inverted'}
       style={[a.rounded_full]}>
       {gtMobile && (
-        <ButtonIcon icon={isFollowing ? CheckIcon : PlusIcon} size="sm" />
+        <ButtonIcon
+          icon={isFollowing ? Check : Plus}
+          position="left"
+          size="sm"
+        />
       )}
       <ButtonText>
         {!isFollowing ? (

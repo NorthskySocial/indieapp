@@ -17,6 +17,8 @@ import {useLingui} from '@lingui/react'
 
 import {HITSLOP_10} from '#/lib/constants'
 import {makeListLink, makeProfileLink} from '#/lib/routes/links'
+import {logger} from '#/logger'
+import {isNative} from '#/platform/detection'
 import {
   type ThreadgateAllowUISetting,
   threadgateViewToAllowUISetting,
@@ -35,8 +37,6 @@ import {Earth_Stroke2_Corner0_Rounded as EarthIcon} from '#/components/icons/Glo
 import {Group3_Stroke2_Corner0_Rounded as GroupIcon} from '#/components/icons/Group'
 import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
-import {IS_NATIVE} from '#/env'
 import * as bsky from '#/types/bsky'
 
 interface WhoCanReplyProps {
@@ -46,9 +46,8 @@ interface WhoCanReplyProps {
 }
 
 export function WhoCanReply({post, isThreadAuthor, style}: WhoCanReplyProps) {
-  const t = useTheme()
-  const ax = useAnalytics()
   const {_} = useLingui()
+  const t = useTheme()
   const infoDialogControl = useDialogControl()
   const editDialogControl = useDialogControl()
 
@@ -87,11 +86,11 @@ export function WhoCanReply({post, isThreadAuthor, style}: WhoCanReplyProps) {
       : _(msg`Some people can reply`)
 
   const onPressOpen = () => {
-    if (IS_NATIVE && Keyboard.isVisible()) {
+    if (isNative && Keyboard.isVisible()) {
       Keyboard.dismiss()
     }
     if (isThreadAuthor) {
-      ax.metric('thread:click:editOwnThreadgate', {})
+      logger.metric('thread:click:editOwnThreadgate', {})
 
       // wait on prefetch if it manages to resolve in under 200ms
       // otherwise, proceed immediately and show the spinner -sfn
@@ -102,7 +101,7 @@ export function WhoCanReply({post, isThreadAuthor, style}: WhoCanReplyProps) {
         editDialogControl.open()
       })
     } else {
-      ax.metric('thread:click:viewSomeoneElsesThreadgate', {})
+      logger.metric('thread:click:viewSomeoneElsesThreadgate', {})
 
       infoDialogControl.open()
     }
@@ -230,7 +229,7 @@ function WhoCanReplyDialog({
             embeddingDisabled={embeddingDisabled}
           />
         </View>
-        {IS_NATIVE && (
+        {isNative && (
           <Button
             label={_(msg`Close`)}
             onPress={() => control.close()}

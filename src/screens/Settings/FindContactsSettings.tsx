@@ -20,6 +20,7 @@ import {
 } from '#/lib/routes/types'
 import {cleanError, isNetworkError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
+import {isNative} from '#/platform/detection'
 import {
   updateProfileShadow,
   useProfileShadow,
@@ -47,22 +48,19 @@ import {Loader} from '#/components/Loader'
 import * as ProfileCard from '#/components/ProfileCard'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
-import {IS_NATIVE} from '#/env'
 import type * as bsky from '#/types/bsky'
 import {bulkWriteFollows} from '../Onboarding/util'
 
 type Props = NativeStackScreenProps<AllNavigatorParams, 'FindContactsSettings'>
 export function FindContactsSettingsScreen({}: Props) {
   const {_} = useLingui()
-  const ax = useAnalytics()
 
   const {data, error, refetch} = useContactsSyncStatusQuery()
 
   const isFocused = useIsFocused()
   useEffect(() => {
     if (data && isFocused) {
-      ax.metric('contacts:settings:presented', {
+      logger.metric('contacts:settings:presented', {
         hasPreviouslySynced: !!data.syncStatus,
         matchCount: data.syncStatus?.matchesCount,
       })
@@ -80,7 +78,7 @@ export function FindContactsSettingsScreen({}: Props) {
         </Layout.Header.Content>
         <Layout.Header.Slot />
       </Layout.Header.Outer>
-      {IS_NATIVE ? (
+      {isNative ? (
         data ? (
           !data.syncStatus ? (
             <Intro />
@@ -101,7 +99,7 @@ export function FindContactsSettingsScreen({}: Props) {
       ) : (
         <ErrorScreen
           title={_(msg`Not available on this platform.`)}
-          message={_(msg`Please use the native app to import your contacts.`)}
+          message={_(msg`Please use the native app to sync your contacts.`)}
         />
       )}
     </Layout.Screen>
@@ -171,7 +169,6 @@ function SyncStatus({
   info: AppBskyContactDefs.SyncStatus
   refetchStatus: () => Promise<any>
 }) {
-  const ax = useAnalytics()
   const agent = useAgent()
   const queryClient = useQueryClient()
   const {_} = useLingui()
@@ -200,7 +197,7 @@ function SyncStatus({
       await agent.app.bsky.contact.dismissMatch({subject: did})
     },
     onMutate: async (did: string) => {
-      ax.metric('contacts:settings:dismiss', {})
+      logger.metric('contacts:settings:dismiss', {})
       optimisticRemoveMatch(queryClient, did)
     },
     onError: err => {
@@ -281,7 +278,6 @@ function MatchItem({
 }) {
   const t = useTheme()
   const {_} = useLingui()
-  const ax = useAnalytics()
   const shadow = useProfileShadow(profile)
 
   return (
@@ -318,7 +314,7 @@ function MatchItem({
             profile={profile}
             moderationOpts={moderationOpts}
             logContext="FindContacts"
-            onFollow={() => ax.metric('contacts:settings:follow', {})}
+            onFollow={() => logger.metric('contacts:settings:follow', {})}
           />
           {!shadow.viewer?.following && (
             <Button
@@ -347,7 +343,6 @@ function StatusHeader({
   isAnyUnfollowed: boolean
 }) {
   const {_} = useLingui()
-  const ax = useAnalytics()
   const agent = useAgent()
   const queryClient = useQueryClient()
   const {currentAccount} = useSession()
@@ -379,7 +374,7 @@ function StatusHeader({
         }
       } while (cursor)
 
-      ax.metric('contacts:settings:followAll', {
+      logger.metric('contacts:settings:followAll', {
         followCount: didsToFollow.length,
       })
 
@@ -434,7 +429,7 @@ function StatusHeader({
         <Text style={[a.text_md, a.font_semi_bold]}>
           <Plural
             value={numMatches}
-            one="# contact found"
+            one="1 contact found"
             other="# contacts found"
           />
         </Text>
@@ -464,7 +459,6 @@ function StatusHeader({
 function StatusFooter({syncedAt}: {syncedAt: string}) {
   const {_, i18n} = useLingui()
   const t = useTheme()
-  const ax = useAnalytics()
   const agent = useAgent()
   const queryClient = useQueryClient()
 
@@ -472,7 +466,7 @@ function StatusFooter({syncedAt}: {syncedAt: string}) {
     mutationFn: async () => {
       await agent.app.bsky.contact.removeData({})
     },
-    onMutate: () => ax.metric('contacts:settings:removeData', {}),
+    onMutate: () => logger.metric('contacts:settings:removeData', {}),
     onSuccess: () => {
       Toast.show(_(msg`Contacts removed`))
       queryClient.setQueryData<AppBskyContactGetSyncStatus.OutputSchema>(
@@ -501,7 +495,7 @@ function StatusFooter({syncedAt}: {syncedAt: string}) {
     <View style={[a.px_xl, a.py_xl, a.gap_4xl]}>
       <View style={[a.gap_xs, a.align_start]}>
         <Text style={[a.text_md, a.font_semi_bold]}>
-          <Trans>Contacts imported</Trans>
+          <Trans>Contacts uploaded</Trans>
         </Text>
         <View style={[a.gap_2xs]}>
           <Text
@@ -511,7 +505,7 @@ function StatusFooter({syncedAt}: {syncedAt: string}) {
           <Text
             style={[a.text_sm, a.leading_snug, t.atoms.text_contrast_medium]}>
             <Trans>
-              Imported on{' '}
+              Uploaded on{' '}
               {i18n.date(new Date(syncedAt), {
                 dateStyle: 'long',
               })}
@@ -526,7 +520,7 @@ function StatusFooter({syncedAt}: {syncedAt: string}) {
               (Date.now() - new Date(syncedAt).getTime()) /
                 (1000 * 60 * 60 * 24),
             )
-            ax.metric('contacts:settings:resync', {
+            logger.metric('contacts:settings:resync', {
               daysSinceLastSync,
             })
           }}

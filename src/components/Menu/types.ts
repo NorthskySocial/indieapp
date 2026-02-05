@@ -43,7 +43,7 @@ export type TriggerProps = {
 }
 export type TriggerChildProps =
   | {
-      IS_NATIVE: true
+      isNative: true
       control: Dialog.DialogOuterProps['control']
       state: {
         /**
@@ -73,7 +73,7 @@ export type TriggerChildProps =
       }
     }
   | {
-      IS_NATIVE: false
+      isNative: false
       control: Dialog.DialogOuterProps['control']
       state: {
         hovered: boolean
@@ -107,7 +107,6 @@ export type ItemTextProps = React.PropsWithChildren<TextStyleProp & {}>
 export type ItemIconProps = React.PropsWithChildren<{
   icon: React.ComponentType<SVGIconProps>
   position?: 'left' | 'right'
-  fill?: (props: {disabled: boolean}) => string
 }>
 
 export type GroupProps = React.PropsWithChildren<ViewStyleProp & {}>

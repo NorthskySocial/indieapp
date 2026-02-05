@@ -4,6 +4,8 @@ import {AppBskyFeedDefs, AppBskyFeedPost, AtpAgent, AtUri} from '@atproto/api'
 import {h, render} from 'preact'
 import {useEffect, useMemo, useRef, useState} from 'preact/hooks'
 
+import {AppSettings} from '#/indie-settings/settings'
+
 import arrowBottom from '../../assets/arrowBottom_stroke2_corner0_rounded.svg'
 import logo from '../../assets/logo.svg'
 import {
@@ -16,14 +18,6 @@ import {Link} from '../components/link'
 import {Post} from '../components/post'
 import * as bsky from '../types/bsky'
 import {niceDate} from '../util/nice-date'
-
-const DEFAULT_POST =
-  'https://bsky.app/profile/did:plc:vjug55kidv6sye7ykr5faxxn/post/3jzn6g7ixgq2y'
-const DEFAULT_URI =
-  'at://did:plc:vjug55kidv6sye7ykr5faxxn/app.bsky.feed.post/3jzn6g7ixgq2y'
-
-export const EMBED_SERVICE = 'https://embed.bsky.app'
-export const EMBED_SCRIPT = `${EMBED_SERVICE}/static/embed.js`
 
 const root = document.getElementById('app')
 if (!root) throw new Error('No root element')
@@ -51,7 +45,7 @@ function LandingPage() {
       setThread(null)
       setLoading(true)
       try {
-        let atUri = DEFAULT_URI
+        let atUri: string = AppSettings.DEFAULT_URI
 
         if (uri) {
           if (uri.startsWith('at://')) {
@@ -85,7 +79,7 @@ function LandingPage() {
               atUri = `at://${did}/app.bsky.feed.post/${rkey}`
             } catch (err) {
               console.log(err)
-              throw new Error('Invalid Bluesky URL')
+              throw new Error(`Invalid ${AppSettings.APP_NAME} URL`)
             }
           }
         }
@@ -133,7 +127,7 @@ function LandingPage() {
           value={uri}
           onInput={e => setUri(e.currentTarget.value)}
           className="border rounded-lg py-3 px-4 dark:bg-dimmedBg dark:border-slate-500"
-          placeholder={DEFAULT_POST}
+          placeholder={AppSettings.DEFAULT_POST}
         />
 
         <div className="flex flex-col gap-1.5">
@@ -262,7 +256,7 @@ function Snippet({
       thread.post.author.handle,
     )}</a>) <a href="${escapeHtml(href)}">${escapeHtml(
       niceDate(thread.post.indexedAt),
-    )}</a></blockquote><script async src="${EMBED_SCRIPT}" charset="utf-8"></script>`
+    )}</a></blockquote><script async src="${AppSettings.EMBED_SCRIPT}" charset="utf-8"></script>`
   }, [thread, colorMode])
 
   return (
@@ -293,7 +287,7 @@ function Snippet({
 }
 
 function toShareUrl(path: string) {
-  return `https://bsky.app${path}?ref_src=embed`
+  return `${AppSettings.BASE_URL}${path}?ref_src=embed`
 }
 
 /**

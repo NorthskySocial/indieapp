@@ -5,6 +5,8 @@ import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {urls} from '#/lib/constants'
+import {logger} from '#/logger'
+import {isNative} from '#/platform/detection'
 import {atoms as a, useBreakpoints, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
@@ -13,13 +15,10 @@ import {Sparkle_Stroke2_Corner0_Rounded as SparkleIcon} from '#/components/icons
 import {VerifierCheck} from '#/components/icons/VerifierCheck'
 import {Link} from '#/components/Link'
 import {Span, Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
-import {IS_NATIVE} from '#/env'
 
 export function InitialVerificationAnnouncement() {
   const t = useTheme()
   const {_} = useLingui()
-  const ax = useAnalytics()
   const {gtMobile} = useBreakpoints()
   const nuxDialogs = useNuxDialogContext()
   const control = Dialog.useDialogControl()
@@ -162,15 +161,19 @@ export function InitialVerificationAnnouncement() {
               color="primary"
               style={[a.justify_center, a.w_full]}
               onPress={() => {
-                ax.metric('verification:learn-more', {
-                  location: 'initialAnnouncementeNux',
-                })
+                logger.metric(
+                  'verification:learn-more',
+                  {
+                    location: 'initialAnnouncementeNux',
+                  },
+                  {statsig: false},
+                )
               }}>
               <ButtonText>
                 <Trans>Read blog post</Trans>
               </ButtonText>
             </Link>
-            {IS_NATIVE && (
+            {isNative && (
               <Button
                 label={_(msg`Close`)}
                 size="small"

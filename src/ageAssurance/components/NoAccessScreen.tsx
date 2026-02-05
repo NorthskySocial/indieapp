@@ -9,8 +9,12 @@ import {
   useCreateSupportLink,
 } from '#/lib/hooks/useCreateSupportLink'
 import {dateDiff, useGetTimeAgo} from '#/lib/hooks/useTimeAgo'
+import {isAppPassword} from '#/lib/jwt'
+import {logger} from '#/logger'
+import {isWeb} from '#/platform/detection'
+import {isNative} from '#/platform/detection'
 import {useIsBirthdateUpdateAllowed} from '#/state/birthdate'
-import {useSessionApi} from '#/state/session'
+import {useSession, useSessionApi} from '#/state/session'
 import {atoms as a, useBreakpoints, useTheme, web} from '#/alf'
 import {Admonition} from '#/components/Admonition'
 import {AgeAssuranceAppealDialog} from '#/components/ageAssurance/AgeAssuranceAppealDialog'
@@ -26,7 +30,7 @@ import {ShieldCheck_Stroke2_Corner0_Rounded as ShieldIcon} from '#/components/ic
 import {createStaticClick, SimpleInlineLinkText} from '#/components/Link'
 import {Outlet as PortalOutlet} from '#/components/Portal'
 import * as Toast from '#/components/Toast'
-import {Text} from '#/components/Typography'
+import {Span, Text} from '#/components/Typography'
 import {BottomSheetOutlet} from '#/../modules/bottom-sheet'
 import {useAgeAssurance} from '#/ageAssurance'
 import {useAgeAssuranceDataContext} from '#/ageAssurance/data'
@@ -35,8 +39,6 @@ import {
   isLegacyBirthdateBug,
   useAgeAssuranceRegionConfig,
 } from '#/ageAssurance/util'
-import {useAnalytics} from '#/analytics'
-import {IS_NATIVE, IS_WEB} from '#/env'
 import {useDeviceGeolocationApi} from '#/geolocation'
 
 const textStyles = [a.text_md, a.leading_snug]
@@ -44,7 +46,6 @@ const textStyles = [a.text_md, a.leading_snug]
 export function NoAccessScreen() {
   const t = useTheme()
   const {_} = useLingui()
-  const ax = useAnalytics()
   const {gtPhone} = useBreakpoints()
   const insets = useSafeAreaInsets()
   const birthdateControl = useDialogControl()
@@ -53,6 +54,9 @@ export function NoAccessScreen() {
   const isBirthdateUpdateAllowed = useIsBirthdateUpdateAllowed()
   const {logoutCurrentAccount} = useSessionApi()
   const createSupportLink = useCreateSupportLink()
+
+  const {currentAccount} = useSession()
+  const isUsingAppPassword = isAppPassword(currentAccount?.accessJwt || '')
 
   const aa = useAgeAssurance()
   const isBlocked = aa.state.status === aa.Status.Blocked
@@ -63,8 +67,8 @@ export function NoAccessScreen() {
 
   useEffect(() => {
     // just counting overall hits here
-    ax.metric(`blockedGeoOverlay:shown`, {})
-    ax.metric(`ageAssurance:noAccessScreen:shown`, {
+    logger.metric(`blockedGeoOverlay:shown`, {})
+    logger.metric(`ageAssurance:noAccessScreen:shown`, {
       accountCreatedAt: data?.accountCreatedAt || 'unknown',
       isAARegion,
       hasDeclaredAge,
@@ -74,7 +78,7 @@ export function NoAccessScreen() {
   }, [])
 
   const onPressLogout = useCallback(() => {
-    if (IS_WEB) {
+    if (isWeb) {
       // We're switching accounts, which remounts the entire app.
       // On mobile, this gets us Home, but on the web we also need reset the URL.
       // We can't change the URL via a navigate() call because the navigator
@@ -85,35 +89,22 @@ export function NoAccessScreen() {
     logoutCurrentAccount('AgeAssuranceNoAccessScreen')
   }, [logoutCurrentAccount])
 
-  const orgAdmonition = (
-    <Admonition type="tip">
-      <Trans>
-        For organizational accounts, use the birthdate of the person who is
-        responsible for the account.
-      </Trans>
-    </Admonition>
-  )
-
   const birthdateUpdateText = canUpdateBirthday ? (
-    <>
-      <Text style={[textStyles]}>
-        <Trans>
-          If you believe your birthdate is incorrect, you can update it by{' '}
-          <SimpleInlineLinkText
-            label={_(msg`Click here to update your birthdate`)}
-            style={[textStyles]}
-            {...createStaticClick(() => {
-              ax.metric('ageAssurance:noAccessScreen:openBirthdateDialog', {})
-              birthdateControl.open()
-            })}>
-            clicking here
-          </SimpleInlineLinkText>
-          .
-        </Trans>
-      </Text>
-
-      {orgAdmonition}
-    </>
+    <Text style={[textStyles]}>
+      <Trans>
+        If you believe your birthdate is incorrect, you can update it by{' '}
+        <SimpleInlineLinkText
+          label={_(msg`Click here to update your birthdate`)}
+          style={[textStyles]}
+          {...createStaticClick(() => {
+            logger.metric('ageAssurance:noAccessScreen:openBirthdateDialog', {})
+            birthdateControl.open()
+          })}>
+          clicking here
+        </SimpleInlineLinkText>
+        .
+      </Trans>
+    </Text>
   ) : (
     <Text style={[textStyles]}>
       <Trans>
@@ -136,7 +127,7 @@ export function NoAccessScreen() {
           contentContainerStyle={[
             a.px_2xl,
             {
-              paddingTop: IS_WEB
+              paddingTop: isWeb
                 ? a.p_5xl.padding
                 : insets.top + a.p_2xl.padding,
               paddingBottom: 100,
@@ -174,19 +165,10 @@ export function NoAccessScreen() {
                         </Trans>
                       </Text>
 
-                      {!aa.flags.isOverRegionMinAccessAge && (
-                        <Text style={[textStyles]}>
-                          <Trans>
-                            Unfortunately, your declared age indicates that you
-                            are not old enough to access Bluesky in your region.
-                          </Trans>
-                        </Text>
-                      )}
-
                       {!isBlocked && birthdateUpdateText}
                     </View>
 
-                    {aa.flags.isOverRegionMinAccessAge && <AccessSection />}
+                    <AccessSection />
                   </>
                 ) : (
                   <View style={[a.gap_lg]}>
@@ -229,7 +211,16 @@ export function NoAccessScreen() {
                   </ButtonText>
                 </Button>
 
-                {orgAdmonition}
+                {isUsingAppPassword && (
+                  <Admonition type="info">
+                    <Trans>
+                      Hmm, it looks like you're logged in with an{' '}
+                      <Span style={[a.italic]}>App Password</Span>. To set your
+                      birthdate, you'll need to log in with your main account
+                      password, or ask whomever controls this account to do so.
+                    </Trans>
+                  </Admonition>
+                )}
               </View>
             )}
 
@@ -269,7 +260,6 @@ export function NoAccessScreen() {
 function AccessSection() {
   const t = useTheme()
   const {_, i18n} = useLingui()
-  const ax = useAnalytics()
   const control = useDialogControl()
   const appealControl = Dialog.useDialogControl()
   const locationControl = Dialog.useDialogControl()
@@ -303,7 +293,7 @@ function AccessSection() {
                 label={_(msg`Contact our moderation team`)}
                 {...createStaticClick(() => {
                   appealControl.open()
-                  ax.metric('ageAssurance:appealDialogOpen', {})
+                  logger.metric('ageAssurance:appealDialogOpen', {})
                 })}>
                 contact our moderation team
               </SimpleInlineLinkText>{' '}
@@ -319,7 +309,7 @@ function AccessSection() {
                 color={hasInitiated ? 'secondary' : 'primary'}
                 onPress={() => {
                   control.open()
-                  ax.metric('ageAssurance:initDialogOpen', {
+                  logger.metric('ageAssurance:initDialogOpen', {
                     hasInitiatedPreviously: hasInitiated,
                   })
                 }}>
@@ -357,7 +347,7 @@ function AccessSection() {
         )}
 
         <View style={[a.gap_xs]}>
-          {IS_NATIVE && (
+          {isNative && (
             <>
               <Admonition>
                 <Trans>

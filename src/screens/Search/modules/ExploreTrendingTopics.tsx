@@ -4,6 +4,7 @@ import {type AppBskyUnspeccedDefs, moderateProfile} from '@atproto/api'
 import {msg, plural, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
+import {logger} from '#/logger'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useTrendingSettings} from '#/state/preferences/trending'
 import {useGetTrendsQuery} from '#/state/queries/trending/useGetTrendsQuery'
@@ -18,7 +19,6 @@ import {Trending3_Stroke2_Corner1_Rounded as TrendingIcon} from '#/components/ic
 import {Link} from '#/components/Link'
 import {SubtleHover} from '#/components/SubtleHover'
 import {Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
 
 const TOPIC_COUNT = 5
 
@@ -29,7 +29,6 @@ export function ExploreTrendingTopics() {
 }
 
 function Inner() {
-  const ax = useAnalytics()
   const {data: trending, error, isLoading, isRefetching} = useGetTrendsQuery()
   const noTopics = !isLoading && !error && !trending?.trends?.length
 
@@ -45,7 +44,11 @@ function Inner() {
           trend={trend}
           rank={index + 1}
           onPress={() => {
-            ax.metric('trendingTopic:click', {context: 'explore'})
+            logger.metric(
+              'trendingTopic:click',
+              {context: 'explore'},
+              {statsig: true},
+            )
           }}
         />
       ))}

@@ -82,7 +82,7 @@ export function Trigger({children, label}: TriggerProps) {
 
   if (typeof children === 'function') {
     return children({
-      IS_NATIVE: true,
+      isNative: true,
       control,
       state: {
         hovered: false,

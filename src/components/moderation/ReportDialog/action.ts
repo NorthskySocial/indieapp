@@ -70,7 +70,6 @@ export function useSubmitReportMutation() {
           }
           break
         }
-        case 'status':
         case 'post':
         case 'list':
         case 'feed':

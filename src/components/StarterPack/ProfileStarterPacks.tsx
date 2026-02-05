@@ -19,6 +19,7 @@ import {useWebMediaQueries} from '#/lib/hooks/useWebMediaQueries'
 import {type NavigationProp} from '#/lib/routes/types'
 import {parseStarterPackUri} from '#/lib/strings/starter-pack'
 import {logger} from '#/logger'
+import {isIOS} from '#/platform/detection'
 import {useActorStarterPacksQuery} from '#/state/queries/actor-starter-packs'
 import {
   EmptyState,
@@ -35,7 +36,6 @@ import {Loader} from '#/components/Loader'
 import * as Prompt from '#/components/Prompt'
 import {Default as StarterPackCard} from '#/components/StarterPack/StarterPackCard'
 import {Text} from '#/components/Typography'
-import {IS_IOS} from '#/env'
 
 interface SectionRef {
   scrollToTop: () => void
@@ -136,7 +136,7 @@ export function ProfileStarterPacks({
   }, [isFetchingNextPage, hasNextPage, isError, fetchNextPage])
 
   useEffect(() => {
-    if (IS_IOS && enabled && scrollElRef.current) {
+    if (isIOS && enabled && scrollElRef.current) {
       const nativeTag = findNodeHandle(scrollElRef.current)
       setScrollViewTag(nativeTag)
     }

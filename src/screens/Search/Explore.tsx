@@ -13,6 +13,8 @@ import * as bcp47Match from 'bcp-47-match'
 import {popularInterests, useInterestsDisplayNames} from '#/lib/interests'
 import {cleanError} from '#/lib/strings/errors'
 import {sanitizeHandle} from '#/lib/strings/handles'
+import {logger} from '#/logger'
+import {type MetricEvents} from '#/logger/metrics'
 import {useLanguagePrefs} from '#/state/preferences/languages'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {RQKEY_ROOT as useActorSearchQueryKeyRoot} from '#/state/queries/actor-search'
@@ -66,8 +68,6 @@ import {Loader} from '#/components/Loader'
 import * as ProfileCard from '#/components/ProfileCard'
 import {SubtleHover} from '#/components/SubtleHover'
 import {Text} from '#/components/Typography'
-import {type Metrics, useAnalytics} from '#/analytics'
-import {ExploreScreenLiveEventFeedsBanner} from '#/features/liveEvents/components/ExploreScreenLiveEventFeedsBanner'
 import * as ModuleHeader from './components/ModuleHeader'
 import {
   SuggestedAccountsTabBar,
@@ -123,7 +123,7 @@ type ExploreScreenItems =
       bottomBorder?: boolean
       searchButton?: {
         label: string
-        metricsTag: Metrics['explore:module:searchButtonPress']['module']
+        metricsTag: MetricEvents['explore:module:searchButtonPress']['module']
         tab: 'user' | 'profile' | 'feed'
       }
     }
@@ -134,7 +134,7 @@ type ExploreScreenItems =
       icon: React.ComponentType<SVGIconProps>
       searchButton?: {
         label: string
-        metricsTag: Metrics['explore:module:searchButtonPress']['module']
+        metricsTag: MetricEvents['explore:module:searchButtonPress']['module']
         tab: 'user' | 'profile' | 'feed'
       }
       hideDefaultTab?: boolean
@@ -201,10 +201,6 @@ type ExploreScreenItems =
       type: 'interests-card'
       key: 'interests-card'
     }
-  | {
-      type: 'liveEventFeedsBanner'
-      key: string
-    }
 
 export function Explore({
   focusSearchInput,
@@ -212,7 +208,6 @@ export function Explore({
   focusSearchInput: (tab: 'user' | 'profile' | 'feed') => void
   headerHeight: number
 }) {
-  const ax = useAnalytics()
   const {_} = useLingui()
   const t = useTheme()
   const {data: preferences, error: preferencesError} = usePreferencesQuery()
@@ -273,10 +268,9 @@ export function Explore({
     try {
       await fetchNextFeedsPage()
     } catch (err) {
-      ax.logger.error('Failed to load more suggested follows', {message: err})
+      logger.error('Failed to load more suggested follows', {message: err})
     }
   }, [
-    ax,
     isFetchingNextFeedsPage,
     hasNextFeedsPage,
     feedsError,
@@ -334,10 +328,9 @@ export function Explore({
     try {
       await fetchNextPageFeedPreviews()
     } catch (err) {
-      ax.logger.error('Failed to load more feed previews', {message: err})
+      logger.error('Failed to load more feed previews', {message: err})
     }
   }, [
-    ax,
     isPendingFeedPreviews,
     isFetchingNextPageFeedPreviews,
     hasNextPageFeedPreviews,
@@ -494,7 +487,11 @@ export function Explore({
               if (hasPressedLoadMoreFeeds && index < 6) {
                 continue
               }
-              ax.metric('feed:suggestion:seen', {feedUrl: item.feed.uri})
+              logger.metric(
+                'feed:suggestion:seen',
+                {feedUrl: item.feed.uri},
+                {statsig: false},
+              )
             }
           }
           if (!hasPressedLoadMoreFeeds) {
@@ -607,7 +604,6 @@ export function Explore({
     return i
   }, [
     _,
-    ax,
     useFullExperience,
     suggestedFeeds,
     preferences,
@@ -688,8 +684,6 @@ export function Explore({
     i.push(topBorder)
     i.push(...interestsNuxModule)
 
-    i.push({type: 'liveEventFeedsBanner', key: 'liveEventFeedsBanner'})
-
     if (useFullExperience) {
       i.push(trendingTopicsModule)
       i.push(...suggestedFeedsModule)
@@ -728,7 +722,12 @@ export function Explore({
                 <ModuleHeader.SearchButton
                   {...item.searchButton}
                   onPress={() =>
-                    focusSearchInput(item.searchButton?.tab || 'user')
+                    focusSearchInput(
+                      (item.searchButton?.tab || 'user') as
+                        | 'user'
+                        | 'profile'
+                        | 'feed',
+                    )
                   }
                 />
               )}
@@ -745,7 +744,12 @@ export function Explore({
                   <ModuleHeader.SearchButton
                     {...item.searchButton}
                     onPress={() =>
-                      focusSearchInput(item.searchButton?.tab || 'user')
+                      focusSearchInput(
+                        (item.searchButton?.tab || 'user') as
+                          | 'user'
+                          | 'profile'
+                          | 'feed',
+                      )
                     }
                   />
                 )}
@@ -811,7 +815,7 @@ export function Explore({
                   if (!useFullExperience) {
                     return
                   }
-                  ax.metric('feed:suggestion:press', {
+                  logger.metric('feed:suggestion:press', {
                     feedUrl: item.feed.uri,
                   })
                 }}
@@ -994,13 +998,9 @@ export function Explore({
         case 'interests-card': {
           return <ExploreInterestsCard />
         }
-        case 'liveEventFeedsBanner': {
-          return <ExploreScreenLiveEventFeedsBanner />
-        }
       }
     },
     [
-      ax,
       t.atoms.border_contrast_low,
       t.atoms.bg_contrast_25,
       t.atoms.text_contrast_medium,
@@ -1033,7 +1033,7 @@ export function Explore({
   const seenProfilesRef = useRef<Set<string>>(new Set())
   const onItemSeen = useCallback(
     (item: ExploreScreenItems) => {
-      let module: Metrics['explore:module:seen']['module']
+      let module: MetricEvents['explore:module:seen']['module']
       if (item.type === 'trendingTopics' || item.type === 'trendingVideos') {
         module = item.type
       } else if (item.type === 'profile') {
@@ -1044,13 +1044,17 @@ export function Explore({
           const position = suggestedFollowsModule.findIndex(
             i => i.type === 'profile' && i.profile.did === item.profile.did,
           )
-          ax.metric('suggestedUser:seen', {
-            logContext: 'Explore',
-            recId: item.recId,
-            position: position !== -1 ? position - 1 : 0, // -1 to account for header
-            suggestedDid: item.profile.did,
-            category: null,
-          })
+          logger.metric(
+            'suggestedUser:seen',
+            {
+              logContext: 'Explore',
+              recId: item.recId,
+              position: position !== -1 ? position - 1 : 0, // -1 to account for header
+              suggestedDid: item.profile.did,
+              category: null,
+            },
+            {statsig: true},
+          )
         }
       } else if (item.type === 'feed') {
         module = 'suggestedFeeds'
@@ -1063,10 +1067,10 @@ export function Explore({
       }
       if (!alreadyReportedRef.current.has(module)) {
         alreadyReportedRef.current.set(module, module)
-        ax.metric('explore:module:seen', {module})
+        logger.metric('explore:module:seen', {module}, {statsig: false})
       }
     },
-    [ax, suggestedFollowsModule],
+    [suggestedFollowsModule],
   )
 
   return (

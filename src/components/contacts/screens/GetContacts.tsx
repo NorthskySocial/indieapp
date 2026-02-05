@@ -28,7 +28,6 @@ import * as Layout from '#/components/Layout'
 import {Loader} from '#/components/Loader'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
 import {
   contactsWithPhoneNumbersOnly,
   filterMatchedNumbers,
@@ -52,7 +51,6 @@ export function GetContacts({
   context: 'Onboarding' | 'Standalone'
 }) {
   const {_} = useLingui()
-  const ax = useAnalytics()
   const agent = useAgent()
   const insets = useSafeAreaInsets()
   const gutters = useGutters([0, 'wide'])
@@ -102,16 +100,16 @@ export function GetContacts({
     },
     onSuccess: (result, contacts) => {
       if (context === 'Onboarding') {
-        ax.metric('onboarding:contacts:contactsShared', {})
+        logger.metric('onboarding:contacts:contactsShared', {})
       }
       if (result.matches.length > 0) {
-        ax.metric('contacts:import:success', {
+        logger.metric('contacts:import:success', {
           contactCount: contacts.length,
           matchCount: result.matches.length,
           entryPoint: context,
         })
       } else {
-        ax.metric('contacts:import:failure', {
+        logger.metric('contacts:import:failure', {
           reason: 'noValidNumbers',
           entryPoint: context,
         })
@@ -136,7 +134,7 @@ export function GetContacts({
       })
     },
     onError: err => {
-      ax.metric('contacts:import:failure', {
+      logger.metric('contacts:import:failure', {
         reason: isNetworkError(err) ? 'networkError' : 'unknown',
         entryPoint: context,
       })
@@ -182,7 +180,7 @@ export function GetContacts({
         permissions = await Contacts.requestPermissionsAsync()
       }
 
-      ax.metric('contacts:permission:request', {
+      logger.metric('contacts:permission:request', {
         status: permissions.granted ? 'granted' : 'denied',
         accessLevelIOS: ios(permissions.accessPrivileges),
       })

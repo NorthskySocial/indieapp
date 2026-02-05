@@ -1,4 +1,4 @@
-import {useCallback, useMemo} from 'react'
+import React from 'react'
 import {View} from 'react-native'
 import {
   type $Typed,
@@ -11,6 +11,7 @@ import {
 import {Trans} from '@lingui/macro'
 import {useQueryClient} from '@tanstack/react-query'
 
+import {usePalette} from '#/lib/hooks/usePalette'
 import {makeProfileLink} from '#/lib/routes/links'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {unstableCacheProfileView} from '#/state/queries/profile'
@@ -18,7 +19,6 @@ import {useSession} from '#/state/session'
 import {Link} from '#/view/com/util/Link'
 import {PostMeta} from '#/view/com/util/PostMeta'
 import {atoms as a, useTheme} from '#/alf'
-import {useInteractionState} from '#/components/hooks/useInteractionState'
 import {ContentHider} from '#/components/moderation/ContentHider'
 import {PostAlerts} from '#/components/moderation/PostAlerts'
 import {RichText} from '#/components/RichText'
@@ -232,7 +232,7 @@ export function QuoteEmbed({
   viewContext?: QuoteEmbedViewContext
 }) {
   const moderationOpts = useModerationOpts()
-  const quote = useMemo<$Typed<AppBskyFeedDefs.PostView>>(
+  const quote = React.useMemo<$Typed<AppBskyFeedDefs.PostView>>(
     () => ({
       ...embed.view,
       $type: 'app.bsky.feed.defs#postView',
@@ -241,17 +241,18 @@ export function QuoteEmbed({
     }),
     [embed],
   )
-  const moderation = useMemo(() => {
+  const moderation = React.useMemo(() => {
     return moderationOpts ? moderatePost(quote, moderationOpts) : undefined
   }, [quote, moderationOpts])
 
   const t = useTheme()
   const queryClient = useQueryClient()
+  const pal = usePalette('default')
   const itemUrip = new AtUri(quote.uri)
   const itemHref = makeProfileLink(quote.author, 'post', itemUrip.rkey)
   const itemTitle = `Post by ${quote.author.handle}`
 
-  const richText = useMemo(() => {
+  const richText = React.useMemo(() => {
     if (
       !bsky.dangerousIsType<AppBskyFeedPost.Record>(
         quote.record,
@@ -265,26 +266,17 @@ export function QuoteEmbed({
       : undefined
   }, [quote.record])
 
-  const onBeforePress = useCallback(() => {
+  const onBeforePress = React.useCallback(() => {
     unstableCacheProfileView(queryClient, quote.author)
     onOpen?.()
   }, [queryClient, quote.author, onOpen])
 
-  const {
-    state: hover,
-    onIn: onPointerEnter,
-    onOut: onPointerLeave,
-  } = useInteractionState()
-  const {
-    state: pressed,
-    onIn: onPressIn,
-    onOut: onPressOut,
-  } = useInteractionState()
+  const [hover, setHover] = React.useState(false)
   return (
     <View
       style={[a.mt_sm]}
-      onPointerEnter={onPointerEnter}
-      onPointerLeave={onPointerLeave}>
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}>
       <ContentHider
         modui={moderation?.ui('contentList')}
         style={[a.rounded_md, a.border, t.atoms.border_contrast_low, style]}
@@ -292,21 +284,13 @@ export function QuoteEmbed({
         childContainerStyle={[a.pt_sm]}>
         {({active}) => (
           <>
-            {!active && (
-              <SubtleHover
-                native
-                hover={hover || pressed}
-                style={[a.rounded_md]}
-              />
-            )}
+            {!active && <SubtleHover hover={hover} style={[a.rounded_md]} />}
             <Link
               style={[!active && a.p_md]}
-              hoverStyle={t.atoms.border_contrast_high}
+              hoverStyle={{borderColor: pal.colors.borderLinkHover}}
               href={itemHref}
               title={itemTitle}
-              onBeforePress={onBeforePress}
-              onPressIn={onPressIn}
-              onPressOut={onPressOut}>
+              onBeforePress={onBeforePress}>
               <View pointerEvents="none">
                 <PostMeta
                   author={quote.author}

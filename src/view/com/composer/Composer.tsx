@@ -58,7 +58,6 @@ import {useQueryClient} from '@tanstack/react-query'
 
 import * as apilib from '#/lib/api/index'
 import {EmbeddingDisabledError} from '#/lib/api/resolve'
-import {useAppState} from '#/lib/appState'
 import {retry} from '#/lib/async/retry'
 import {until} from '#/lib/async/until'
 import {
@@ -66,15 +65,18 @@ import {
   SUPPORTED_MIME_TYPES,
   type SupportedMimeTypes,
 } from '#/lib/constants'
+import {useAppState} from '#/lib/hooks/useAppState'
 import {useIsKeyboardVisible} from '#/lib/hooks/useIsKeyboardVisible'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {usePalette} from '#/lib/hooks/usePalette'
 import {useWebMediaQueries} from '#/lib/hooks/useWebMediaQueries'
 import {mimeToExt} from '#/lib/media/video/util'
 import {type NavigationProp} from '#/lib/routes/types'
+import {logEvent} from '#/lib/statsig/statsig'
 import {cleanError} from '#/lib/strings/errors'
 import {colors} from '#/lib/styles'
 import {logger} from '#/logger'
+import {isAndroid, isIOS, isNative, isWeb} from '#/platform/detection'
 import {useDialogStateControlContext} from '#/state/dialogs'
 import {emitPostCreated} from '#/state/events'
 import {
@@ -128,8 +130,6 @@ import {LazyQuoteEmbed} from '#/components/Post/Embed/LazyQuoteEmbed'
 import * as Prompt from '#/components/Prompt'
 import * as Toast from '#/components/Toast'
 import {Text as NewText} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
-import {IS_ANDROID, IS_IOS, IS_NATIVE, IS_WEB} from '#/env'
 import {BottomSheetPortalProvider} from '../../../../modules/bottom-sheet'
 import {PostLanguageSelect} from './select-language/PostLanguageSelect'
 import {
@@ -178,7 +178,6 @@ export const ComposePost = ({
   cancelRef?: React.RefObject<CancelRef | null>
 }) => {
   const {currentAccount} = useSession()
-  const ax = useAnalytics()
   const agent = useAgent()
   const queryClient = useQueryClient()
   const currentDid = currentAccount!.did
@@ -330,14 +329,14 @@ export const ComposePost = ({
   const insets = useSafeAreaInsets()
   const viewStyles = useMemo(
     () => ({
-      paddingTop: IS_ANDROID ? insets.top : 0,
+      paddingTop: isAndroid ? insets.top : 0,
       paddingBottom:
         // iOS - when keyboard is closed, keep the bottom bar in the safe area
-        (IS_IOS && !isKeyboardVisible) ||
+        (isIOS && !isKeyboardVisible) ||
         // Android - Android >=35 KeyboardAvoidingView adds double padding when
         // keyboard is closed, so we subtract that in the offset and add it back
         // here when the keyboard is open
-        (IS_ANDROID && isKeyboardVisible)
+        (isAndroid && isKeyboardVisible)
           ? insets.bottom
           : 0,
     }),
@@ -367,7 +366,7 @@ export const ComposePost = ({
 
   // On Android, pressing Back should ask confirmation.
   useEffect(() => {
-    if (!IS_ANDROID) {
+    if (!isAndroid) {
       return
     }
     const backHandler = BackHandler.addEventListener(
@@ -521,7 +520,7 @@ export const ComposePost = ({
       if (postUri) {
         let index = 0
         for (let post of thread.posts) {
-          ax.metric('post:create', {
+          logEvent('post:create', {
             imageCount:
               post.embed.media?.type === 'images'
                 ? post.embed.media.images.length
@@ -537,7 +536,7 @@ export const ComposePost = ({
         }
       }
       if (thread.posts.length > 1) {
-        ax.metric('thread:create', {
+        logEvent('thread:create', {
           postCount: thread.posts.length,
           isReply: !!replyTo,
         })
@@ -595,7 +594,6 @@ export const ComposePost = ({
     }, 500)
   }, [
     _,
-    ax,
     agent,
     thread,
     canPost,
@@ -673,7 +671,7 @@ export const ComposePost = ({
       composerState.mutableNeedsFocusActive = false
       // On Android, this risks getting the cursor stuck behind the keyboard.
       // Not worth it.
-      if (!IS_ANDROID) {
+      if (!isAndroid) {
         textInput.current?.focus()
       }
     }
@@ -729,12 +727,12 @@ export const ComposePost = ({
     </>
   )
 
-  const IS_WEBFooterSticky = !IS_NATIVE && thread.posts.length > 1
+  const isWebFooterSticky = !isNative && thread.posts.length > 1
   return (
     <BottomSheetPortalProvider>
       <KeyboardAvoidingView
         testID="composePostView"
-        behavior={IS_IOS ? 'padding' : 'height'}
+        behavior={isIOS ? 'padding' : 'height'}
         keyboardVerticalOffset={keyboardVerticalOffset}
         style={a.flex_1}>
         <View
@@ -792,13 +790,13 @@ export const ComposePost = ({
                   onPublish={onComposerPostPublish}
                   onError={setError}
                 />
-                {IS_WEBFooterSticky && post.id === activePost.id && (
+                {isWebFooterSticky && post.id === activePost.id && (
                   <View style={styles.stickyFooterWeb}>{footer}</View>
                 )}
               </React.Fragment>
             ))}
           </Animated.ScrollView>
-          {!IS_WEBFooterSticky && footer}
+          {!isWebFooterSticky && footer}
         </View>
 
         <Prompt.Basic
@@ -851,7 +849,7 @@ let ComposerPost = React.memo(function ComposerPost({
   const {data: currentProfile} = useProfileQuery({did: currentDid})
   const richtext = post.richtext
   const isTextOnly = !post.embed.link && !post.embed.quote && !post.embed.media
-  const forceMinHeight = IS_WEB && isTextOnly && isActive
+  const forceMinHeight = isWeb && isTextOnly && isActive
   const selectTextInputPlaceholder = isReply
     ? isFirstPost
       ? _(msg`Write your reply`)
@@ -891,9 +889,9 @@ let ComposerPost = React.memo(function ComposerPost({
     async (uri: string) => {
       if (
         uri.startsWith('data:video/') ||
-        (IS_WEB && uri.startsWith('data:image/gif'))
+        (isWeb && uri.startsWith('data:image/gif'))
       ) {
-        if (IS_NATIVE) return // web only
+        if (isNative) return // web only
         const [mimeType] = uri.slice('data:'.length).split(';')
         if (!SUPPORTED_MIME_TYPES.includes(mimeType as SupportedMimeTypes)) {
           Toast.show(_(msg`Unsupported video type: ${mimeType}`), {
@@ -923,9 +921,9 @@ let ComposerPost = React.memo(function ComposerPost({
         a.mb_sm,
         !isActive && isLastPost && a.mb_lg,
         !isActive && styles.inactivePost,
-        isTextOnly && IS_NATIVE && a.flex_grow,
+        isTextOnly && isNative && a.flex_grow,
       ]}>
-      <View style={[a.flex_row, IS_NATIVE && a.flex_1]}>
+      <View style={[a.flex_row, isNative && a.flex_1]}>
         <UserAvatar
           avatar={currentProfile?.avatar}
           size={42}
@@ -1243,7 +1241,7 @@ function ComposerEmbeds({
       </LayoutAnimationConfig>
       {embed.quote?.uri ? (
         <View
-          style={[a.pb_sm, video ? [a.pt_md] : [a.pt_xl], IS_WEB && [a.pb_md]]}>
+          style={[a.pb_sm, video ? [a.pt_md] : [a.pt_xl], isWeb && [a.pb_md]]}>
           <View style={[a.relative]}>
             <View style={{pointerEvents: 'none'}}>
               <LazyQuoteEmbed uri={embed.quote.uri} />
@@ -1654,7 +1652,7 @@ function useKeyboardVerticalOffset() {
   const {top, bottom} = useSafeAreaInsets()
 
   // Android etc
-  if (!IS_IOS) {
+  if (!isIOS) {
     // need to account for the edge-to-edge nav bar
     return bottom * -1
   }
@@ -1698,7 +1696,7 @@ function useHideKeyboardOnBackground() {
   const appState = useAppState()
 
   useEffect(() => {
-    if (IS_IOS) {
+    if (isIOS) {
       if (appState === 'inactive') {
         Keyboard.dismiss()
       }
@@ -1848,7 +1846,7 @@ function ToolbarWrapper({
   style: StyleProp<ViewStyle>
   children: React.ReactNode
 }) {
-  if (IS_WEB) return children
+  if (isWeb) return children
   return (
     <Animated.View
       style={style}

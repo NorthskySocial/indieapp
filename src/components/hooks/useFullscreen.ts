@@ -6,7 +6,8 @@ import {
   useSyncExternalStore,
 } from 'react'
 
-import {IS_WEB, IS_WEB_FIREFOX, IS_WEB_SAFARI} from '#/env'
+import {isFirefox, isSafari} from '#/lib/browser'
+import {isWeb} from '#/platform/detection'
 
 function fullscreenSubscribe(onChange: () => void) {
   document.addEventListener('fullscreenchange', onChange)
@@ -14,7 +15,7 @@ function fullscreenSubscribe(onChange: () => void) {
 }
 
 export function useFullscreen(ref?: React.RefObject<HTMLElement | null>) {
-  if (!IS_WEB) throw new Error("'useFullscreen' is a web-only hook")
+  if (!isWeb) throw new Error("'useFullscreen' is a web-only hook")
   const isFullscreen = useSyncExternalStore(fullscreenSubscribe, () =>
     Boolean(document.fullscreenElement),
   )
@@ -38,7 +39,7 @@ export function useFullscreen(ref?: React.RefObject<HTMLElement | null>) {
 
     // Chrome has an issue where it doesn't scroll back to the top after exiting fullscreen
     // Let's play it safe and do it if not FF or Safari, since anything else will probably be chromium
-    if (prevIsFullscreen && !IS_WEB_FIREFOX && !IS_WEB_SAFARI) {
+    if (prevIsFullscreen && !isFirefox && !isSafari) {
       setTimeout(() => {
         if (scrollYRef.current !== null) {
           window.scrollTo(0, scrollYRef.current)

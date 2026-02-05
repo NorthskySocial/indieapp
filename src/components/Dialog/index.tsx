@@ -26,6 +26,7 @@ import {useLingui} from '@lingui/react'
 import {useEnableKeyboardController} from '#/lib/hooks/useEnableKeyboardController'
 import {ScrollProvider} from '#/lib/ScrollContext'
 import {logger} from '#/logger'
+import {isAndroid, isIOS} from '#/platform/detection'
 import {useA11y} from '#/state/a11y'
 import {useDialogStateControlContext} from '#/state/dialogs'
 import {List, type ListMethods, type ListProps} from '#/view/com/util/List'
@@ -38,7 +39,6 @@ import {
   type DialogOuterProps,
 } from '#/components/Dialog/types'
 import {createInput} from '#/components/forms/TextField'
-import {IS_ANDROID, IS_IOS} from '#/env'
 import {BottomSheet, BottomSheetSnapPoint} from '../../../modules/bottom-sheet'
 import {
   type BottomSheetSnapPointChangeEvent,
@@ -154,7 +154,7 @@ export function Outer({
   const context = React.useMemo(
     () => ({
       close,
-      IS_NATIVEDialog: true,
+      isNativeDialog: true,
       nativeSnapPoint: snapPoint,
       disableDrag,
       setDisableDrag,
@@ -209,7 +209,7 @@ export const ScrollableInner = React.forwardRef<ScrollView, DialogInnerProps>(
     const {nativeSnapPoint, disableDrag, setDisableDrag} = useDialogContext()
     const insets = useSafeAreaInsets()
 
-    useEnableKeyboardController(IS_IOS)
+    useEnableKeyboardController(isIOS)
 
     const [keyboardHeight, setKeyboardHeight] = React.useState(0)
 
@@ -224,7 +224,7 @@ export const ScrollableInner = React.forwardRef<ScrollView, DialogInnerProps>(
     )
 
     let paddingBottom = 0
-    if (IS_IOS) {
+    if (isIOS) {
       paddingBottom += keyboardHeight / 4
       if (nativeSnapPoint === BottomSheetSnapPoint.Full) {
         paddingBottom += insets.bottom + tokens.space.md
@@ -240,7 +240,7 @@ export const ScrollableInner = React.forwardRef<ScrollView, DialogInnerProps>(
     }
 
     const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-      if (!IS_ANDROID) {
+      if (!isAndroid) {
         return
       }
       const {contentOffset} = e.nativeEvent
@@ -260,12 +260,12 @@ export const ScrollableInner = React.forwardRef<ScrollView, DialogInnerProps>(
           contentContainerStyle,
         ]}
         ref={ref}
-        showsVerticalScrollIndicator={IS_ANDROID ? false : undefined}
+        showsVerticalScrollIndicator={isAndroid ? false : undefined}
         {...props}
         bounces={nativeSnapPoint === BottomSheetSnapPoint.Full}
         bottomOffset={30}
         scrollEventThrottle={50}
-        onScroll={IS_ANDROID ? onScroll : undefined}
+        onScroll={isAndroid ? onScroll : undefined}
         keyboardShouldPersistTaps="handled"
         // TODO: figure out why this positions the header absolutely (rather than stickily)
         // on Android. fine to disable for now, because we don't have any
@@ -289,11 +289,11 @@ export const InnerFlatList = React.forwardRef<
   const insets = useSafeAreaInsets()
   const {nativeSnapPoint, disableDrag, setDisableDrag} = useDialogContext()
 
-  useEnableKeyboardController(IS_IOS)
+  useEnableKeyboardController(isIOS)
 
   const onScroll = (e: ScrollEvent) => {
     'worklet'
-    if (!IS_ANDROID) {
+    if (!isAndroid) {
       return
     }
     const {contentOffset} = e
@@ -311,7 +311,7 @@ export const InnerFlatList = React.forwardRef<
         bounces={nativeSnapPoint === BottomSheetSnapPoint.Full}
         ListFooterComponent={<View style={{height: insets.bottom + 100}} />}
         ref={ref}
-        showsVerticalScrollIndicator={IS_ANDROID ? false : undefined}
+        showsVerticalScrollIndicator={isAndroid ? false : undefined}
         {...props}
         style={[a.h_full, style]}
       />
@@ -326,7 +326,7 @@ export function FlatListFooter({children}: {children: React.ReactNode}) {
   const {height} = useReanimatedKeyboardAnimation()
 
   const animatedStyle = useAnimatedStyle(() => {
-    if (!IS_IOS) return {}
+    if (!isIOS) return {}
     return {
       transform: [{translateY: Math.min(0, height.get() + bottom - 10)}],
     }
@@ -359,13 +359,7 @@ export function FlatListFooter({children}: {children: React.ReactNode}) {
   )
 }
 
-export function Handle({
-  difference = false,
-  fill,
-}: {
-  difference?: boolean
-  fill?: string
-}) {
+export function Handle({difference = false}: {difference?: boolean}) {
   const t = useTheme()
   const {_} = useLingui()
   const {screenReaderEnabled} = useA11y()
@@ -396,7 +390,7 @@ export function Handle({
                   opacity: 0.75,
                 }
               : {
-                  backgroundColor: fill || t.palette.contrast_975,
+                  backgroundColor: t.palette.contrast_975,
                   opacity: 0.5,
                 },
           ]}

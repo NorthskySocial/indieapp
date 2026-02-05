@@ -1,7 +1,9 @@
+import React from 'react'
 import {View} from 'react-native'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
+import {logEvent} from '#/lib/statsig/statsig'
 import {
   useTrendingSettings,
   useTrendingSettingsApi,
@@ -10,14 +12,18 @@ import {useTrendingTopics} from '#/state/queries/trending/useTrendingTopics'
 import {useTrendingConfig} from '#/state/service-config'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonIcon} from '#/components/Button'
-import {DotGrid_Stroke2_Corner0_Rounded as Ellipsis} from '#/components/icons/DotGrid'
-import {Trending3_Stroke2_Corner1_Rounded as TrendingIcon} from '#/components/icons/Trending'
+import {Divider} from '#/components/Divider'
+import {TimesLarge_Stroke2_Corner0_Rounded as X} from '#/components/icons/Times'
+import {Trending2_Stroke2_Corner2_Rounded as Graph} from '#/components/icons/Trending'
 import * as Prompt from '#/components/Prompt'
-import {TrendingTopicLink} from '#/components/TrendingTopics'
+import {
+  TrendingTopic,
+  TrendingTopicLink,
+  TrendingTopicSkeleton,
+} from '#/components/TrendingTopics'
 import {Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
 
-const TRENDING_LIMIT = 5
+const TRENDING_LIMIT = 6
 
 export function SidebarTrendingTopics() {
   const {enabled} = useTrendingConfig()
@@ -28,94 +34,69 @@ export function SidebarTrendingTopics() {
 function Inner() {
   const t = useTheme()
   const {_} = useLingui()
-  const ax = useAnalytics()
   const trendingPrompt = Prompt.usePromptControl()
   const {setTrendingDisabled} = useTrendingSettingsApi()
   const {data: trending, error, isLoading} = useTrendingTopics()
   const noTopics = !isLoading && !error && !trending?.topics?.length
 
-  const onConfirmHide = () => {
-    ax.metric('trendingTopics:hide', {context: 'sidebar'})
+  const onConfirmHide = React.useCallback(() => {
+    logEvent('trendingTopics:hide', {context: 'sidebar'})
     setTrendingDisabled(true)
-  }
+  }, [setTrendingDisabled])
 
   return error || noTopics ? null : (
     <>
-      <View
-        style={[a.p_lg, a.rounded_md, a.border, t.atoms.border_contrast_low]}>
-        <View style={[a.flex_row, a.align_center, a.gap_xs, a.pb_md]}>
-          <TrendingIcon width={16} height={16} fill={t.atoms.text.color} />
-          <Text style={[a.flex_1, a.text_md, a.font_semi_bold, t.atoms.text]}>
+      <View style={[a.gap_sm, {paddingBottom: 2}]}>
+        <View style={[a.flex_row, a.align_center, a.gap_xs]}>
+          <Graph size="sm" />
+          <Text
+            style={[
+              a.flex_1,
+              a.text_sm,
+              a.font_semi_bold,
+              t.atoms.text_contrast_medium,
+            ]}>
             <Trans>Trending</Trans>
           </Text>
           <Button
-            variant="ghost"
+            label={_(msg`Hide trending topics`)}
             size="tiny"
+            variant="ghost"
             color="secondary"
             shape="round"
-            label={_(msg`Trending options`)}
-            onPress={() => trendingPrompt.open()}
-            style={[a.bg_transparent, {marginTop: -6, marginRight: -6}]}>
-            <ButtonIcon icon={Ellipsis} size="xs" />
+            onPress={() => trendingPrompt.open()}>
+            <ButtonIcon icon={X} />
           </Button>
         </View>
 
-        <View style={[a.gap_xs]}>
+        <View style={[a.flex_row, a.flex_wrap, {gap: '6px 4px'}]}>
           {isLoading ? (
             Array(TRENDING_LIMIT)
               .fill(0)
               .map((_n, i) => (
-                <View key={i} style={[a.flex_row, a.align_center, a.gap_sm]}>
-                  <Text
-                    style={[
-                      a.text_sm,
-                      t.atoms.text_contrast_low,
-                      {minWidth: 16},
-                    ]}>
-                    {i + 1}.
-                  </Text>
-                  <View
-                    style={[
-                      a.rounded_xs,
-                      t.atoms.bg_contrast_50,
-                      {height: 14, width: i % 2 === 0 ? 80 : 100},
-                    ]}
-                  />
-                </View>
+                <TrendingTopicSkeleton key={i} size="small" index={i} />
               ))
           ) : !trending?.topics ? null : (
             <>
-              {trending.topics.slice(0, TRENDING_LIMIT).map((topic, i) => (
+              {trending.topics.slice(0, TRENDING_LIMIT).map(topic => (
                 <TrendingTopicLink
                   key={topic.link}
                   topic={topic}
-                  style={[a.self_start]}
+                  style={a.rounded_full}
                   onPress={() => {
-                    ax.metric('trendingTopic:click', {context: 'sidebar'})
+                    logEvent('trendingTopic:click', {context: 'sidebar'})
                   }}>
                   {({hovered}) => (
-                    <View style={[a.flex_row, a.align_center, a.gap_xs]}>
-                      <Text
-                        style={[
-                          a.text_sm,
-                          a.leading_snug,
-                          t.atoms.text_contrast_low,
-                          {minWidth: 16},
-                        ]}>
-                        {i + 1}.
-                      </Text>
-                      <Text
-                        style={[
-                          a.text_sm,
-                          a.leading_snug,
-                          hovered
-                            ? [t.atoms.text, a.underline]
-                            : t.atoms.text_contrast_medium,
-                        ]}
-                        numberOfLines={1}>
-                        {topic.displayName ?? topic.topic}
-                      </Text>
-                    </View>
+                    <TrendingTopic
+                      size="small"
+                      topic={topic}
+                      style={[
+                        hovered && [
+                          t.atoms.border_contrast_high,
+                          t.atoms.bg_contrast_25,
+                        ],
+                      ]}
+                    />
                   )}
                 </TrendingTopicLink>
               ))}
@@ -130,6 +111,7 @@ function Inner() {
         confirmButtonCta={_(msg`Hide`)}
         onConfirm={onConfirmHide}
       />
+      <Divider />
     </>
   )
 }

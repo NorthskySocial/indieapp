@@ -9,6 +9,7 @@ import {
   type ModerationDecision,
   RichText as RichTextAPI,
 } from '@atproto/api'
+import {useNavigation} from '@react-navigation/native'
 import {useQueryClient} from '@tanstack/react-query'
 
 import {useActorStatus} from '#/lib/actor-status'
@@ -17,6 +18,8 @@ import {MAX_POST_LINES} from '#/lib/constants'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {usePalette} from '#/lib/hooks/usePalette'
 import {makeProfileLink} from '#/lib/routes/links'
+import {type NavigationProp} from '#/lib/routes/types'
+import {useGate} from '#/lib/statsig/statsig'
 import {countLines} from '#/lib/strings/helpers'
 import {
   POST_TOMBSTONE,
@@ -47,7 +50,7 @@ import {PostControls} from '#/components/PostControls'
 import {DiscoverDebug} from '#/components/PostControls/DiscoverDebug'
 import {RichText} from '#/components/RichText'
 import {SubtleHover} from '#/components/SubtleHover'
-import {useAnalytics} from '#/analytics'
+import {ENV} from '#/env'
 import * as bsky from '#/types/bsky'
 import {PostFeedReason} from './PostFeedReason'
 
@@ -158,19 +161,19 @@ let FeedItemInner = ({
   rootPost: AppBskyFeedDefs.PostView
   onShowLess?: (interaction: AppBskyFeedDefs.Interaction) => void
 }): React.ReactNode => {
-  const ax = useAnalytics()
   const queryClient = useQueryClient()
   const {openComposer} = useOpenComposer()
+  const navigation = useNavigation<NavigationProp>()
   const pal = usePalette('default')
+  const gate = useGate()
 
   const [hover, setHover] = useState(false)
 
-  const [href] = useMemo(() => {
+  const [href, rkey] = useMemo(() => {
     const urip = new AtUri(post.uri)
     return [makeProfileLink(post.author, 'post', urip.rkey), urip.rkey]
   }, [post.uri, post.author])
-  const {sendInteraction, feedSourceInfo, feedDescriptor} =
-    useFeedFeedbackContext()
+  const {sendInteraction, feedSourceInfo} = useFeedFeedbackContext()
 
   const onPressReply = () => {
     sendInteraction({
@@ -179,17 +182,24 @@ let FeedItemInner = ({
       feedContext,
       reqId,
     })
-    openComposer({
-      replyTo: {
-        uri: post.uri,
-        cid: post.cid,
-        text: record.text || '',
-        author: post.author,
-        embed: post.embed,
-        moderation,
-        langs: record.langs,
-      },
-    })
+    if (gate('feed_reply_button_open_thread') && ENV !== 'e2e') {
+      navigation.navigate('PostThread', {
+        name: post.author.did,
+        rkey,
+      })
+    } else {
+      openComposer({
+        replyTo: {
+          uri: post.uri,
+          cid: post.cid,
+          text: record.text || '',
+          author: post.author,
+          embed: post.embed,
+          moderation,
+          langs: record.langs,
+        },
+      })
+    }
   }
 
   const onOpenAuthor = () => {
@@ -198,12 +208,6 @@ let FeedItemInner = ({
       event: 'app.bsky.feed.defs#clickthroughAuthor',
       feedContext,
       reqId,
-    })
-    ax.metric('post:clickthroughAuthor', {
-      uri: post.uri,
-      authorDid: post.author.did,
-      logContext: 'FeedItem',
-      feedDescriptor,
     })
   }
 
@@ -223,12 +227,6 @@ let FeedItemInner = ({
       feedContext,
       reqId,
     })
-    ax.metric('post:clickthroughEmbed', {
-      uri: post.uri,
-      authorDid: post.author.did,
-      logContext: 'FeedItem',
-      feedDescriptor,
-    })
   }
 
   const onBeforePress = () => {
@@ -237,12 +235,6 @@ let FeedItemInner = ({
       event: 'app.bsky.feed.defs#clickthroughItem',
       feedContext,
       reqId,
-    })
-    ax.metric('post:clickthroughItem', {
-      uri: post.uri,
-      authorDid: post.author.did,
-      logContext: 'FeedItem',
-      feedDescriptor,
     })
     unstableCacheProfileView(queryClient, post.author)
     setUnstablePostSource(buildPostSourceKey(post.uri, post.author.handle), {

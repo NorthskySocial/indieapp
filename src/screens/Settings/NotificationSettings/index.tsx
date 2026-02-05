@@ -6,11 +6,12 @@ import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {useQuery, useQueryClient} from '@tanstack/react-query'
 
-import {useAppState} from '#/lib/appState'
+import {useAppState} from '#/lib/hooks/useAppState'
 import {
   type AllNavigatorParams,
   type NativeStackScreenProps,
 } from '#/lib/routes/types'
+import {isAndroid, isIOS, isWeb} from '#/platform/detection'
 import {useNotificationSettingsQuery} from '#/state/queries/notifications/settings'
 import {atoms as a} from '#/alf'
 import {Admonition} from '#/components/Admonition'
@@ -30,7 +31,6 @@ import {
 } from '#/components/icons/Repost'
 import {Shapes_Stroke2_Corner0_Rounded as ShapesIcon} from '#/components/icons/Shapes'
 import * as Layout from '#/components/Layout'
-import {IS_ANDROID, IS_IOS, IS_WEB} from '#/env'
 import * as SettingsList from '../components/SettingsList'
 import {ItemTextWithSubtitle} from './components/ItemTextWithSubtitle'
 
@@ -45,7 +45,7 @@ export function NotificationSettingsScreen({}: Props) {
   const {data: permissions, refetch} = useQuery({
     queryKey: RQKEY,
     queryFn: async () => {
-      if (IS_WEB) return null
+      if (isWeb) return null
       return await Notification.getPermissionsAsync()
     },
   })
@@ -58,12 +58,12 @@ export function NotificationSettingsScreen({}: Props) {
   }, [appState, refetch])
 
   const onRequestPermissions = async () => {
-    if (IS_WEB) return
+    if (isWeb) return
     if (permissions?.canAskAgain) {
       const response = await Notification.requestPermissionsAsync()
       queryClient.setQueryData(RQKEY, response)
     } else {
-      if (IS_ANDROID) {
+      if (isAndroid) {
         try {
           await Linking.sendIntent(
             'android.settings.APP_NOTIFICATION_SETTINGS',
@@ -77,7 +77,7 @@ export function NotificationSettingsScreen({}: Props) {
         } catch {
           Linking.openSettings()
         }
-      } else if (IS_IOS) {
+      } else if (isIOS) {
         Linking.openSettings()
       }
     }

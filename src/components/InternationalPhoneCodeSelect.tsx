@@ -1,5 +1,4 @@
 import {Fragment, useMemo} from 'react'
-import {Text as RNText} from 'react-native'
 import {Image} from 'expo-image'
 import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
@@ -10,9 +9,9 @@ import {
   INTERNATIONAL_TELEPHONE_CODES,
 } from '#/lib/international-telephone-codes'
 import {regionName} from '#/locale/helpers'
+import {isWeb} from '#/platform/detection'
 import {atoms as a, web} from '#/alf'
 import * as Select from '#/components/Select'
-import {IS_WEB} from '#/env'
 import {useGeolocation} from '#/geolocation'
 
 /**
@@ -84,7 +83,7 @@ export function InternationalPhoneCodeSelect({
             <Select.Item value={item.value} label={item.label}>
               <Select.ItemIndicator />
               <Select.ItemText style={[a.flex_1]} emoji>
-                {IS_WEB ? <Flag {...item} /> : item.unicodeFlag + ' '}
+                {isWeb ? <Flag {...item} /> : item.unicodeFlag + ' '}
                 {item.name}
               </Select.ItemText>
               <Select.ItemText style={[a.text_right]}>
@@ -101,7 +100,7 @@ export function InternationalPhoneCodeSelect({
 }
 
 function Flag({unicodeFlag, svgFlag}: {unicodeFlag: string; svgFlag: any}) {
-  if (IS_WEB) {
+  if (isWeb) {
     return (
       <Image
         source={svgFlag}
@@ -114,5 +113,5 @@ function Flag({unicodeFlag, svgFlag}: {unicodeFlag: string; svgFlag: any}) {
       />
     )
   }
-  return <RNText style={[{lineHeight: 21}]}>{unicodeFlag + ' '}</RNText>
+  return unicodeFlag + ' '
 }

@@ -1,17 +1,14 @@
 const {RuleTester} = require('eslint')
-const tseslint = require('typescript-eslint')
 const avoidUnwrappedText = require('../avoid-unwrapped-text')
 
 const ruleTester = new RuleTester({
-  languageOptions: {
-    parser: tseslint.parser,
-    parserOptions: {
-      ecmaFeatures: {
-        jsx: true,
-      },
-      ecmaVersion: 'latest',
-      sourceType: 'module',
+  parser: require.resolve('@typescript-eslint/parser'),
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
     },
+    ecmaVersion: 6,
+    sourceType: 'module',
   },
 })
 
@@ -773,6 +770,15 @@ function MyText({ foo }) {
   <Trans>{foo}</Trans>
 </View>
         `,
+        errors: 1,
+      },
+
+      {
+        code: `
+<View>
+  <Trans>{'foo'}</Trans>
+</View>
+       `,
         errors: 1,
       },
 

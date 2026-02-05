@@ -13,6 +13,7 @@ import {useLingui} from '@lingui/react'
 
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
+import {isWeb} from '#/platform/detection'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useActorAutocompleteQuery} from '#/state/queries/actor-autocomplete'
 import {useListConvosQuery} from '#/state/queries/messages/list-conversations'
@@ -28,7 +29,6 @@ import {MagnifyingGlass_Stroke2_Corner0_Rounded as Search} from '#/components/ic
 import {TimesLarge_Stroke2_Corner0_Rounded as X} from '#/components/icons/Times'
 import * as ProfileCard from '#/components/ProfileCard'
 import {Text} from '#/components/Typography'
-import {IS_WEB} from '#/env'
 import type * as bsky from '#/types/bsky'
 
 export type ProfileItem = {
@@ -254,7 +254,7 @@ export function SearchablePeopleList({
   )
 
   useLayoutEffect(() => {
-    if (IS_WEB) {
+    if (isWeb) {
       setImmediate(() => {
         inputRef?.current?.focus()
       })
@@ -290,12 +290,12 @@ export function SearchablePeopleList({
             ]}>
             {title}
           </Text>
-          {IS_WEB ? (
+          {isWeb ? (
             <Button
               label={_(msg`Close`)}
               size="small"
               shape="round"
-              variant={IS_WEB ? 'ghost' : 'solid'}
+              variant={isWeb ? 'ghost' : 'solid'}
               color="secondary"
               style={[
                 a.absolute,

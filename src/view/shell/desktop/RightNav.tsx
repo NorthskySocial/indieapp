@@ -18,11 +18,11 @@ import {
   web,
 } from '#/alf'
 import {AppLanguageDropdown} from '#/components/AppLanguageDropdown'
+import {Divider} from '#/components/Divider'
 import {CENTER_COLUMN_OFFSET} from '#/components/Layout'
 import {InlineLinkText} from '#/components/Link'
 import {ProgressGuideList} from '#/components/ProgressGuide/List'
 import {Text} from '#/components/Typography'
-import {SidebarLiveEventFeedsBanner} from '#/features/liveEvents/components/SidebarLiveEventFeedsBanner'
 
 function useWebQueryParams() {
   const navigation = useNavigation()
@@ -50,8 +50,7 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
   const isSearchScreen = routeName === 'Search'
   const webqueryParams = useWebQueryParams()
   const searchQuery = webqueryParams?.q
-  const showExploreScreenDuplicatedContent =
-    !isSearchScreen || (isSearchScreen && !!searchQuery)
+  const showTrending = !isSearchScreen || (isSearchScreen && !!searchQuery)
   const {rightNavVisible, centerColumnOffset, leftNavMinimal} =
     useLayoutBreakpoints()
 
@@ -87,13 +86,13 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
 
       {hasSession && (
         <>
-          <DesktopFeeds />
           <ProgressGuideList />
+          <DesktopFeeds />
+          <Divider />
         </>
       )}
 
-      {showExploreScreenDuplicatedContent && <SidebarLiveEventFeedsBanner />}
-      {showExploreScreenDuplicatedContent && <SidebarTrendingTopics />}
+      {showTrending && <SidebarTrendingTopics />}
 
       <Text style={[a.leading_snug, t.atoms.text_contrast_low]}>
         {hasSession && (
@@ -103,31 +102,25 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
                 email: currentAccount?.email,
                 handle: currentAccount?.handle,
               })}
-              style={[t.atoms.text_contrast_medium]}
               label={_(msg`Feedback`)}>
               {_(msg`Feedback`)}
             </InlineLinkText>
-            <Text style={[t.atoms.text_contrast_low]}>{' ∙ '}</Text>
+            {' • '}
           </>
         )}
         <InlineLinkText
           to="https://bsky.social/about/support/privacy-policy"
-          style={[t.atoms.text_contrast_medium]}
           label={_(msg`Privacy`)}>
           {_(msg`Privacy`)}
         </InlineLinkText>
-        <Text style={[t.atoms.text_contrast_low]}>{' ∙ '}</Text>
+        {' • '}
         <InlineLinkText
           to="https://bsky.social/about/support/tos"
-          style={[t.atoms.text_contrast_medium]}
           label={_(msg`Terms`)}>
           {_(msg`Terms`)}
         </InlineLinkText>
-        <Text style={[t.atoms.text_contrast_low]}>{' ∙ '}</Text>
-        <InlineLinkText
-          label={_(msg`Help`)}
-          to={HELP_DESK_URL}
-          style={[t.atoms.text_contrast_medium]}>
+        {' • '}
+        <InlineLinkText label={_(msg`Help`)} to={HELP_DESK_URL}>
           {_(msg`Help`)}
         </InlineLinkText>
       </Text>

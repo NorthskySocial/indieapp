@@ -9,6 +9,7 @@ import {useQueryClient} from '@tanstack/react-query'
 import {useAccountSwitcher} from '#/lib/hooks/useAccountSwitcher'
 import {logger as notyLogger} from '#/lib/notifications/util'
 import {type NavigationProp} from '#/lib/routes/types'
+import {isAndroid, isIOS} from '#/platform/detection'
 import {useCurrentConvoId} from '#/state/messages/current-convo-id'
 import {RQKEY as RQKEY_NOTIFS} from '#/state/queries/notifications/feed'
 import {invalidateCachedUnreadPage} from '#/state/queries/notifications/unread'
@@ -16,8 +17,6 @@ import {truncateAndInvalidate} from '#/state/queries/util'
 import {useSession} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {useCloseAllActiveElements} from '#/state/util'
-import {useAnalytics} from '#/analytics'
-import {IS_ANDROID, IS_IOS} from '#/env'
 import {resetToTab} from '#/Navigation'
 import {router} from '#/routes'
 
@@ -76,8 +75,6 @@ let storedAccountSwitchPayload: NotificationPayload
 let lastHandledNotificationDateDedupe = 0
 
 export function useNotificationsHandler() {
-  const ax = useAnalytics()
-  const logger = ax.logger.useChild(ax.logger.Context.Notifications)
   const queryClient = useQueryClient()
   const {currentAccount, accounts} = useSession()
   const {onPressSwitchAccount} = useAccountSwitcher()
@@ -93,7 +90,7 @@ export function useNotificationsHandler() {
   // channels allow for the mute/unmute functionality we want for the background
   // handler.
   useEffect(() => {
-    if (!IS_ANDROID) return
+    if (!isAndroid) return
     // assign both chat notifications to a group
     // NOTE: I don't think that it will retroactively move them into the group
     // if the channels already exist. no big deal imo -sfn
@@ -193,7 +190,7 @@ export function useNotificationsHandler() {
       if (!payload) return
 
       if (payload.reason === 'chat-message') {
-        logger.debug(`useNotificationsHandler: handling chat message`, {
+        notyLogger.debug(`useNotificationsHandler: handling chat message`, {
           payload,
         })
 
@@ -253,7 +250,7 @@ export function useNotificationsHandler() {
           const [screen, params] = router.matchPath(url)
           // @ts-expect-error router is not typed :/ -sfn
           navigation.navigate('HomeTab', {screen, params})
-          logger.debug(`useNotificationsHandler: navigate`, {
+          notyLogger.debug(`useNotificationsHandler: navigate`, {
             screen,
             params,
           })
@@ -267,7 +264,7 @@ export function useNotificationsHandler() {
 
         if (!payload) return DEFAULT_HANDLER_OPTIONS
 
-        logger.debug('useNotificationsHandler: incoming', {e, payload})
+        notyLogger.debug('useNotificationsHandler: incoming', {e, payload})
 
         if (
           payload.reason === 'chat-message' &&
@@ -293,7 +290,7 @@ export function useNotificationsHandler() {
         if (e.notification.date === lastHandledNotificationDateDedupe) return
         lastHandledNotificationDateDedupe = e.notification.date
 
-        logger.debug('useNotificationsHandler: response received', {
+        notyLogger.debug('useNotificationsHandler: response received', {
           actionIdentifier: e.actionIdentifier,
         })
 
@@ -304,14 +301,15 @@ export function useNotificationsHandler() {
         const payload = getNotificationPayload(e.notification)
 
         if (payload) {
-          logger.debug(
+          notyLogger.debug(
             'User pressed a notification, opening notifications tab',
             {},
           )
-          ax.metric('notifications:openApp', {
-            reason: payload.reason,
-            causedBoot: false,
-          })
+          notyLogger.metric(
+            'notifications:openApp',
+            {reason: payload.reason, causedBoot: false},
+            {statsig: false},
+          )
 
           invalidateCachedUnreadPage()
           truncateAndInvalidate(queryClient, RQKEY_NOTIFS('all'))
@@ -324,7 +322,7 @@ export function useNotificationsHandler() {
             truncateAndInvalidate(queryClient, RQKEY_NOTIFS('mentions'))
           }
 
-          logger.debug('Notifications: handleNotification', {
+          notyLogger.debug('Notifications: handleNotification', {
             content: e.notification.request.content,
             payload: payload,
           })
@@ -332,7 +330,7 @@ export function useNotificationsHandler() {
           handleNotification(payload)
           Notifications.dismissAllNotificationsAsync()
         } else {
-          logger.error('useNotificationsHandler: received no payload', {
+          notyLogger.error('useNotificationsHandler: received no payload', {
             identifier: e.notification.request.identifier,
           })
         }
@@ -352,8 +350,6 @@ export function useNotificationsHandler() {
       responseReceivedListener.remove()
     }
   }, [
-    ax,
-    logger,
     queryClient,
     currentAccount,
     currentConvoId,
@@ -383,7 +379,7 @@ export function getNotificationPayload(
   }
 
   const payload = (
-    IS_IOS ? e.request.trigger.payload : e.request.content.data
+    isIOS ? e.request.trigger.payload : e.request.content.data
   ) as NotificationPayload
 
   if (payload && payload.reason) {

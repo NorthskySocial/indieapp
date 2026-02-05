@@ -18,7 +18,9 @@ import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {ComposeIcon2} from '#/lib/icons'
 import {getRootNavigation, getTabState, TabState} from '#/lib/routes/helpers'
 import {type AllNavigatorParams} from '#/lib/routes/types'
+import {logEvent} from '#/lib/statsig/statsig'
 import {s} from '#/lib/styles'
+import {isNative} from '#/platform/detection'
 import {listenSoftReset} from '#/state/events'
 import {FeedFeedbackProvider, useFeedFeedback} from '#/state/feed-feedback'
 import {useSetHomeBadge} from '#/state/home-badge'
@@ -32,8 +34,6 @@ import {truncateAndInvalidate} from '#/state/queries/util'
 import {useSession} from '#/state/session'
 import {useSetMinimalShellMode} from '#/state/shell'
 import {useHeaderOffset} from '#/components/hooks/useHeaderOffset'
-import {useAnalytics} from '#/analytics'
-import {IS_NATIVE} from '#/env'
 import {PostFeed} from '../posts/PostFeed'
 import {FAB} from '../util/fab/FAB'
 import {type ListMethods} from '../util/List'
@@ -63,7 +63,6 @@ export function FeedPage({
   savedFeedConfig?: AppBskyActorDefs.SavedFeed
   feedInfo: FeedSourceInfo
 }) {
-  const ax = useAnalytics()
   const {hasSession} = useSession()
   const {_} = useLingui()
   const navigation = useNavigation<NavigationProp<AllNavigatorParams>>()
@@ -81,7 +80,7 @@ export function FeedPage({
     const feedIsVideoMode =
       feedInfo.contentMode === AppBskyFeedDefs.CONTENTMODEVIDEO
     const _isVideoFeed = isBskyVideoFeed || feedIsVideoMode
-    return IS_NATIVE && _isVideoFeed
+    return isNative && _isVideoFeed
   }, [feedInfo])
 
   useEffect(() => {
@@ -92,7 +91,7 @@ export function FeedPage({
 
   const scrollToTop = useCallback(() => {
     scrollElRef.current?.scrollToOffset({
-      animated: IS_NATIVE,
+      animated: isNative,
       offset: -headerOffset,
     })
     setMinimalShellMode(false)
@@ -106,13 +105,13 @@ export function FeedPage({
       scrollToTop()
       truncateAndInvalidate(queryClient, FEED_RQKEY(feed))
       setHasNew(false)
-      ax.metric('feed:refresh', {
+      logEvent('feed:refresh', {
         feedType: feed.split('|')[0],
         feedUrl: feed,
         reason: 'soft-reset',
       })
     }
-  }, [ax, navigation, isPageFocused, scrollToTop, queryClient, feed])
+  }, [navigation, isPageFocused, scrollToTop, queryClient, feed])
 
   // fires when page within screen is activated/deactivated
   useEffect(() => {
@@ -130,14 +129,14 @@ export function FeedPage({
     scrollToTop()
     truncateAndInvalidate(queryClient, FEED_RQKEY(feed))
     setHasNew(false)
-    ax.metric('feed:refresh', {
+    logEvent('feed:refresh', {
       feedType: feed.split('|')[0],
       feedUrl: feed,
       reason: 'load-latest',
     })
-  }, [ax, scrollToTop, feed, queryClient])
+  }, [scrollToTop, feed, queryClient])
 
-  const shouldPrefetch = IS_NATIVE && isPageAdjacent
+  const shouldPrefetch = isNative && isPageAdjacent
   const isDiscoverFeed = feedInfo.uri === DISCOVER_FEED_URI
   return (
     <View

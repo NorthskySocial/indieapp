@@ -13,11 +13,7 @@ const BANNED_IMPORT_PREFIXES = [
 module.exports = {
   meta: {
     type: 'suggestion',
-    docs: {
-      description: 'Enforce using prefixed imports for internal paths',
-    },
     fixable: 'code',
-    schema: [],
   },
   create(context) {
     return {

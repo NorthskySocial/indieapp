@@ -7,6 +7,7 @@ import {type NavigationProp} from '#/lib/routes/types'
 import {shareUrl} from '#/lib/sharing'
 import {toShareUrl} from '#/lib/strings/url-helpers'
 import {logger} from '#/logger'
+import {isWeb} from '#/platform/detection'
 import {
   useListBlockMutation,
   useListDeleteMutation,
@@ -33,8 +34,6 @@ import {
 } from '#/components/moderation/ReportDialog'
 import * as Prompt from '#/components/Prompt'
 import * as Toast from '#/components/Toast'
-import {useAnalytics} from '#/analytics'
-import {IS_WEB} from '#/env'
 
 export function MoreOptionsMenu({
   list,
@@ -44,7 +43,6 @@ export function MoreOptionsMenu({
   savedFeedConfig?: AppBskyActorDefs.SavedFeed
 }) {
   const {_} = useLingui()
-  const ax = useAnalytics()
   const {currentAccount} = useSession()
   const editListDialogControl = useDialogControl()
   const deleteListPromptControl = useDialogControl()
@@ -113,7 +111,11 @@ export function MoreOptionsMenu({
     try {
       await muteList({uri: list.uri, mute: false})
       Toast.show(_(msg({message: 'List unmuted', context: 'toast'})))
-      ax.metric('moderation:unsubscribedFromList', {listType: 'mute'})
+      logger.metric(
+        'moderation:unsubscribedFromList',
+        {listType: 'mute'},
+        {statsig: true},
+      )
     } catch {
       Toast.show(
         _(
@@ -127,7 +129,11 @@ export function MoreOptionsMenu({
     try {
       await blockList({uri: list.uri, block: false})
       Toast.show(_(msg({message: 'List unblocked', context: 'toast'})))
-      ax.metric('moderation:unsubscribedFromList', {listType: 'block'})
+      logger.metric(
+        'moderation:unsubscribedFromList',
+        {listType: 'block'},
+        {statsig: true},
+      )
     } catch {
       Toast.show(
         _(
@@ -156,10 +162,10 @@ export function MoreOptionsMenu({
         <Menu.Outer>
           <Menu.Group>
             <Menu.Item
-              label={IS_WEB ? _(msg`Copy link to list`) : _(msg`Share via...`)}
+              label={isWeb ? _(msg`Copy link to list`) : _(msg`Share via...`)}
               onPress={onPressShare}>
               <Menu.ItemText>
-                {IS_WEB ? (
+                {isWeb ? (
                   <Trans>Copy link to list</Trans>
                 ) : (
                   <Trans>Share via...</Trans>
@@ -167,7 +173,7 @@ export function MoreOptionsMenu({
               </Menu.ItemText>
               <Menu.ItemIcon
                 position="right"
-                icon={IS_WEB ? ChainLink : ShareIcon}
+                icon={isWeb ? ChainLink : ShareIcon}
               />
             </Menu.Item>
             {savedFeedConfig && (

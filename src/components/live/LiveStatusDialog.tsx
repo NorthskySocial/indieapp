@@ -11,17 +11,14 @@ import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {type NavigationProp} from '#/lib/routes/types'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {toNiceDomain} from '#/lib/strings/url-helpers'
+import {logger} from '#/logger'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {unstableCacheProfileView} from '#/state/queries/profile'
 import {android, atoms as a, platform, tokens, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
-import {CircleInfo_Stroke2_Corner0_Rounded as CircleInfoIcon} from '#/components/icons/CircleInfo'
-import {createStaticClick, SimpleInlineLinkText} from '#/components/Link'
-import {useGlobalReportDialogControl} from '#/components/moderation/ReportDialog'
 import * as ProfileCard from '#/components/ProfileCard'
 import {Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
 import type * as bsky from '#/types/bsky'
 import {Globe_Stroke2_Corner0_Rounded} from '../icons/Globe'
 import {SquareArrowTopRight_Stroke2_Corner0_Rounded as SquareArrowTopRightIcon} from '../icons/SquareArrowTopRight'
@@ -31,7 +28,6 @@ export function LiveStatusDialog({
   control,
   profile,
   embed,
-  status,
 }: {
   control: Dialog.DialogControlProps
   profile: bsky.profile.AnyProfileView
@@ -42,12 +38,7 @@ export function LiveStatusDialog({
   return (
     <Dialog.Outer control={control} nativeOptions={{preventExpansion: true}}>
       <Dialog.Handle difference={!!embed.external.thumb} />
-      <DialogInner
-        status={status}
-        profile={profile}
-        embed={embed}
-        navigation={navigation}
-      />
+      <DialogInner profile={profile} embed={embed} navigation={navigation} />
     </Dialog.Outer>
   )
 }
@@ -56,12 +47,10 @@ function DialogInner({
   profile,
   embed,
   navigation,
-  status,
 }: {
   profile: bsky.profile.AnyProfileView
   embed: AppBskyEmbedExternal.View
   navigation: NavigationProp
-  status: AppBskyActorDefs.StatusView
 }) {
   const {_} = useLingui()
   const control = Dialog.useDialogContext()
@@ -80,7 +69,6 @@ function DialogInner({
       contentContainerStyle={[a.pt_0, a.px_0]}
       style={[web({maxWidth: 420}), a.overflow_hidden]}>
       <LiveStatus
-        status={status}
         profile={profile}
         embed={embed}
         onPressOpenProfile={onPressOpenProfile}
@@ -91,26 +79,21 @@ function DialogInner({
 }
 
 export function LiveStatus({
-  status,
   profile,
   embed,
   padding = 'xl',
   onPressOpenProfile,
 }: {
-  status: AppBskyActorDefs.StatusView
   profile: bsky.profile.AnyProfileView
   embed: AppBskyEmbedExternal.View
   padding?: 'lg' | 'xl'
   onPressOpenProfile: () => void
 }) {
-  const ax = useAnalytics()
   const {_} = useLingui()
   const t = useTheme()
   const queryClient = useQueryClient()
   const openLink = useOpenLink()
   const moderationOpts = useModerationOpts()
-  const reportDialogControl = useGlobalReportDialogControl()
-  const dialogContext = Dialog.useDialogContext()
 
   return (
     <>
@@ -175,7 +158,11 @@ export function LiveStatus({
           color="primary"
           variant="solid"
           onPress={() => {
-            ax.metric('live:card:watch', {subject: profile.did})
+            logger.metric(
+              'live:card:watch',
+              {subject: profile.did},
+              {statsig: true},
+            )
             openLink(embed.external.uri, false)
           }}>
           <ButtonText>
@@ -204,7 +191,11 @@ export function LiveStatus({
               color="secondary"
               variant="solid"
               onPress={() => {
-                ax.metric('live:card:openProfile', {subject: profile.did})
+                logger.metric(
+                  'live:card:openProfile',
+                  {subject: profile.did},
+                  {statsig: true},
+                )
                 unstableCacheProfileView(queryClient, profile)
                 onPressOpenProfile()
               }}>
@@ -214,43 +205,15 @@ export function LiveStatus({
             </Button>
           </ProfileCard.Header>
         )}
-        <View
+        <Text
           style={[
-            a.flex_row,
-            a.align_center,
-            a.justify_between,
             a.w_full,
-            a.pt_sm,
+            a.text_center,
+            t.atoms.text_contrast_low,
+            a.text_sm,
           ]}>
-          <View style={[a.flex_row, a.align_center, a.gap_xs, a.flex_1]}>
-            <CircleInfoIcon size="sm" fill={t.atoms.text_contrast_low.color} />
-            <Text style={[t.atoms.text_contrast_low, a.text_sm]}>
-              <Trans>Live feature is in beta</Trans>
-            </Text>
-          </View>
-          {status && (
-            <SimpleInlineLinkText
-              label={_(msg`Report this livestream`)}
-              {...createStaticClick(() => {
-                function open() {
-                  reportDialogControl.open({
-                    subject: {
-                      ...status,
-                      $type: 'app.bsky.actor.defs#statusView',
-                    },
-                  })
-                }
-                if (dialogContext.isWithinDialog) {
-                  dialogContext.close(open)
-                } else {
-                  open()
-                }
-              })}
-              style={[a.text_sm, a.underline, t.atoms.text_contrast_medium]}>
-              <Trans>Report</Trans>
-            </SimpleInlineLinkText>
-          )}
-        </View>
+          <Trans>Live feature is in beta testing</Trans>
+        </Text>
       </View>
     </>
   )

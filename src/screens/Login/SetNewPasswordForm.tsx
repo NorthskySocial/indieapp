@@ -3,7 +3,9 @@ import {ActivityIndicator, View} from 'react-native'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
-import {cleanError, isNetworkError} from '#/lib/strings/errors'
+import {logEvent} from '#/lib/statsig/statsig'
+import {isNetworkError} from '#/lib/strings/errors'
+import {cleanError} from '#/lib/strings/errors'
 import {checkAndFormatResetCode} from '#/lib/strings/password'
 import {logger} from '#/logger'
 import {Agent} from '#/state/session/agent'
@@ -14,7 +16,6 @@ import * as TextField from '#/components/forms/TextField'
 import {Lock_Stroke2_Corner0_Rounded as Lock} from '#/components/icons/Lock'
 import {Ticket_Stroke2_Corner0_Rounded as Ticket} from '#/components/icons/Ticket'
 import {Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
 import {FormContainer} from './FormContainer'
 
 export const SetNewPasswordForm = ({
@@ -32,7 +33,6 @@ export const SetNewPasswordForm = ({
 }) => {
   const {_} = useLingui()
   const t = useTheme()
-  const ax = useAnalytics()
 
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [resetCode, setResetCode] = useState<string>('')
@@ -49,7 +49,7 @@ export const SetNewPasswordForm = ({
           msg`You have entered an invalid code. It should look like XXXXX-XXXXX.`,
         ),
       )
-      ax.metric('signin:passwordResetFailure', {})
+      logEvent('signin:passwordResetFailure', {})
       return
     }
 
@@ -69,11 +69,11 @@ export const SetNewPasswordForm = ({
         password,
       })
       onPasswordSet()
-      ax.metric('signin:passwordResetSuccess', {})
+      logEvent('signin:passwordResetSuccess', {})
     } catch (e: any) {
       const errMsg = e.toString()
       logger.warn('Failed to set new password', {error: e})
-      ax.metric('signin:passwordResetFailure', {})
+      logEvent('signin:passwordResetFailure', {})
       setIsProcessing(false)
       if (isNetworkError(e)) {
         setError(

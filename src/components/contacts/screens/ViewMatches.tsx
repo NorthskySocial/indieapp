@@ -39,7 +39,6 @@ import {Loader} from '#/components/Loader'
 import * as ProfileCard from '#/components/ProfileCard'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
 import type * as bsky from '#/types/bsky'
 import {InviteInfo} from '../components/InviteInfo'
 import {type Action, type Contact, type Match, type State} from '../state'
@@ -84,7 +83,6 @@ export function ViewMatches({
 }) {
   const t = useTheme()
   const {_} = useLingui()
-  const ax = useAnalytics()
   const gutter = useGutters([0, 'wide'])
   const moderationOpts = useModerationOpts()
   const queryClient = useQueryClient()
@@ -106,14 +104,16 @@ export function ViewMatches({
     match => !state.dismissedMatches.includes(match.profile.did),
   )
 
+  console.log(matches)
+
   const followableDids = matches.map(match => match.profile.did)
   const [didFollowAll, setDidFollowAll] = useState(followableDids.length === 0)
 
   const cumulativeFollowCount = useRef(0)
   const onFollow = useCallback(() => {
-    ax.metric('contacts:matches:follow', {entryPoint: context})
+    logger.metric('contacts:matches:follow', {entryPoint: context})
     cumulativeFollowCount.current += 1
-  }, [ax, context])
+  }, [context])
 
   const {mutate: followAll, isPending: isFollowingAll} = useMutation({
     mutationFn: async () => {
@@ -134,7 +134,7 @@ export function ViewMatches({
       return followableDids
     },
     onMutate: () =>
-      ax.metric('contacts:matches:followAll', {
+      logger.metric('contacts:matches:followAll', {
         followCount: followableDids.length,
         entryPoint: context,
       }),
@@ -220,7 +220,7 @@ export function ViewMatches({
       await agent.app.bsky.contact.dismissMatch({subject: did})
     },
     onMutate: did => {
-      ax.metric('contacts:matches:dismiss', {entryPoint: context})
+      logger.metric('contacts:matches:dismiss', {entryPoint: context})
       dispatch({type: 'DISMISS_MATCH', payload: {did}})
     },
     onSuccess: (_res, did) => {
@@ -394,7 +394,7 @@ export function ViewMatches({
           label={context === 'Onboarding' ? _(msg`Next`) : _(msg`Done`)}
           onPress={() => {
             if (context === 'Onboarding') {
-              ax.metric('onboarding:contacts:nextPressed', {
+              logger.metric('onboarding:contacts:nextPressed', {
                 matchCount: allMatches.length,
                 followCount: cumulativeFollowCount.current,
                 dismissedMatchCount: state.dismissedMatches.length,
@@ -449,7 +449,7 @@ function MatchItem({
   const contactName = useMemo(() => {
     if (!contact) return null
 
-    const name = contact.name ?? contact.firstName ?? contact.lastName
+    const name = contact.firstName ?? contact.lastName ?? contact.name
     if (name) return _(msg`Your contact ${name}`)
     const phone =
       contact.phoneNumbers?.find(p => p.isPrimary) ?? contact.phoneNumbers?.[0]
@@ -518,10 +518,9 @@ function ContactItem({
   const gutter = useGutters([0, 'wide'])
   const t = useTheme()
   const {_} = useLingui()
-  const ax = useAnalytics()
   const {currentAccount} = useSession()
 
-  const name = contact.name ?? contact.firstName ?? contact.lastName
+  const name = contact.firstName ?? contact.lastName ?? contact.name
   const phone =
     contact.phoneNumbers?.find(phone => phone.isPrimary) ??
     contact.phoneNumbers?.[0]
@@ -567,7 +566,7 @@ function ContactItem({
             color="secondary"
             size="small"
             onPress={async () => {
-              ax.metric('contacts:matches:invite', {
+              logger.metric('contacts:matches:invite', {
                 entryPoint: context,
               })
               try {

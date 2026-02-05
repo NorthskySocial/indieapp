@@ -5,16 +5,14 @@ import {useLingui} from '@lingui/react'
 import {Nux, useNux, useSaveNux} from '#/state/queries/nuxs'
 import {atoms as a, type ViewStyleProp} from '#/alf'
 import {AgeAssuranceAdmonition} from '#/components/ageAssurance/AgeAssuranceAdmonition'
-import {AgeAssuranceConfigUnavailableError} from '#/components/ageAssurance/AgeAssuranceErrors'
 import {useAgeAssuranceCopy} from '#/components/ageAssurance/useAgeAssuranceCopy'
 import {Button, ButtonIcon} from '#/components/Button'
 import {TimesLarge_Stroke2_Corner0_Rounded as X} from '#/components/icons/Times'
 import {useAgeAssurance} from '#/ageAssurance'
-import {useAnalytics} from '#/analytics'
+import {logger} from '#/ageAssurance'
 
 export function AgeAssuranceDismissibleNotice({style}: ViewStyleProp & {}) {
   const {_} = useLingui()
-  const ax = useAnalytics()
   const aa = useAgeAssurance()
   const {nux} = useNux(Nux.AgeAssuranceDismissibleNotice)
   const copy = useAgeAssuranceCopy()
@@ -28,37 +26,33 @@ export function AgeAssuranceDismissibleNotice({style}: ViewStyleProp & {}) {
 
   return (
     <View style={style}>
-      {aa.state.error === 'config' ? (
-        <AgeAssuranceConfigUnavailableError />
-      ) : (
-        <View>
-          <AgeAssuranceAdmonition>{copy.notice}</AgeAssuranceAdmonition>
+      <View>
+        <AgeAssuranceAdmonition>{copy.notice}</AgeAssuranceAdmonition>
 
-          <Button
-            label={_(msg`Don't show again`)}
-            size="tiny"
-            variant="solid"
-            color="secondary_inverted"
-            shape="round"
-            onPress={() => {
-              save({
-                id: Nux.AgeAssuranceDismissibleNotice,
-                completed: true,
-                data: undefined,
-              })
-              ax.metric('ageAssurance:dismissSettingsNotice', {})
-            }}
-            style={[
-              a.absolute,
-              {
-                top: 12,
-                right: 12,
-              },
-            ]}>
-            <ButtonIcon icon={X} />
-          </Button>
-        </View>
-      )}
+        <Button
+          label={_(msg`Don't show again`)}
+          size="tiny"
+          variant="solid"
+          color="secondary_inverted"
+          shape="round"
+          onPress={() => {
+            save({
+              id: Nux.AgeAssuranceDismissibleNotice,
+              completed: true,
+              data: undefined,
+            })
+            logger.metric('ageAssurance:dismissSettingsNotice', {})
+          }}
+          style={[
+            a.absolute,
+            {
+              top: 12,
+              right: 12,
+            },
+          ]}>
+          <ButtonIcon icon={X} />
+        </Button>
+      </View>
     </View>
   )
 }

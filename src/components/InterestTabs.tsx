@@ -9,6 +9,7 @@ import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
+import {isWeb} from '#/platform/detection'
 import {DraggableScrollView} from '#/view/com/pager/DraggableScrollView'
 import {atoms as a, tokens, useTheme, web} from '#/alf'
 import {transparentifyColor} from '#/alf/util/colorGeneration'
@@ -18,7 +19,6 @@ import {
   ArrowRight_Stroke2_Corner0_Rounded as ArrowRight,
 } from '#/components/icons/Arrow'
 import {Text} from '#/components/Typography'
-import {IS_WEB} from '#/env'
 
 /**
  * Tab component that automatically scrolls the selected tab into view - used for interests
@@ -236,7 +236,7 @@ export function InterestTabs({
           )
         })}
       </DraggableScrollView>
-      {IS_WEB && canScrollLeft && (
+      {isWeb && canScrollLeft && (
         <View
           style={[
             a.absolute,
@@ -270,7 +270,7 @@ export function InterestTabs({
           </Button>
         </View>
       )}
-      {IS_WEB && canScrollRight && (
+      {isWeb && canScrollRight && (
         <View
           style={[
             a.absolute,

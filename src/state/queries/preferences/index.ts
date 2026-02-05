@@ -9,6 +9,7 @@ import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {PROD_DEFAULT_FEED} from '#/lib/constants'
 import {replaceEqualDeep} from '#/lib/functions'
 import {getAge} from '#/lib/strings/time'
+import {logger} from '#/logger'
 import {STALE} from '#/state/queries'
 import {
   DEFAULT_HOME_FEED_PREFS,
@@ -23,7 +24,6 @@ import {useAgent} from '#/state/session'
 import {saveLabelers} from '#/state/session/agent-config'
 import {useAgeAssurance} from '#/ageAssurance'
 import {makeAgeRestrictedModerationPrefs} from '#/ageAssurance/util'
-import {useAnalytics} from '#/analytics'
 
 export * from '#/state/queries/preferences/const'
 export * from '#/state/queries/preferences/moderation'
@@ -110,7 +110,6 @@ export function useClearPreferencesMutation() {
 }
 
 export function usePreferencesSetContentLabelMutation() {
-  const ax = useAnalytics()
   const agent = useAgent()
   const queryClient = useQueryClient()
 
@@ -121,7 +120,11 @@ export function usePreferencesSetContentLabelMutation() {
   >({
     mutationFn: async ({label, visibility, labelerDid}) => {
       await agent.setContentLabelPref(label, visibility, labelerDid)
-      ax.metric('moderation:changeLabelPreference', {preference: visibility})
+      logger.metric(
+        'moderation:changeLabelPreference',
+        {preference: visibility},
+        {statsig: true},
+      )
       // triggers a refetch
       await queryClient.invalidateQueries({
         queryKey: preferencesQueryKey,
@@ -414,7 +417,6 @@ export function useSetActiveProgressGuideMutation() {
 }
 
 export function useSetVerificationPrefsMutation() {
-  const ax = useAnalytics()
   const queryClient = useQueryClient()
   const agent = useAgent()
 
@@ -422,9 +424,9 @@ export function useSetVerificationPrefsMutation() {
     mutationFn: async prefs => {
       await agent.setVerificationPrefs(prefs)
       if (prefs.hideBadges) {
-        ax.metric('verification:settings:hideBadges', {})
+        logger.metric('verification:settings:hideBadges', {}, {statsig: true})
       } else {
-        ax.metric('verification:settings:unHideBadges', {})
+        logger.metric('verification:settings:unHideBadges', {}, {statsig: true})
       }
       // triggers a refetch
       await queryClient.invalidateQueries({

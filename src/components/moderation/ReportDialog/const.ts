@@ -3,8 +3,6 @@ import {
   ToolsOzoneReportDefs as OzoneReportDefs,
 } from '@atproto/api'
 
-import {type ParsedReportSubject} from '#/components/moderation/ReportDialog/types'
-
 export const DMCA_LINK = 'https://bsky.social/about/support/copyright'
 export const SUPPORT_PAGE = 'https://bsky.social/about/support'
 
@@ -114,10 +112,3 @@ export const BSKY_LABELER_ONLY_REPORT_REASONS: Set<OzoneReportDefs.ReasonType> =
     OzoneReportDefs.REASONCHILDSAFETYOTHER,
     OzoneReportDefs.REASONVIOLENCEEXTREMISTCONTENT,
   ])
-
-/**
- * Set of _parsed_ subject types that should only be sent to Bluesky's
- * moderation service.
- */
-export const BSKY_LABELER_ONLY_SUBJECT_TYPES: Set<ParsedReportSubject['type']> =
-  new Set(['convoMessage', 'status'])

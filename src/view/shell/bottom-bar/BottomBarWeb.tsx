@@ -10,6 +10,8 @@ import {useMinimalShellFooterTransform} from '#/lib/hooks/useMinimalShellTransfo
 import {getCurrentRoute, isTab} from '#/lib/routes/helpers'
 import {makeProfileLink} from '#/lib/routes/links'
 import {type CommonNavigatorParams} from '#/lib/routes/types'
+import {useGate} from '#/lib/statsig/statsig'
+import {useHomeBadge} from '#/state/home-badge'
 import {useUnreadMessageCount} from '#/state/queries/messages/list-conversations'
 import {useUnreadNotifications} from '#/state/queries/notifications/unread'
 import {useSession} from '#/state/session'
@@ -29,10 +31,8 @@ import {
   HomeOpen_Filled_Corner0_Rounded as HomeFilled,
   HomeOpen_Stoke2_Corner0_Rounded as Home,
 } from '#/components/icons/HomeOpen'
-import {
-  MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled,
-  MagnifyingGlass_Stroke2_Corner0_Rounded as MagnifyingGlass,
-} from '#/components/icons/MagnifyingGlass'
+import {MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled} from '#/components/icons/MagnifyingGlass'
+import {MagnifyingGlass_Stroke2_Corner0_Rounded as MagnifyingGlass} from '#/components/icons/MagnifyingGlass'
 import {
   Message_Stroke2_Corner0_Rounded as Message,
   Message_Stroke2_Corner0_Rounded_Filled as MessageFilled,
@@ -57,6 +57,8 @@ export function BottomBarWeb() {
 
   const unreadMessageCount = useUnreadMessageCount()
   const notificationCountStr = useUnreadNotifications()
+  const hasHomeBadge = useHomeBadge()
+  const gate = useGate()
 
   const showSignIn = React.useCallback(() => {
     closeAllActiveElements()
@@ -84,7 +86,10 @@ export function BottomBarWeb() {
       onLayout={event => footerHeight.set(event.nativeEvent.layout.height)}>
       {hasSession ? (
         <>
-          <NavItem routeName="Home" href="/">
+          <NavItem
+            routeName="Home"
+            href="/"
+            hasNew={hasHomeBadge && gate('remove_show_latest_button')}>
             {({isActive}) => {
               const Icon = isActive ? HomeFilled : Home
               return (

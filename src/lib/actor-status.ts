@@ -7,7 +7,7 @@ import {
 import {isAfter, parseISO} from 'date-fns'
 
 import {useMaybeProfileShadow} from '#/state/cache/profile-shadow'
-import {type LiveNowConfig, useLiveNowConfig} from '#/state/service-config'
+import {useLiveNowConfig} from '#/state/service-config'
 import {useTickEveryMinute} from '#/state/shell'
 import type * as bsky from '#/types/bsky'
 
@@ -17,29 +17,17 @@ export function useActorStatus(actor?: bsky.profile.AnyProfileView) {
   const config = useLiveNowConfig()
 
   return useMemo(() => {
-    void tick // revalidate every minute
+    tick! // revalidate every minute
 
-    if (shadowed && 'status' in shadowed && shadowed.status) {
-      const isValid = validateStatus(shadowed.status, config)
-      const isDisabled = shadowed.status.isDisabled || false
-      const isActive = isStatusStillActive(shadowed.status.expiresAt)
-      if (isValid && !isDisabled && isActive) {
-        return {
-          uri: shadowed.status.uri,
-          cid: shadowed.status.cid,
-          isDisabled: false,
-          isActive: true,
-          status: 'app.bsky.actor.status#live',
-          embed: shadowed.status.embed as $Typed<AppBskyEmbedExternal.View>, // temp_isStatusValid asserts this
-          expiresAt: shadowed.status.expiresAt!, // isStatusStillActive asserts this
-          record: shadowed.status.record,
-        } satisfies AppBskyActorDefs.StatusView
-      }
+    if (
+      shadowed &&
+      'status' in shadowed &&
+      shadowed.status &&
+      validateStatus(shadowed.did, shadowed.status, config) &&
+      isStatusStillActive(shadowed.status.expiresAt)
+    ) {
       return {
-        uri: shadowed.status.uri,
-        cid: shadowed.status.cid,
-        isDisabled,
-        isActive: false,
+        isActive: true,
         status: 'app.bsky.actor.status#live',
         embed: shadowed.status.embed as $Typed<AppBskyEmbedExternal.View>, // temp_isStatusValid asserts this
         expiresAt: shadowed.status.expiresAt!, // isStatusStillActive asserts this
@@ -48,7 +36,6 @@ export function useActorStatus(actor?: bsky.profile.AnyProfileView) {
     } else {
       return {
         status: '',
-        isDisabled: false,
         isActive: false,
         record: {},
       } satisfies AppBskyActorDefs.StatusView
@@ -65,14 +52,19 @@ export function isStatusStillActive(timeStr: string | undefined) {
 }
 
 export function validateStatus(
+  did: string,
   status: AppBskyActorDefs.StatusView,
-  config: LiveNowConfig,
+  config: {did: string; domains: string[]}[],
 ) {
   if (status.status !== 'app.bsky.actor.status#live') return false
+  const sources = config.find(cfg => cfg.did === did)
+  if (!sources) {
+    return false
+  }
   try {
     if (AppBskyEmbedExternal.isView(status.embed)) {
       const url = new URL(status.embed.external.uri)
-      return config.allowedDomains.has(url.hostname)
+      return sources.domains.includes(url.hostname)
     } else {
       return false
     }

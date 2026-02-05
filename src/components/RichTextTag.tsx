@@ -6,6 +6,7 @@ import {useNavigation} from '@react-navigation/native'
 
 import {type NavigationProp} from '#/lib/routes/types'
 import {isInvalidHandle} from '#/lib/strings/handles'
+import {isNative, isWeb} from '#/platform/detection'
 import {
   usePreferencesQuery,
   useRemoveMutedWordsMutation,
@@ -21,7 +22,6 @@ import {
 } from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import * as Menu from '#/components/Menu'
-import {IS_NATIVE, IS_WEB} from '#/env'
 
 export function RichTextTag({
   tag,
@@ -48,11 +48,10 @@ export function RichTextTag({
     reset: resetRemove,
   } = useRemoveMutedWordsMutation()
   const navigation = useNavigation<NavigationProp>()
-  const isCashtag = tag.startsWith('$')
-  const label = isCashtag ? _(msg`Cashtag ${tag}`) : _(msg`Hashtag ${tag}`)
-  const hint = IS_NATIVE
-    ? _(msg`Long press to open tag menu for ${isCashtag ? tag : `#${tag}`}`)
-    : _(msg`Click to open tag menu for ${isCashtag ? tag : `#${tag}`}`)
+  const label = _(msg`Hashtag ${tag}`)
+  const hint = isNative
+    ? _(msg`Long press to open tag menu for #${tag}`)
+    : _(msg`Click to open tag menu for ${tag}`)
 
   const isMuted = Boolean(
     (preferences?.moderationPrefs.mutedWords?.find(
@@ -86,9 +85,9 @@ export function RichTextTag({
             }}
             {...menuProps}
             onPress={e => {
-              if (IS_WEB) {
+              if (isWeb) {
                 return createStaticClickIfUnmodified(() => {
-                  if (!IS_NATIVE) {
+                  if (!isNative) {
                     menuProps.onPress()
                   }
                 }).onPress(e)
@@ -99,7 +98,7 @@ export function RichTextTag({
             label={label}
             style={textStyle}
             emoji>
-            {IS_NATIVE ? (
+            {isNative ? (
               display
             ) : (
               <RNText ref={menuProps.ref}>{display}</RNText>
@@ -110,24 +109,20 @@ export function RichTextTag({
       <Menu.Outer>
         <Menu.Group>
           <Menu.Item
-            label={_(msg`See ${isCashtag ? tag : `#${tag}`} posts`)}
+            label={_(msg`See ${tag} posts`)}
             onPress={() => {
               navigation.push('Hashtag', {
                 tag: encodeURIComponent(tag),
               })
             }}>
             <Menu.ItemText>
-              {isCashtag ? (
-                <Trans>See {tag} posts</Trans>
-              ) : (
-                <Trans>See #{tag} posts</Trans>
-              )}
+              <Trans>See #{tag} posts</Trans>
             </Menu.ItemText>
             <Menu.ItemIcon icon={Search} />
           </Menu.Item>
           {authorHandle && !isInvalidHandle(authorHandle) && (
             <Menu.Item
-              label={_(msg`See ${isCashtag ? tag : `#${tag}`} posts by user`)}
+              label={_(msg`See ${tag} posts by user`)}
               onPress={() => {
                 navigation.push('Hashtag', {
                   tag: encodeURIComponent(tag),
@@ -135,11 +130,7 @@ export function RichTextTag({
                 })
               }}>
               <Menu.ItemText>
-                {isCashtag ? (
-                  <Trans>See {tag} posts by user</Trans>
-                ) : (
-                  <Trans>See #{tag} posts by user</Trans>
-                )}
+                <Trans>See #{tag} posts by user</Trans>
               </Menu.ItemText>
               <Menu.ItemIcon icon={Person} />
             </Menu.Item>

@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useMemo, useState} from 'react'
 import {View} from 'react-native'
 import {KeyboardAwareScrollView} from 'react-native-keyboard-controller'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
@@ -6,7 +6,7 @@ import {type ComAtprotoAdminDefs, ToolsOzoneReportDefs} from '@atproto/api'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {useMutation} from '@tanstack/react-query'
-import {countGraphemes} from 'unicode-segmenter/grapheme'
+import Graphemer from 'graphemer'
 
 import {
   BLUESKY_MOD_SERVICE_HEADERS,
@@ -14,6 +14,7 @@ import {
 } from '#/lib/constants'
 import {useEnableKeyboardController} from '#/lib/hooks/useEnableKeyboardController'
 import {cleanError} from '#/lib/strings/errors'
+import {isWeb} from '#/platform/detection'
 import {useAgent, useSession, useSessionApi} from '#/state/session'
 import {CharProgress} from '#/view/com/composer/char-progress/CharProgress'
 import {Logo} from '#/view/icons/Logo'
@@ -23,7 +24,6 @@ import * as TextField from '#/components/forms/TextField'
 import {SimpleInlineLinkText} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import {P, Text} from '#/components/Typography'
-import {IS_WEB} from '#/env'
 
 const COL_WIDTH = 400
 
@@ -37,10 +37,11 @@ export function Takendown() {
   const agent = useAgent()
   const [isAppealling, setIsAppealling] = useState(false)
   const [reason, setReason] = useState('')
+  const graphemer = useMemo(() => new Graphemer(), [])
 
-  const reasonGraphemeLength = countGraphemes(reason)
-  const isOverMaxLength =
-    reasonGraphemeLength > MAX_REPORT_REASON_GRAPHEME_LENGTH
+  const reasonGraphemeLength = useMemo(() => {
+    return graphemer.countGraphemes(reason)
+  }, [graphemer, reason])
 
   const {
     mutate: submitAppeal,
@@ -71,11 +72,14 @@ export function Takendown() {
   const primaryBtn =
     isAppealling && !isSuccess ? (
       <Button
+        variant="solid"
         color="primary"
         size="large"
         label={_(msg`Submit appeal`)}
         onPress={() => submitAppeal(reason)}
-        disabled={isPending || isOverMaxLength}>
+        disabled={
+          isPending || reasonGraphemeLength > MAX_REPORT_REASON_GRAPHEME_LENGTH
+        }>
         <ButtonText>
           <Trans>Submit Appeal</Trans>
         </ButtonText>
@@ -83,6 +87,7 @@ export function Takendown() {
       </Button>
     ) : (
       <Button
+        variant="solid"
         size="large"
         color="secondary_inverted"
         label={_(msg`Sign out`)}
@@ -119,7 +124,7 @@ export function Takendown() {
     </Button>
   )
 
-  const webLayout = IS_WEB && gtMobile
+  const webLayout = isWeb && gtMobile
 
   useEnableKeyboardController(true)
 
@@ -199,7 +204,7 @@ export function Takendown() {
                   <Text
                     style={[
                       a.text_md,
-                      a.leading_snug,
+                      a.leading_normal,
                       {color: t.palette.negative_500},
                       a.mt_lg,
                     ]}>
@@ -208,13 +213,13 @@ export function Takendown() {
                 )}
               </View>
             ) : (
-              <P style={[t.atoms.text_contrast_medium, a.leading_snug]}>
+              <P style={[t.atoms.text_contrast_medium]}>
                 <Trans>
                   Your account was found to be in violation of the{' '}
                   <SimpleInlineLinkText
                     label={_(msg`Bluesky Social Terms of Service`)}
                     to="https://bsky.social/about/support/tos"
-                    style={[a.text_md, a.leading_snug]}>
+                    style={[a.text_md, a.leading_normal]}>
                     Bluesky Social Terms of Service
                   </SimpleInlineLinkText>
                   . You have been sent an email outlining the specific violation

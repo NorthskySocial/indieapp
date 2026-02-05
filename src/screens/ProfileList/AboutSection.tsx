@@ -4,6 +4,7 @@ import {type AppBskyGraphDefs} from '@atproto/api'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
+import {isNative} from '#/platform/detection'
 import {useSession} from '#/state/session'
 import {ListMembers} from '#/view/com/lists/ListMembers'
 import {EmptyState} from '#/view/com/util/EmptyState'
@@ -13,7 +14,6 @@ import {atoms as a, useBreakpoints} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {BulletList_Stroke1_Corner0_Rounded as ListIcon} from '#/components/icons/BulletList'
 import {PersonPlus_Stroke2_Corner0_Rounded as PersonPlusIcon} from '#/components/icons/Person'
-import {IS_NATIVE} from '#/env'
 
 interface SectionRef {
   scrollToTop: () => void
@@ -42,7 +42,7 @@ export function AboutSection({
 
   const onScrollToTop = useCallback(() => {
     scrollElRef.current?.scrollToOffset({
-      animated: IS_NATIVE,
+      animated: isNative,
       offset: -headerHeight,
     })
   }, [scrollElRef, headerHeight])

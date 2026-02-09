@@ -15,6 +15,7 @@ export enum BlueSkyAppSettings {
   EMBED_SERVICE = 'https://embed.bsky.app',
   HELP_DESK_LANG = 'en-us',
   HELP_DESK_URL = `https://blueskyweb.zendesk.com/hc/${HELP_DESK_LANG}`,
+  LOGO_SVG_PATH = 'indie-settings/assets/bluesky/SvgLogo',
   PUBLIC_BSKY_SERVICE = 'https://public.api.bsky.app',
   STAGING_SERVICE = 'https://staging.bsky.dev',
   STAGING_DEFAULT_FEED_URI = 'at://did:plc:yofh3kx63drvfljkibw5zuxo/app.bsky.feed.generator/whats-hot',

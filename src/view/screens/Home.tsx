@@ -2,7 +2,6 @@ import React from 'react'
 import {ActivityIndicator, StyleSheet} from 'react-native'
 import {useFocusEffect} from '@react-navigation/native'
 
-import {PROD_DEFAULT_FEED} from '#/lib/constants'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {useOTAUpdates} from '#/lib/hooks/useOTAUpdates'
 import {useSetTitle} from '#/lib/hooks/useSetTitle'
@@ -37,6 +36,7 @@ import {FollowingEmptyState} from '#/view/com/posts/FollowingEmptyState'
 import {FollowingEndOfFeed} from '#/view/com/posts/FollowingEndOfFeed'
 import {NoFeedsPinned} from '#/screens/Home/NoFeedsPinned'
 import * as Layout from '#/components/Layout'
+import {AppSettings} from '#/indie-settings/settings'
 import {useDemoMode} from '#/storage/hooks/demo-mode'
 
 type Props = NativeStackScreenProps<HomeTabNavigatorParams, 'Home' | 'Start'>
@@ -261,7 +261,7 @@ function HomeScreenReady({
           testID="customFeedPage"
           isPageFocused
           isPageAdjacent={false}
-          feed={`feedgen|${PROD_DEFAULT_FEED('whats-hot')}`}
+          feed={`feedgen|${AppSettings.DISCOVER_FEED_URI}`}
           renderEmptyState={renderCustomFeedEmptyState}
           feedInfo={pinnedFeedInfos[0]}
         />
@@ -324,7 +324,7 @@ function HomeScreenReady({
         testID="customFeedPage"
         isPageFocused
         isPageAdjacent={false}
-        feed={`feedgen|${PROD_DEFAULT_FEED('whats-hot')}`}
+        feed={`feedgen|${AppSettings.DISCOVER_FEED_URI}`}
         renderEmptyState={renderCustomFeedEmptyState}
         feedInfo={pinnedFeedInfos[0]}
       />

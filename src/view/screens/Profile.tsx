@@ -192,6 +192,7 @@ function ProfileScreenLoaded({
   const [scrollViewTag, setScrollViewTag] = React.useState<number | null>(null)
 
   const postsSectionRef = React.useRef<SectionRef>(null)
+  const sharesSectionRef = React.useRef<SectionRef>(null)
   const repliesSectionRef = React.useRef<SectionRef>(null)
   const mediaSectionRef = React.useRef<SectionRef>(null)
   const videosSectionRef = React.useRef<SectionRef>(null)
@@ -216,6 +217,7 @@ function ProfileScreenLoaded({
   const hasLabeler = !!profile.associated?.labeler
   const showFiltersTab = hasLabeler
   const showPostsTab = true
+  const showSharesTab = true
   const showRepliesTab = hasSession
   const showMediaTab = !hasLabeler
   const showVideosTab = !hasLabeler
@@ -232,6 +234,7 @@ function ProfileScreenLoaded({
     showFiltersTab ? _(msg`Labels`) : undefined,
     showListsTab && hasLabeler ? _(msg`Lists`) : undefined,
     showPostsTab ? _(msg`Posts`) : undefined,
+    showSharesTab ? _(msg`Shares`) : undefined,
     showRepliesTab ? _(msg`Replies`) : undefined,
     showMediaTab ? _(msg`Media`) : undefined,
     showVideosTab ? _(msg`Videos`) : undefined,
@@ -244,6 +247,7 @@ function ProfileScreenLoaded({
   let nextIndex = 0
   let filtersIndex: number | null = null
   let postsIndex: number | null = null
+  let sharesIndex: number | null = null
   let repliesIndex: number | null = null
   let mediaIndex: number | null = null
   let videosIndex: number | null = null
@@ -256,6 +260,9 @@ function ProfileScreenLoaded({
   }
   if (showPostsTab) {
     postsIndex = nextIndex++
+  }
+  if (showSharesTab) {
+    sharesIndex = nextIndex++
   }
   if (showRepliesTab) {
     repliesIndex = nextIndex++
@@ -285,6 +292,8 @@ function ProfileScreenLoaded({
         labelsSectionRef.current?.scrollToTop()
       } else if (index === postsIndex) {
         postsSectionRef.current?.scrollToTop()
+      } else if (index === sharesIndex) {
+        sharesSectionRef.current?.scrollToTop()
       } else if (index === repliesIndex) {
         repliesSectionRef.current?.scrollToTop()
       } else if (index === mediaIndex) {
@@ -304,6 +313,7 @@ function ProfileScreenLoaded({
     [
       filtersIndex,
       postsIndex,
+      sharesIndex,
       repliesIndex,
       mediaIndex,
       videosIndex,
@@ -422,6 +432,27 @@ function ProfileScreenLoaded({
           ? ({headerHeight, isFocused, scrollElRef}) => (
               <ProfileFeedSection
                 ref={postsSectionRef}
+                feed={`author|${profile.did}|posts_no_replies`}
+                headerHeight={headerHeight}
+                isFocused={isFocused}
+                scrollElRef={scrollElRef as ListRef}
+                ignoreFilterFor={profile.did}
+                setScrollViewTag={setScrollViewTag}
+                emptyStateMessage={_(msg`No posts yet`)}
+                emptyStateButton={{
+                  label: _(msg`Write a post`),
+                  text: _(msg`Write a post`),
+                  onPress: () => openComposer({}),
+                  size: 'small',
+                  color: 'primary',
+                }}
+              />
+            )
+          : null}
+        {showSharesTab
+          ? ({headerHeight, isFocused, scrollElRef}) => (
+              <ProfileFeedSection
+                ref={sharesSectionRef}
                 feed={`author|${profile.did}|posts_and_author_threads`}
                 headerHeight={headerHeight}
                 isFocused={isFocused}

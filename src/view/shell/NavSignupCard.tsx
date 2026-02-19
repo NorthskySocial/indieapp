@@ -11,6 +11,7 @@ import {AppLanguageDropdown} from '#/components/AppLanguageDropdown'
 import {Button, ButtonText} from '#/components/Button'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
+import {AppSettings} from '#/indie-settings/settings'
 
 let NavSignupCard = ({}: {}): React.ReactNode => {
   const {_} = useLingui()
@@ -30,7 +31,7 @@ let NavSignupCard = ({}: {}): React.ReactNode => {
 
   return (
     <View style={[{maxWidth: 245}]}>
-      <Link to="/" label="Bluesky - Home">
+      <Link to="/" label={`${AppSettings.APP_NAME} - Home`}>
         <Logo width={32} />
       </Link>
 

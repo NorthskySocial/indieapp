@@ -1,6 +1,11 @@
 import {forwardRef, memo, useContext, useMemo} from 'react'
-import {StyleSheet, View, type ViewProps, type ViewStyle} from 'react-native'
-import {type StyleProp} from 'react-native'
+import {
+  type StyleProp,
+  StyleSheet,
+  View,
+  type ViewProps,
+  type ViewStyle,
+} from 'react-native'
 import {
   KeyboardAwareScrollView,
   type KeyboardAwareScrollViewProps,
@@ -41,11 +46,17 @@ export const Screen = memo(function Screen({
   ...props
 }: ScreenProps) {
   const {top} = useSafeAreaInsets()
+  const t = useTheme()
   return (
     <>
       {IS_WEB && <WebCenterBorders />}
       <View
-        style={[a.util_screen_outer, {paddingTop: noInsetTop ? 0 : top}, style]}
+        style={[
+          a.util_screen_outer,
+          t.atoms.bg,
+          {paddingTop: noInsetTop ? 0 : top},
+          style,
+        ]}
         {...props}
       />
     </>

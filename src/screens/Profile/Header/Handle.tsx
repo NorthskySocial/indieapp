@@ -63,6 +63,11 @@ export function ProfileHeaderHandle({
               IS_NATIVE,
             )}
       </Text>
+      {profile.pronouns && (
+        <View>
+          <Text>{profile.pronouns}</Text>
+        </View>
+      )}
     </View>
   )
 }

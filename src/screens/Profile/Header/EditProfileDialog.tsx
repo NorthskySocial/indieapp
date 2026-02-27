@@ -26,6 +26,10 @@ import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {useSimpleVerificationState} from '#/components/verification'
 
+const DISPLAY_NAME_MAX_GRAPHEMES = 64
+const DESCRIPTION_MAX_GRAPHEMES = 256
+const PRONOUNS_MAX_GRAPHEMES = 20
+
 export function EditProfileDialog({
   profile,
   control,
@@ -111,6 +115,8 @@ function DialogInner({
   const [displayName, setDisplayName] = useState(initialDisplayName)
   const initialDescription = profile.description || ''
   const [description, setDescription] = useState(initialDescription)
+  const initialPronouns = profile.pronouns || ''
+  const [pronouns, setPronouns] = useState(initialPronouns)
   const [userBanner, setUserBanner] = useState<string | undefined | null>(
     profile.banner,
   )
@@ -127,6 +133,7 @@ function DialogInner({
   const dirty =
     displayName !== initialDisplayName ||
     description !== initialDescription ||
+    pronouns !== initialPronouns ||
     userAvatar !== profile.avatar ||
     userBanner !== profile.banner
 
@@ -178,6 +185,7 @@ function DialogInner({
         updates: {
           displayName: displayName.trimEnd(),
           description: description.trimEnd(),
+          pronouns: pronouns.trimEnd() || undefined,
         },
         newUserAvatar,
         newUserBanner,
@@ -194,6 +202,7 @@ function DialogInner({
     control,
     displayName,
     description,
+    pronouns,
     newUserAvatar,
     newUserBanner,
     setImageError,
@@ -207,6 +216,10 @@ function DialogInner({
   const descriptionTooLong = isOverMaxGraphemeCount({
     text: description,
     maxCount: MAX_DESCRIPTION,
+  })
+  const pronounsTooLong = isOverMaxGraphemeCount({
+    text: pronouns,
+    maxCount: PRONOUNS_MAX_GRAPHEMES,
   })
 
   const cancelButton = useCallback(
@@ -236,7 +249,8 @@ function DialogInner({
           !dirty ||
           isUpdatingProfile ||
           displayNameTooLong ||
-          descriptionTooLong
+          descriptionTooLong ||
+          pronounsTooLong
         }
         size="small"
         color="primary"
@@ -257,6 +271,7 @@ function DialogInner({
       isUpdatingProfile,
       displayNameTooLong,
       descriptionTooLong,
+      pronounsTooLong,
     ],
   )
 
@@ -380,6 +395,35 @@ function DialogInner({
               <Plural
                 value={MAX_DESCRIPTION}
                 other="Description is too long. The maximum number of characters is #."
+              />
+            </Text>
+          )}
+        </View>
+
+        <View>
+          <TextField.LabelText>
+            <Trans>Pronouns</Trans>
+          </TextField.LabelText>
+          <TextField.Root isInvalid={pronounsTooLong}>
+            <Dialog.Input
+              defaultValue={pronouns}
+              onChangeText={setPronouns}
+              label={_(msg`Pronouns`)}
+              placeholder={_(msg`e.g. they/them`)}
+              testID="editProfilePronounsInput"
+            />
+          </TextField.Root>
+          {pronounsTooLong && (
+            <Text
+              style={[
+                a.text_sm,
+                a.mt_xs,
+                a.font_semi_bold,
+                {color: t.palette.negative_400},
+              ]}>
+              <Plural
+                value={PRONOUNS_MAX_GRAPHEMES}
+                other="Pronouns is too long. The maximum number of characters is #."
               />
             </Text>
           )}

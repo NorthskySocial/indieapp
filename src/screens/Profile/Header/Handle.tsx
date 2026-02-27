@@ -64,8 +64,11 @@ export function ProfileHeaderHandle({
             )}
       </Text>
       {profile.pronouns && (
-        <View>
-          <Text>{profile.pronouns}</Text>
+        <View
+          style={[t.atoms.bg_contrast_50, a.rounded_full, a.px_sm, a.py_xs]}>
+          <Text style={[t.atoms.text, a.text_sm, a.font_medium]}>
+            {profile.pronouns}
+          </Text>
         </View>
       )}
     </View>

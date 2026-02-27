@@ -178,6 +178,7 @@ export function useProfileUpdateMutation() {
         } else {
           next.displayName = updates.displayName
           next.description = updates.description
+          next.pronouns = updates.pronouns
           if ('pinnedPost' in updates) {
             next.pinnedPost = updates.pinnedPost
           }

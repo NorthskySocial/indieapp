@@ -363,6 +363,21 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                         interactive
                       />
                     </View>
+                    {authorShadow.pronouns && (
+                      <View
+                        style={[
+                          t.atoms.bg_contrast_50,
+                          a.rounded_full,
+                          a.px_sm,
+                          a.py_2xs,
+                          a.ml_2xs,
+                        ]}>
+                        <Text
+                          style={[t.atoms.text, a.text_xs, a.font_medium]}>
+                          {authorShadow.pronouns}
+                        </Text>
+                      </View>
+                    )}
                   </View>
                   <Text
                     style={[

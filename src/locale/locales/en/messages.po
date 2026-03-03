@@ -217,11 +217,11 @@ msgstr ""
 msgid "{count, plural, one {# unread item} other {# unread items}}"
 msgstr ""
 
-#: src/screens/Profile/Header/EditProfileDialog.tsx:383
+#: src/screens/Profile/Header/EditProfileDialog.tsx:395
 msgid "{DESCRIPTION_MAX_GRAPHEMES, plural, other {Description is too long. The maximum number of characters is #.}}"
 msgstr ""
 
-#: src/screens/Profile/Header/EditProfileDialog.tsx:332
+#: src/screens/Profile/Header/EditProfileDialog.tsx:344
 msgid "{DISPLAY_NAME_MAX_GRAPHEMES, plural, other {Display name is too long. The maximum number of characters is #.}}"
 msgstr ""
 
@@ -443,6 +443,10 @@ msgstr ""
 msgid "{profileName} joined Bluesky using a starter pack {timeAgoString} ago"
 msgstr ""
 
+#: src/screens/Profile/Header/EditProfileDialog.tsx:424
+msgid "{PRONOUNS_MAX_GRAPHEMES, plural, other {Pronouns is too long. The maximum number of characters is #.}}"
+msgstr ""
+
 #. The trending topic rank, i.e. "1. March Madness", "2. The Bachelor"
 #: src/screens/Search/modules/ExploreTrendingTopics.tsx:100
 msgid "{rank}."
@@ -490,22 +494,22 @@ msgid "<0>{0}</0> {1, plural, one {following} other {following}}"
 msgstr ""
 
 #. Like count display, the <0> tags enclose the number of likes in bold (will never be 0)
-#: src/screens/PostThread/components/ThreadItemAnchor.tsx:493
+#: src/screens/PostThread/components/ThreadItemAnchor.tsx:507
 msgid "<0>{0}</0> {1, plural, one {like} other {likes}}"
 msgstr ""
 
 #. Quote count display, the <0> tags enclose the number of quotes in bold (will never be 0)
-#: src/screens/PostThread/components/ThreadItemAnchor.tsx:475
+#: src/screens/PostThread/components/ThreadItemAnchor.tsx:489
 msgid "<0>{0}</0> {1, plural, one {quote} other {quotes}}"
 msgstr ""
 
 #. Repost count display, the <0> tags enclose the number of reposts in bold (will never be 0)
-#: src/screens/PostThread/components/ThreadItemAnchor.tsx:455
+#: src/screens/PostThread/components/ThreadItemAnchor.tsx:469
 msgid "<0>{0}</0> {1, plural, one {repost} other {reposts}}"
 msgstr ""
 
 #. Save count display, the <0> tags enclose the number of saves in bold (will never be 0)
-#: src/screens/PostThread/components/ThreadItemAnchor.tsx:506
+#: src/screens/PostThread/components/ThreadItemAnchor.tsx:520
 msgid "<0>{0}</0> {1, plural, one {save} other {saves}}"
 msgstr ""
 
@@ -1345,12 +1349,12 @@ msgstr ""
 msgid "Apply Pull Request"
 msgstr ""
 
-#: src/screens/PostThread/components/ThreadItemAnchor.tsx:686
+#: src/screens/PostThread/components/ThreadItemAnchor.tsx:700
 msgid "Archived from {0}"
 msgstr ""
 
-#: src/screens/PostThread/components/ThreadItemAnchor.tsx:655
-#: src/screens/PostThread/components/ThreadItemAnchor.tsx:695
+#: src/screens/PostThread/components/ThreadItemAnchor.tsx:669
+#: src/screens/PostThread/components/ThreadItemAnchor.tsx:709
 msgid "Archived post"
 msgstr ""
 
@@ -1371,7 +1375,7 @@ msgid "Are you sure you want to delete this starter pack?"
 msgstr ""
 
 #: src/components/dialogs/lists/CreateOrEditListDialog.tsx:90
-#: src/screens/Profile/Header/EditProfileDialog.tsx:80
+#: src/screens/Profile/Header/EditProfileDialog.tsx:81
 msgid "Are you sure you want to discard your changes?"
 msgstr ""
 
@@ -1619,7 +1623,7 @@ msgstr ""
 msgid "Bluesky"
 msgstr ""
 
-#: src/screens/PostThread/components/ThreadItemAnchor.tsx:711
+#: src/screens/PostThread/components/ThreadItemAnchor.tsx:725
 msgid "Bluesky cannot confirm the authenticity of the claimed date."
 msgstr ""
 
@@ -1817,8 +1821,8 @@ msgstr ""
 #: src/features/liveNow/components/GoLiveDialog.tsx:253
 #: src/lib/media/picker.tsx:38
 #: src/screens/Deactivated.tsx:149
-#: src/screens/Profile/Header/EditProfileDialog.tsx:218
-#: src/screens/Profile/Header/EditProfileDialog.tsx:226
+#: src/screens/Profile/Header/EditProfileDialog.tsx:228
+#: src/screens/Profile/Header/EditProfileDialog.tsx:236
 #: src/screens/Search/Shell.tsx:370
 #: src/screens/Settings/AppIconSettings/index.tsx:41
 #: src/screens/Settings/AppIconSettings/index.tsx:227
@@ -2945,8 +2949,8 @@ msgid "Deleted list"
 msgstr ""
 
 #: src/components/dialogs/lists/CreateOrEditListDialog.tsx:436
-#: src/screens/Profile/Header/EditProfileDialog.tsx:363
-#: src/screens/Profile/Header/EditProfileDialog.tsx:370
+#: src/screens/Profile/Header/EditProfileDialog.tsx:375
+#: src/screens/Profile/Header/EditProfileDialog.tsx:382
 msgid "Description"
 msgstr ""
 
@@ -3027,7 +3031,7 @@ msgid "Disabled"
 msgstr ""
 
 #: src/components/dialogs/lists/CreateOrEditListDialog.tsx:92
-#: src/screens/Profile/Header/EditProfileDialog.tsx:82
+#: src/screens/Profile/Header/EditProfileDialog.tsx:83
 #: src/view/com/composer/Composer.tsx:1214
 #: src/view/com/composer/Composer.tsx:1262
 #: src/view/com/composer/Composer.tsx:1462
@@ -3037,7 +3041,7 @@ msgid "Discard"
 msgstr ""
 
 #: src/components/dialogs/lists/CreateOrEditListDialog.tsx:89
-#: src/screens/Profile/Header/EditProfileDialog.tsx:79
+#: src/screens/Profile/Header/EditProfileDialog.tsx:80
 msgid "Discard changes?"
 msgstr ""
 
@@ -3113,8 +3117,8 @@ msgstr ""
 msgid "Display larger alt text badges"
 msgstr ""
 
-#: src/screens/Profile/Header/EditProfileDialog.tsx:313
-#: src/screens/Profile/Header/EditProfileDialog.tsx:319
+#: src/screens/Profile/Header/EditProfileDialog.tsx:325
+#: src/screens/Profile/Header/EditProfileDialog.tsx:331
 msgid "Display name"
 msgstr ""
 
@@ -3243,7 +3247,7 @@ msgstr ""
 msgid "e.g. alice"
 msgstr ""
 
-#: src/screens/Profile/Header/EditProfileDialog.tsx:320
+#: src/screens/Profile/Header/EditProfileDialog.tsx:332
 msgid "e.g. Alice Lastname"
 msgstr ""
 
@@ -3265,6 +3269,10 @@ msgstr ""
 
 #: src/components/dialogs/lists/CreateOrEditListDialog.tsx:357
 msgid "e.g. The posters who never miss."
+msgstr ""
+
+#: src/screens/Profile/Header/EditProfileDialog.tsx:412
+msgid "e.g. they/them"
 msgstr ""
 
 #: src/components/dialogs/lists/CreateOrEditListDialog.tsx:358
@@ -3346,8 +3354,8 @@ msgstr ""
 msgid "Edit post interaction settings"
 msgstr ""
 
-#: src/screens/Profile/Header/EditProfileDialog.tsx:268
-#: src/screens/Profile/Header/EditProfileDialog.tsx:274
+#: src/screens/Profile/Header/EditProfileDialog.tsx:280
+#: src/screens/Profile/Header/EditProfileDialog.tsx:286
 #: src/screens/Profile/Header/ProfileHeaderLabeler.tsx:295
 #: src/screens/Profile/Header/ProfileHeaderStandard.tsx:330
 msgid "Edit profile"
@@ -5315,7 +5323,7 @@ msgstr ""
 #: src/components/verification/VerificationsDialog.tsx:167
 #: src/components/verification/VerifierDialog.tsx:134
 #: src/screens/Moderation/VerificationSettings.tsx:49
-#: src/screens/Profile/Header/EditProfileDialog.tsx:349
+#: src/screens/Profile/Header/EditProfileDialog.tsx:361
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:213
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:277
 msgctxt "english-only-resource"
@@ -5515,7 +5523,7 @@ msgstr ""
 msgid "Likes of your reposts notifications"
 msgstr ""
 
-#: src/screens/PostThread/components/ThreadItemAnchor.tsx:489
+#: src/screens/PostThread/components/ThreadItemAnchor.tsx:503
 msgid "Likes on this post"
 msgstr ""
 
@@ -6570,7 +6578,7 @@ msgid "OK"
 msgstr ""
 
 #: src/screens/Login/PasswordUpdatedForm.tsx:36
-#: src/screens/PostThread/components/ThreadItemAnchor.tsx:717
+#: src/screens/PostThread/components/ThreadItemAnchor.tsx:731
 msgid "Okay"
 msgstr ""
 
@@ -7484,13 +7492,18 @@ msgstr ""
 msgid "Profile not found"
 msgstr ""
 
-#: src/screens/Profile/Header/EditProfileDialog.tsx:189
+#: src/screens/Profile/Header/EditProfileDialog.tsx:194
 msgctxt "toast"
 msgid "Profile updated"
 msgstr ""
 
 #: src/components/moderation/ReportDialog/utils/useReportOptions.ts:223
 msgid "Promoting or selling prohibited items or services"
+msgstr ""
+
+#: src/screens/Profile/Header/EditProfileDialog.tsx:405
+#: src/screens/Profile/Header/EditProfileDialog.tsx:411
+msgid "Pronouns"
 msgstr ""
 
 #: src/view/com/composer/threadgate/ThreadgateBtn.tsx:162
@@ -7583,7 +7596,7 @@ msgstr ""
 msgid "Quotes"
 msgstr ""
 
-#: src/screens/PostThread/components/ThreadItemAnchor.tsx:471
+#: src/screens/PostThread/components/ThreadItemAnchor.tsx:485
 msgid "Quotes of this post"
 msgstr ""
 
@@ -8102,7 +8115,7 @@ msgstr ""
 msgid "Reposts"
 msgstr ""
 
-#: src/screens/PostThread/components/ThreadItemAnchor.tsx:451
+#: src/screens/PostThread/components/ThreadItemAnchor.tsx:465
 msgid "Reposts of this post"
 msgstr ""
 
@@ -8261,8 +8274,8 @@ msgstr ""
 #: src/components/StarterPack/QrCodeDialog.tsx:206
 #: src/features/liveNow/components/EditLiveDialog.tsx:203
 #: src/features/liveNow/components/EditLiveDialog.tsx:210
-#: src/screens/Profile/Header/EditProfileDialog.tsx:236
-#: src/screens/Profile/Header/EditProfileDialog.tsx:250
+#: src/screens/Profile/Header/EditProfileDialog.tsx:246
+#: src/screens/Profile/Header/EditProfileDialog.tsx:261
 #: src/screens/SavedFeeds.tsx:120
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:267
 #: src/view/com/composer/GifAltText.tsx:193
@@ -9040,7 +9053,7 @@ msgstr ""
 msgid "Show when you’re live"
 msgstr ""
 
-#: src/screens/PostThread/components/ThreadItemAnchor.tsx:657
+#: src/screens/PostThread/components/ThreadItemAnchor.tsx:671
 msgid "Shows information about when this post was created"
 msgstr ""
 
@@ -9557,7 +9570,7 @@ msgstr ""
 msgid "Tell a joke!"
 msgstr ""
 
-#: src/screens/Profile/Header/EditProfileDialog.tsx:371
+#: src/screens/Profile/Header/EditProfileDialog.tsx:383
 msgid "Tell us a bit about yourself"
 msgstr ""
 
@@ -10029,7 +10042,7 @@ msgstr ""
 msgid "This moderation service is unavailable. See below for more details. If this issue persists, contact us."
 msgstr ""
 
-#: src/screens/PostThread/components/ThreadItemAnchor.tsx:698
+#: src/screens/PostThread/components/ThreadItemAnchor.tsx:712
 msgid "This post claims to have been created on <0>{0}</0>, but was first seen by Bluesky on <1>{1}</1>."
 msgstr ""
 
@@ -10223,8 +10236,8 @@ msgstr ""
 #: src/components/dms/MessageContextMenu.tsx:138
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:504
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:506
-#: src/screens/PostThread/components/ThreadItemAnchor.tsx:619
-#: src/screens/PostThread/components/ThreadItemAnchor.tsx:622
+#: src/screens/PostThread/components/ThreadItemAnchor.tsx:633
+#: src/screens/PostThread/components/ThreadItemAnchor.tsx:636
 msgid "Translate"
 msgstr ""
 
@@ -11472,7 +11485,7 @@ msgstr ""
 msgid "You are verified"
 msgstr ""
 
-#: src/screens/Profile/Header/EditProfileDialog.tsx:344
+#: src/screens/Profile/Header/EditProfileDialog.tsx:356
 msgid "You are verified. You will lose your verification status if you change your display name. <0>Learn more.</0>"
 msgstr ""
 

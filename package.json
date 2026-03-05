@@ -291,6 +291,7 @@
     "ts-plugin-sort-import-suggestions": "^1.0.4",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.58.0",
+    "tsx": "^4.21.0",
     "webpack-bundle-analyzer": "^4.10.1"
   },
   "resolutions": {

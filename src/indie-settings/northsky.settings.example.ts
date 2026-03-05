@@ -13,7 +13,7 @@ export enum NorthSkyAppSettings {
   DISCOVER_FEED_URI = 'at://did:plc:23cnpffmuf4vkpsnwhgyvljw/app.bsky.feed.generator/NorthskySocial',
   EMBED_SERVICE = 'https://embed.northsky.app',
   EMBED_SCRIPT = `${EMBED_SERVICE}/static/embed.js`,
-  FAVICON_PATH = 'indie-settings/assets/northsky/Northsky-Icon-Color.png',
+  FAVICON_PATH = 'src/indie-settings/assets/northsky/Northsky-Icon-Color.png',
   HELP_DESK_LANG = 'en-us',
   HELP_DESK_URL = `https://blueskyweb.zendesk.com/hc/${HELP_DESK_LANG}`,
   LOGO_SVG_PATH = 'indie-settings/assets/northsky/SvgLogo',

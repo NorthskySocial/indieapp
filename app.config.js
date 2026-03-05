@@ -1,5 +1,6 @@
 // @ts-check
-const {AppSettings} = require('#/indie-settings/settings')
+require('tsx/cjs')
+const {AppSettings} = require('./src/indie-settings/settings')
 const pkg = require('./package.json')
 
 /**

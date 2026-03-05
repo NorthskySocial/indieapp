@@ -1,3 +1,5 @@
+/* eslint-disable  @typescript-eslint/no-duplicate-enum-values */
+
 import {NorthSkyAppSettings} from './northsky.settings.example'
 
 // Bluesky Settings
@@ -13,6 +15,7 @@ export enum BlueSkyAppSettings {
   DISCOVER_FEED_URI = 'at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/whats-hot',
   EMBED_SCRIPT = 'https://embed.bsky.app/static/embed.js',
   EMBED_SERVICE = 'https://embed.bsky.app',
+  FAVICON_PATH = './assets/favicon.png',
   HELP_DESK_LANG = 'en-us',
   HELP_DESK_URL = `https://blueskyweb.zendesk.com/hc/${HELP_DESK_LANG}`,
   LOGO_SVG_PATH = 'indie-settings/assets/bluesky/SvgLogo',

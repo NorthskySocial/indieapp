@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react'
+import React from 'react'
 import {type TextProps} from 'react-native'
 import {type PathProps, type SvgProps} from 'react-native-svg'
 import {Image} from 'expo-image'
@@ -12,9 +12,9 @@ type Props = {
   style?: TextProps['style']
 } & Omit<SvgProps, 'style'>
 
-export const Logo = React.forwardRef(function LogoImpl(props: Props, ref) {
-  const SvgLogo = useMemo(() => loadSvgLogo(), [])
+const SvgLogo = loadSvgLogo()
 
+export const Logo = React.forwardRef(function LogoImpl(props: Props, ref) {
   const t = useTheme()
   const {fill, ...rest} = props
   const gradient = fill === 'sky'

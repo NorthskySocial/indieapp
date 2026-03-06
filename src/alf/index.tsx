@@ -9,7 +9,7 @@ import {
   setFontScale as persistFontScale,
 } from '#/alf/fonts'
 import {themes} from '#/alf/themes'
-import {indieTheme} from '#/indie-settings/theme'
+import {indieThemes} from '#/indie-settings/theme'
 import {type Device} from '#/storage'
 
 export {
@@ -124,18 +124,24 @@ export function useAlf() {
 
 export function useTheme(theme?: ThemeName) {
   const alf = useAlf()
-  const {palette, atoms} = indieTheme
-  alf.theme = {
-    ...alf.theme,
-    palette: {
-      ...alf.theme.palette,
-      ...palette,
-    },
-    atoms: {
-      ...alf.theme.atoms,
-      ...atoms,
-    },
-  }
+
+  const themeNames: Array<ThemeName> = ['light', 'dim', 'dark']
+  themeNames.forEach(themeName => {
+    const overrides = indieThemes[themeName]
+    if (overrides) {
+      alf.themes[themeName] = {
+        ...alf.themes[themeName],
+        palette: {
+          ...alf.themes[themeName].palette,
+          ...overrides.palette,
+        },
+        atoms: {
+          ...alf.themes[themeName].atoms,
+          ...overrides.atoms,
+        },
+      }
+    }
+  })
 
   return useMemo(() => {
     return theme ? alf.themes[theme] : alf.theme

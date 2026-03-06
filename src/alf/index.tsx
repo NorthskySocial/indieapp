@@ -9,6 +9,7 @@ import {
   setFontScale as persistFontScale,
 } from '#/alf/fonts'
 import {themes} from '#/alf/themes'
+import {indieThemes} from '#/indie-settings/theme'
 import {type Device} from '#/storage'
 
 export {
@@ -127,6 +128,25 @@ export function useAlf() {
 
 export function useTheme(theme?: ThemeName) {
   const alf = useAlf()
+
+  const themeNames: Array<ThemeName> = ['light', 'dim', 'dark']
+  themeNames.forEach(themeName => {
+    const overrides = indieThemes[themeName]
+    if (overrides) {
+      alf.themes[themeName] = {
+        ...alf.themes[themeName],
+        palette: {
+          ...alf.themes[themeName].palette,
+          ...overrides.palette,
+        },
+        atoms: {
+          ...alf.themes[themeName].atoms,
+          ...overrides.atoms,
+        },
+      }
+    }
+  })
+
   return React.useMemo(() => {
     return theme ? alf.themes[theme] : alf.theme
   }, [theme, alf])

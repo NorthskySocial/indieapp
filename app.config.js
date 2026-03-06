@@ -1,4 +1,6 @@
 // @ts-check
+require('tsx/cjs')
+const {AppSettings} = require('./src/indie-settings/settings')
 const pkg = require('./package.json')
 
 /**
@@ -212,7 +214,7 @@ module.exports = function (_config) {
         ],
       },
       web: {
-        favicon: './assets/favicon.png',
+        favicon: AppSettings.FAVICON_PATH,
       },
       updates: {
         url: 'https://updates.bsky.app/manifest',

@@ -1,4 +1,4 @@
-import theme from './northskyTheme'
+import {themes} from './northskyTheme'
 
 const blueskyTheme = {
   palette: {
@@ -6,6 +6,6 @@ const blueskyTheme = {
   },
 }
 
-const indieTheme = theme || blueskyTheme
+const indieThemes = themes || blueskyTheme
 
-export {indieTheme}
+export {indieThemes}

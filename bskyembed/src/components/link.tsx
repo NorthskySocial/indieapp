@@ -1,5 +1,7 @@
 import {h} from 'preact'
 
+import {AppSettings} from '#/indie-settings/settings'
+
 export function Link({
   href,
   className,
@@ -21,7 +23,7 @@ export function Link({
 
   return (
     <a
-      href={`${href.startsWith('http') ? href : `https://bsky.app${href}`}${
+      href={`${href.startsWith('http') ? href : `${AppSettings.BASE_URL}${href}`}${
         disableTracking ? '' : `?${newSearchParam.toString()}`
       }`}
       target="_blank"

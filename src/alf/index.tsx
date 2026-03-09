@@ -8,7 +8,6 @@ import {
   setFontFamily as persistFontFamily,
   setFontScale as persistFontScale,
 } from '#/alf/fonts'
-import {themes} from '#/alf/themes'
 import {indieThemes} from '#/indie-settings/theme'
 import {type Device} from '#/storage'
 
@@ -30,7 +29,7 @@ export * from '#/alf/util/useGutters'
 export type Alf = {
   themeName: ThemeName
   theme: Theme
-  themes: typeof themes
+  themes: typeof indieThemes
   fonts: {
     scale: Exclude<Device['fontScale'], undefined>
     scaleMultiplier: number
@@ -49,8 +48,8 @@ export type Alf = {
  */
 export const Context = createContext<Alf>({
   themeName: 'light',
-  theme: themes.light,
-  themes,
+  theme: indieThemes.light,
+  themes: indieThemes,
   fonts: {
     scale: getFontScale(),
     scaleMultiplier: computeFontScaleMultiplier(getFontScale()),
@@ -93,9 +92,9 @@ export function ThemeProvider({
 
   const value = useMemo<Alf>(
     () => ({
-      themes,
+      themes: indieThemes,
       themeName: themeName,
-      theme: themes[themeName],
+      theme: indieThemes[themeName],
       fonts: {
         scale: fontScale,
         scaleMultiplier: fontScaleMultiplier,

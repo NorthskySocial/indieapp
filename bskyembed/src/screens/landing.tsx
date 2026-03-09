@@ -25,8 +25,10 @@ if (!root) throw new Error('No root element')
 initSystemColorMode({additionalBodyClasses: 'dark:bg-dimmedBgDarken'})
 
 const agent = new AtpAgent({
-  service: 'https://public.api.bsky.app',
+  service: AppSettings.PUBLIC_BSKY_SERVICE,
 })
+
+const baseHostname = new URL(AppSettings.BASE_URL).hostname
 
 render(<LandingPage />, root)
 
@@ -54,7 +56,7 @@ function LandingPage() {
           } else {
             try {
               const urlp = new URL(uri)
-              if (!urlp.hostname.endsWith('bsky.app')) {
+              if (!urlp.hostname.endsWith(baseHostname)) {
                 throw new Error('Invalid hostname')
               }
               const split = urlp.pathname.slice(1).split('/')
@@ -105,7 +107,7 @@ function LandingPage() {
         setThread(data.thread)
       } catch (err) {
         console.error(err)
-        setError(err instanceof Error ? err.message : 'Invalid Bluesky URL')
+        setError(err instanceof Error ? err.message : `Invalid ${AppSettings.APP_NAME} URL`)
       } finally {
         setLoading(false)
       }
@@ -115,12 +117,12 @@ function LandingPage() {
   return (
     <main className="w-full min-h-dvh flex flex-col items-center gap-8 py-14 px-4 md:pt-32 dark:text-slate-200">
       <Link
-        href="https://bsky.social/about"
+        href={AppSettings.BASE_URL}
         className="transition-transform hover:scale-110">
         <img src={logo} className="h-10" />
       </Link>
 
-      <h1 className="text-4xl font-bold text-center">Embed a Bluesky Post</h1>
+      <h1 className="text-4xl font-bold text-center">Embed a {AppSettings.APP_NAME} Post</h1>
 
       <div className="flex flex-col w-full max-w-[600px] gap-6">
         <input

@@ -9,7 +9,11 @@ import {useQueryClient} from '@tanstack/react-query'
 
 import {VIDEO_FEED_URI} from '#/lib/constants'
 import {makeCustomFeedLink} from '#/lib/routes/links'
-import {RQKEY, usePostFeedQuery} from '#/state/queries/post-feed'
+import {
+  type FeedDescriptor,
+  RQKEY,
+  usePostFeedQuery,
+} from '#/state/queries/post-feed'
 import {BlockDrawerGesture} from '#/view/shell/BlockDrawerGesture'
 import {atoms as a, tokens, useGutters, useTheme} from '#/alf'
 import {ButtonIcon} from '#/components/Button'
@@ -24,7 +28,7 @@ import {useAnalytics} from '#/analytics'
 
 const CARD_WIDTH = 100
 
-const FEED_DESC = `feedgen|${VIDEO_FEED_URI}`
+const FEED_DESC = `feedgen|${VIDEO_FEED_URI}` as FeedDescriptor
 const FEED_PARAMS: {
   feedCacheKey: 'explore'
 } = {

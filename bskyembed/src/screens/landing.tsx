@@ -106,7 +106,11 @@ function LandingPage() {
         setThread(data.thread)
       } catch (err) {
         console.error(err)
-        setError(err instanceof Error ? err.message : `Invalid ${AppSettings.APP_NAME} URL`)
+        setError(
+          err instanceof Error
+            ? err.message
+            : `Invalid ${AppSettings.APP_NAME} URL`,
+        )
       } finally {
         setLoading(false)
       }
@@ -121,7 +125,9 @@ function LandingPage() {
         <img src={logo} className="h-10" />
       </Link>
 
-      <h1 className="text-4xl font-bold text-center">Embed a {AppSettings.APP_NAME} Post</h1>
+      <h1 className="text-4xl font-bold text-center">
+        Embed a {AppSettings.APP_NAME} Post
+      </h1>
 
       <div className="flex flex-col w-full max-w-[600px] gap-6">
         <input

@@ -1,7 +1,6 @@
 import {type Theme} from '@bsky.app/alf'
 
 import {themes as baseThemes} from '#/alf/themes'
-
 import {themes as overrides} from './northskyTheme'
 
 type ThemeOverride = {

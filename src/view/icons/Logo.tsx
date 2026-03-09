@@ -6,6 +6,7 @@ import {Image} from 'expo-image'
 import {useKawaiiMode} from '#/state/preferences/kawaii'
 import {flatten, useTheme} from '#/alf'
 import {loadSvgLogo} from '#/indie-settings/logoLoader'
+import {AppSettings} from '#/indie-settings/settings'
 
 type Props = {
   fill?: PathProps['fill']
@@ -35,7 +36,7 @@ export const Logo = React.forwardRef(function LogoImpl(props: Props, ref) {
             ? require('../../../assets/kawaii.png')
             : require('../../../assets/kawaii_smol.png')
         }
-        accessibilityLabel="Bluesky"
+        accessibilityLabel={AppSettings.APP_NAME}
         accessibilityHint=""
         accessibilityIgnoresInvertColors
         style={[{height: size, aspectRatio: 1.4}]}

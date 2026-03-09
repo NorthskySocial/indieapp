@@ -123,9 +123,9 @@ export const BSKY_FEED_OWNER_DIDS = [
   'did:plc:q6gjnaw2blty4crticxkmujt',
 ]
 
-export const DISCOVER_FEED_URI = AppSettings.DISCOVER_FEED_URI
-export const VIDEO_FEED_URI = AppSettings.VIDEO_FEED_URI
-export const STAGING_VIDEO_FEED_URI = AppSettings.STAGING_VIDEO_FEED_URI
+export const DISCOVER_FEED_URI: string = AppSettings.DISCOVER_FEED_URI
+export const VIDEO_FEED_URI: string = AppSettings.VIDEO_FEED_URI
+export const STAGING_VIDEO_FEED_URI: string = AppSettings.STAGING_VIDEO_FEED_URI
 
 export const VIDEO_FEED_URIS = [VIDEO_FEED_URI, STAGING_VIDEO_FEED_URI]
 export const DISCOVER_SAVED_FEED = {

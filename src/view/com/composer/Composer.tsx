@@ -1529,7 +1529,6 @@ function ComposerTopBar({
           shape="default"
           size="small"
           style={[{paddingLeft: 7, paddingRight: 7}]}
-          hoverStyle={[a.bg_transparent, {opacity: 0.5}]}
           onPress={onCancel}
           accessibilityHint={_(
             msg`Closes post composer and discards post draft`,

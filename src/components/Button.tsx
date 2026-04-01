@@ -236,11 +236,12 @@ export const Button = React.forwardRef<View, ButtonProps>(
               backgroundColor: t.palette.primary_500,
             })
             hoverStyles.push({
-              backgroundColor: t.palette.primary_600,
+              backgroundColor: t.palette.primary_300,
             })
           } else {
             baseStyles.push({
-              backgroundColor: t.palette.primary_200,
+              backgroundColor: t.palette.contrast_200,
+              opacity: 0.5,
             })
           }
         } else if (color === 'secondary') {
@@ -300,6 +301,14 @@ export const Button = React.forwardRef<View, ButtonProps>(
           } else {
             baseStyles.push({
               backgroundColor: t.palette.negative_50,
+            })
+          }
+        }
+      } else if (variant === 'ghost') {
+        if (color === 'primary') {
+          if (!disabled) {
+            hoverStyles.push({
+              opacity: 0.5,
             })
           }
         }
@@ -642,6 +651,20 @@ export function useSharedButtonTextStyles() {
         } else {
           baseStyles.push({
             color: t.palette.negative_200,
+          })
+        }
+      }
+    } else if (variant === 'ghost') {
+      if (color === 'primary') {
+        if (!disabled) {
+          baseStyles.push({color: t.palette.primary_500})
+        } else {
+          baseStyles.push({
+            color: select(t.name, {
+              light: t.palette.primary_100,
+              dim: t.palette.primary_100,
+              dark: t.palette.primary_100,
+            }),
           })
         }
       }

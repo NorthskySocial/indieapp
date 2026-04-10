@@ -26,8 +26,6 @@ import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {useSimpleVerificationState} from '#/components/verification'
 
-const DISPLAY_NAME_MAX_GRAPHEMES = 64
-const DESCRIPTION_MAX_GRAPHEMES = 256
 const PRONOUNS_MAX_GRAPHEMES = 20
 
 export function EditProfileDialog({

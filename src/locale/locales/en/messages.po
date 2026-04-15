@@ -1957,7 +1957,7 @@ msgstr ""
 #: src/screens/Deactivated.tsx:150
 #: src/screens/Profile/Header/EditProfileDialog.tsx:215
 #: src/screens/Profile/Header/EditProfileDialog.tsx:223
-#: src/screens/Search/Shell.tsx:397
+#: src/screens/Search/Shell.tsx:399
 #: src/screens/Settings/AppIconSettings/index.tsx:42
 #: src/screens/Settings/AppIconSettings/index.tsx:228
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:80
@@ -1983,7 +1983,7 @@ msgstr ""
 msgid "Cancel reactivation and sign out"
 msgstr ""
 
-#: src/screens/Search/Shell.tsx:388
+#: src/screens/Search/Shell.tsx:390
 msgid "Cancel search"
 msgstr ""
 
@@ -2302,7 +2302,7 @@ msgstr ""
 #: src/components/NewskieDialog.tsx:169
 #: src/components/NewskieDialog.tsx:175
 #: src/components/Post/Embed/VideoEmbed/GifPresentationControls.tsx:107
-#: src/components/ProgressGuide/FollowDialog.tsx:445
+#: src/components/ProgressGuide/FollowDialog.tsx:460
 #: src/components/StarterPack/Wizard/WizardEditListDialog.tsx:122
 #: src/components/StarterPack/Wizard/WizardEditListDialog.tsx:128
 #: src/components/verification/VerificationsDialog.tsx:146
@@ -3901,7 +3901,7 @@ msgid "Explicit sexual images."
 msgstr ""
 
 #: src/Navigation.tsx:818
-#: src/screens/Search/Shell.tsx:354
+#: src/screens/Search/Shell.tsx:356
 #: src/view/shell/desktop/LeftNav.tsx:691
 #: src/view/shell/Drawer.tsx:402
 msgid "Explore"
@@ -4346,12 +4346,12 @@ msgstr ""
 #. Starter packs suggested to the user for them to follow
 #: src/components/ProgressGuide/FollowDialog.tsx:72
 #: src/components/ProgressGuide/FollowDialog.tsx:80
-#: src/components/ProgressGuide/FollowDialog.tsx:431
+#: src/components/ProgressGuide/FollowDialog.tsx:446
 #: src/screens/Onboarding/StepSuggestedStarterpacks/index.tsx:43
 msgid "Find people to follow"
 msgstr ""
 
-#: src/screens/Search/Shell.tsx:530
+#: src/screens/Search/Shell.tsx:532
 msgid "Find posts, users, and feeds on Bluesky"
 msgstr ""
 
@@ -4583,6 +4583,7 @@ msgstr ""
 msgid "For the best experience, we recommend using the theme font."
 msgstr ""
 
+#: src/components/ProgressGuide/FollowDialog.tsx:131
 #: src/screens/Onboarding/StepSuggestedAccounts/index.tsx:346
 #: src/screens/Search/modules/ExploreSuggestedAccounts.tsx:88
 msgid "For You"
@@ -6703,7 +6704,7 @@ msgstr ""
 
 #: src/components/dialogs/SearchablePeopleList.tsx:224
 #: src/components/dms/InitiateChatFlow.tsx:334
-#: src/components/ProgressGuide/FollowDialog.tsx:209
+#: src/components/ProgressGuide/FollowDialog.tsx:221
 msgid "No results"
 msgstr ""
 
@@ -8759,8 +8760,8 @@ msgstr ""
 #: src/components/dialogs/SearchablePeopleList.tsx:515
 #: src/components/forms/SearchInput.tsx:51
 #: src/components/forms/SearchInput.tsx:53
-#: src/screens/Search/Shell.tsx:354
-#: src/screens/Search/Shell.tsx:518
+#: src/screens/Search/Shell.tsx:356
+#: src/screens/Search/Shell.tsx:520
 #: src/view/shell/bottom-bar/BottomBar.tsx:199
 msgid "Search"
 msgstr ""
@@ -8772,7 +8773,7 @@ msgstr ""
 msgid "Search @{0}'s posts"
 msgstr ""
 
-#: src/components/ProgressGuide/FollowDialog.tsx:685
+#: src/components/ProgressGuide/FollowDialog.tsx:700
 msgid "Search by name or interest"
 msgstr ""
 
@@ -8785,12 +8786,12 @@ msgid "Search feeds"
 msgstr ""
 
 #. Accessibility label for a tab that searches for accounts in a category (e.g. Art, Video Games, Sports, etc.) that are suggested for the user to follow. The tab is not currently active and can be selected.
-#: src/components/ProgressGuide/FollowDialog.tsx:488
+#: src/components/ProgressGuide/FollowDialog.tsx:503
 msgid "Search for \"{interestsDisplayName}\""
 msgstr ""
 
 #. Accessibility label for a tab that searches for accounts in a category (e.g. Art, Video Games, Sports, etc.) that are suggested for the user to follow. The tab is currently selected.
-#: src/components/ProgressGuide/FollowDialog.tsx:483
+#: src/components/ProgressGuide/FollowDialog.tsx:498
 msgid "Search for \"{interestsDisplayName}\" (active)"
 msgstr ""
 
@@ -8814,7 +8815,7 @@ msgstr ""
 msgid "Search for people"
 msgstr "Search for people"
 
-#: src/screens/Search/Shell.tsx:380
+#: src/screens/Search/Shell.tsx:382
 msgid "Search for posts, users, or feeds"
 msgstr ""
 
@@ -8843,7 +8844,7 @@ msgstr ""
 
 #: src/components/dialogs/SearchablePeopleList.tsx:535
 #: src/components/dms/InitiateChatFlow.tsx:1002
-#: src/components/ProgressGuide/FollowDialog.tsx:704
+#: src/components/ProgressGuide/FollowDialog.tsx:719
 msgid "Search profiles"
 msgstr ""
 
@@ -8857,7 +8858,7 @@ msgstr ""
 
 #: src/components/dialogs/SearchablePeopleList.tsx:536
 #: src/components/dms/InitiateChatFlow.tsx:1003
-#: src/components/ProgressGuide/FollowDialog.tsx:705
+#: src/components/ProgressGuide/FollowDialog.tsx:720
 msgid "Searches for profiles"
 msgstr ""
 
@@ -11701,7 +11702,7 @@ msgid "We're having issues initializing the age assurance process for your accou
 msgstr ""
 
 #: src/components/dialogs/SearchablePeopleList.tsx:108
-#: src/components/ProgressGuide/FollowDialog.tsx:183
+#: src/components/ProgressGuide/FollowDialog.tsx:195
 msgid "We're having network issues, try again"
 msgstr ""
 

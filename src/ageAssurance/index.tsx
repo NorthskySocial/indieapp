@@ -4,6 +4,9 @@ import {useGetAndRegisterPushToken} from '#/lib/notifications/notifications'
 import {Provider as RedirectOverlayProvider} from '#/ageAssurance/components/RedirectOverlay'
 import {
   AgeAssuranceDataProvider,
+  prefetchAgeAssuranceData as _prefetchAgeAssuranceData,
+  prefetchConfig,
+  refetchServerState as _refetchServerState,
   useAgeAssuranceDataContext,
 } from '#/ageAssurance/data'
 import {logger} from '#/ageAssurance/logger'
@@ -24,14 +27,32 @@ import {
 import {AppSettings} from '#/indie-settings/settings'
 
 export {
-  prefetchConfig as prefetchAgeAssuranceConfig,
-  prefetchAgeAssuranceData,
-  refetchServerState as refetchAgeAssuranceServerState,
   usePatchOtherRequiredData as usePatchAgeAssuranceOtherRequiredData,
   usePatchServerState as usePatchAgeAssuranceServerState,
 } from '#/ageAssurance/data'
 export {logger} from '#/ageAssurance/logger'
 export {MIN_ACCESS_AGE} from '#/ageAssurance/util'
+
+const noop = () => Promise.resolve()
+
+export function prefetchAgeAssuranceConfig() {
+  if (!AppSettings.AGE_ASSURANCE_ENABLED) return
+  return prefetchConfig()
+}
+
+export function prefetchAgeAssuranceData(
+  ...args: Parameters<typeof _prefetchAgeAssuranceData>
+) {
+  if (!AppSettings.AGE_ASSURANCE_ENABLED) return noop()
+  return _prefetchAgeAssuranceData(...args)
+}
+
+export function refetchAgeAssuranceServerState(
+  ...args: Parameters<typeof _refetchServerState>
+) {
+  if (!AppSettings.AGE_ASSURANCE_ENABLED) return noop()
+  return _refetchServerState(...args)
+}
 
 const AgeAssuranceStateContext = createContext<{
   Access: typeof AgeAssuranceAccess

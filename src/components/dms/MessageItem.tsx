@@ -1,6 +1,7 @@
-import {memo, useCallback, useMemo, useState} from 'react'
+import {memo, useCallback, useEffect, useMemo, useState} from 'react'
 import {
   type GestureResponderEvent,
+  LayoutAnimation,
   Pressable,
   type StyleProp,
   type TextStyle,
@@ -11,7 +12,9 @@ import Animated, {
   FadeOut,
   LayoutAnimationConfig,
   LinearTransition,
+  useAnimatedStyle,
   useSharedValue,
+  withTiming,
   ZoomIn,
   ZoomOut,
 } from 'react-native-reanimated'
@@ -43,6 +46,7 @@ import {RichText} from '#/components/RichText'
 import {Text} from '#/components/Typography'
 import type * as bsky from '#/types/bsky'
 import {DateDivider} from './DateDivider'
+import {useDateDividerToggle} from './DateDividerToggle'
 import {MessageItemEmbed} from './MessageItemEmbed'
 
 const AVATAR_SIZE = 28
@@ -158,17 +162,25 @@ let MessageItem = ({
       new Date(prevMessage.sentAt).getTime() >
       MESSAGE_GAP_THRESHOLD_MS
 
+  const {isDividerToggled, toggleDivider} = useDateDividerToggle()
+  const isDateDividerToggled = isDividerToggled(message.id)
+  const isNextDateDividerToggled =
+    nextMessage != null && isDividerToggled(nextMessage.id)
   const showDateDivider = hasLargeGapFromPrev
 
-  const isInCluster = !(isFirstInCluster && isLastInCluster)
+  const effectiveFirstInCluster = isFirstInCluster || isDateDividerToggled
+  const effectiveLastInCluster = isLastInCluster || isNextDateDividerToggled
+  const isInCluster = !(effectiveFirstInCluster && effectiveLastInCluster)
   const isInMiddleOfCluster =
-    isInCluster && !isFirstInCluster && !isLastInCluster
+    isInCluster && !effectiveFirstInCluster && !effectiveLastInCluster
 
   const hasReactions = message.reactions && message.reactions.length > 0
   const squaredBottomCorner =
-    !hasReactions && isInCluster && (isInMiddleOfCluster || isFirstInCluster)
+    !hasReactions &&
+    isInCluster &&
+    (isInMiddleOfCluster || effectiveFirstInCluster)
   const squaredTopCorner =
-    isInCluster && (isInMiddleOfCluster || isLastInCluster)
+    isInCluster && (isInMiddleOfCluster || effectiveLastInCluster)
 
   const pendingColor = t.palette.primary_300
 
@@ -178,6 +190,45 @@ let MessageItem = ({
 
   const hasEmbedAndText =
     AppBskyEmbedRecord.isView(message.embed) && rt.text.length > 0
+
+  const targetBottomRadius =
+    squaredBottomCorner || hasEmbedAndText
+      ? SQUARED_BORDER_RADIUS
+      : BORDER_RADIUS
+  const targetTopRadius = squaredTopCorner
+    ? SQUARED_BORDER_RADIUS
+    : BORDER_RADIUS
+
+  const bottomRadiusSV = useSharedValue(targetBottomRadius)
+  const topRadiusSV = useSharedValue(targetTopRadius)
+
+  const showDisplayName =
+    isGroupChat &&
+    !isFromSelf &&
+    effectiveFirstInCluster &&
+    !isDateDividerToggled &&
+    !isOnlyEmoji(message.text)
+  const showAvatar = isGroupChat && !isFromSelf && isLastInCluster
+
+  useEffect(() => {
+    bottomRadiusSV.set(withTiming(targetBottomRadius, {duration: 300}))
+  }, [targetBottomRadius, bottomRadiusSV])
+
+  useEffect(() => {
+    topRadiusSV.set(withTiming(targetTopRadius, {duration: 300}))
+  }, [targetTopRadius, topRadiusSV])
+
+  const borderRadiusStyle = useAnimatedStyle(() =>
+    isFromSelf
+      ? {
+          borderBottomRightRadius: bottomRadiusSV.get(),
+          borderTopRightRadius: topRadiusSV.get(),
+        }
+      : {
+          borderBottomLeftRadius: bottomRadiusSV.get(),
+          borderTopLeftRadius: topRadiusSV.get(),
+        },
+  )
 
   const avatar = profile ? (
     <ProfileCard.Avatar
@@ -322,7 +373,7 @@ let MessageItem = ({
 
   return (
     <>
-      {showDateDivider && (
+      {(showDateDivider || isDateDividerToggled) && (
         <Animated.View entering={native(FadeIn)} exiting={native(FadeOut)}>
           <DateDivider date={message.sentAt} />
         </Animated.View>
@@ -330,10 +381,12 @@ let MessageItem = ({
       <View
         style={[
           isFromSelf ? a.mr_sm : a.ml_sm,
-          isFirstInCluster && !showDateDivider && a.mt_sm,
+          effectiveFirstInCluster &&
+            !(showDateDivider || isDateDividerToggled) &&
+            a.mt_sm,
         ]}>
         <View style={[a.relative]}>
-          {isGroupChat && !isFromSelf && isLastInCluster ? (
+          {showAvatar ? (
             <View style={[a.absolute, {bottom: hasReactions ? 10 : 0}]}>
               {avatar}
             </View>
@@ -346,10 +399,7 @@ let MessageItem = ({
                   paddingLeft: AVATAR_SIZE,
                 },
             ]}>
-            {isGroupChat &&
-            !isFromSelf &&
-            isFirstInCluster &&
-            !isOnlyEmoji(message.text) ? (
+            {showDisplayName ? (
               <Text
                 style={[
                   a.text_xs,
@@ -363,9 +413,20 @@ let MessageItem = ({
                 {displayName}
               </Text>
             ) : null}
-            <ActionsWrapper isFromSelf={isFromSelf} message={message}>
+            <ActionsWrapper
+              hasReactions={hasReactions}
+              isFromSelf={isFromSelf}
+              message={message}
+              onTap={() => {
+                if (!hasLargeGapFromPrev) {
+                  LayoutAnimation.configureNext(
+                    LayoutAnimation.Presets.easeInEaseOut,
+                  )
+                  toggleDivider(message.id)
+                }
+              }}>
               {rt.text.length > 0 && (
-                <View
+                <Animated.View
                   accessibilityHint={l`Double tap or long press the message to add a reaction`}
                   style={[
                     !isFromSelf && a.ml_sm,
@@ -377,7 +438,7 @@ let MessageItem = ({
                           a.py_sm,
                           a.px_md,
                           {
-                            marginTop: isFirstInCluster
+                            marginTop: effectiveFirstInCluster
                               ? 0
                               : CLUSTERED_MESSAGE_GAP,
                             backgroundColor: isFromSelf
@@ -387,25 +448,7 @@ let MessageItem = ({
                               : t.palette.contrast_50,
                           },
                           isFromSelf ? a.self_end : a.self_start,
-                          isFromSelf
-                            ? {
-                                borderBottomRightRadius:
-                                  squaredBottomCorner || hasEmbedAndText
-                                    ? SQUARED_BORDER_RADIUS
-                                    : BORDER_RADIUS,
-                                borderTopRightRadius: squaredTopCorner
-                                  ? SQUARED_BORDER_RADIUS
-                                  : BORDER_RADIUS,
-                              }
-                            : {
-                                borderBottomLeftRadius:
-                                  squaredBottomCorner || hasEmbedAndText
-                                    ? SQUARED_BORDER_RADIUS
-                                    : BORDER_RADIUS,
-                                borderTopLeftRadius: squaredTopCorner
-                                  ? SQUARED_BORDER_RADIUS
-                                  : BORDER_RADIUS,
-                              },
+                          borderRadiusStyle,
                         ]),
                   ]}>
                   <RichText
@@ -416,7 +459,7 @@ let MessageItem = ({
                     emojiMultiplier={3}
                     shouldProxyLinks={true}
                   />
-                </View>
+                </Animated.View>
               )}
               {AppBskyEmbedRecord.isView(message.embed) && (
                 <MessageItemEmbed
@@ -430,7 +473,7 @@ let MessageItem = ({
             </ActionsWrapper>
           </View>
         </View>
-        {isLastInCluster && (
+        {effectiveLastInCluster && (
           <MessageItemMetadata
             item={item}
             style={[isFromSelf ? a.text_right : a.text_left]}

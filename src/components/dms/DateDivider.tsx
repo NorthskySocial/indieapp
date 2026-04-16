@@ -27,8 +27,8 @@ const longDateFormatterWithYear = new Intl.DateTimeFormat(undefined, {
 })
 
 let DateDivider = ({date: dateStr}: {date: string}): React.ReactNode => {
-  const {t: l} = useLingui()
   const t = useTheme()
+  const {t: l} = useLingui()
 
   let date: string
   const time = timeFormatter.format(new Date(dateStr))

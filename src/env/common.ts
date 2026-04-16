@@ -1,6 +1,7 @@
 import {type Did} from '@atproto/api'
 
 import packageJson from '#/../package.json'
+import {AppSettings} from '#/indie-settings/settings'
 
 /**
  * The semver version of the app, as defined in `package.json.`
@@ -76,7 +77,8 @@ export const LOG_DEBUG: string = process.env.EXPO_PUBLIC_LOG_DEBUG || ''
  * The DID of the Bluesky appview to proxy to
  */
 export const BLUESKY_PROXY_DID: Did =
-  process.env.EXPO_PUBLIC_BLUESKY_PROXY_DID || 'did:web:api.bsky.app'
+  process.env.EXPO_PUBLIC_BLUESKY_PROXY_DID ||
+  (AppSettings.PUBLIC_BSKY_SERVICE_DID as Did)
 
 /**
  * The DID of the chat service to proxy to

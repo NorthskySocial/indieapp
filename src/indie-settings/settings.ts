@@ -4,6 +4,19 @@ import {NorthSkyAppSettings} from './northsky.settings.example'
 
 // Bluesky Settings
 export enum BlueSkyAppSettings {
+  /**
+   * Master toggle for analytics / telemetry. Values: `'true'` | `'false'`.
+   *
+   * When `'false'` (default) the app will not:
+   *   - send event metrics to the metrics API (`events.bsky.app/t`)
+   *   - fetch or evaluate GrowthBook feature flags over the network
+   *
+   * Sentry and Bitdrift are additionally gated by their own env vars
+   * (`EXPO_PUBLIC_SENTRY_DSN`, `EXPO_PUBLIC_BITDRIFT_API_KEY`) being unset.
+   *
+   * Consume via the `ANALYTICS_ENABLED` boolean exported from this module.
+   */
+  ANALYTICS_ENABLED = 'false',
   APP_NAME = 'Bluesky',
   BASE_URL = 'https://bsky.app',
   BSKY_DOWNLOAD_URL = 'https://bsky.app/download',
@@ -28,3 +41,10 @@ export enum BlueSkyAppSettings {
 
 // Replace the example NorthSkyAppSettings with your own indie settings
 export const AppSettings = {...BlueSkyAppSettings, ...NorthSkyAppSettings}
+
+/**
+ * Derived boolean view of `AppSettings.ANALYTICS_ENABLED`. See the enum member
+ * for semantics.
+ */
+export const ANALYTICS_ENABLED: boolean =
+  (AppSettings.ANALYTICS_ENABLED as string) === 'true'

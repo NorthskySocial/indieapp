@@ -26,7 +26,7 @@ jest.mock('#/env', () => ({
 }))
 
 jest.mock('#/indie-settings/settings', () => ({
-  ANALYTICS_ENABLED: true,
+  AppSettings: {ANALYTICS_ENABLED: true},
 }))
 
 type TestEvents = {
@@ -186,7 +186,7 @@ describe('MetricsClient (analytics disabled)', () => {
     jest.useFakeTimers({advanceTimers: true})
     jest.resetModules()
     jest.doMock('#/indie-settings/settings', () => ({
-      ANALYTICS_ENABLED: false,
+      AppSettings: {ANALYTICS_ENABLED: false},
     }))
     fetchMock = jest.fn().mockResolvedValue({ok: true, status: 200})
     global.fetch = fetchMock

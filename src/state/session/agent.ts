@@ -32,6 +32,7 @@ import {
   setCreatedAtForDid,
 } from '#/ageAssurance/data'
 import {features} from '#/analytics'
+import {AppSettings} from '#/indie-settings/settings'
 import {emitNetworkConfirmed, emitNetworkLost} from '../events'
 import {addSessionErrorLog} from './logging'
 import {
@@ -75,7 +76,9 @@ export async function createAgentAndResume(
   }
 
   // after session is attached
-  const aa = prefetchAgeAssuranceData({agent})
+  const aa = AppSettings.AGE_ASSURANCE_ENABLED
+    ? prefetchAgeAssuranceData({agent})
+    : Promise.resolve()
 
   agent.configureProxy(BLUESKY_PROXY_HEADER.get())
 
@@ -114,7 +117,9 @@ export async function createAgentAndLogin(
   const account = agentToSessionAccountOrThrow(agent)
   const gates = features.refresh({strategy: 'prefer-fresh-gates'})
   const moderation = configureModerationForAccount(agent, account)
-  const aa = prefetchAgeAssuranceData({agent})
+  const aa = AppSettings.AGE_ASSURANCE_ENABLED
+    ? prefetchAgeAssuranceData({agent})
+    : Promise.resolve()
 
   agent.configureProxy(BLUESKY_PROXY_HEADER.get())
 
@@ -176,7 +181,9 @@ export async function createAgentAndCreateAccount(
   setBirthdateForDid({did: account.did, birthdate})
   snoozeBirthdateUpdateAllowedForDid(account.did)
   // do this last
-  const aa = prefetchAgeAssuranceData({agent})
+  const aa = AppSettings.AGE_ASSURANCE_ENABLED
+    ? prefetchAgeAssuranceData({agent})
+    : Promise.resolve()
 
   // Not awaited so that we can still get into onboarding.
   // This is OK because we won't let you toggle adult stuff until you set the date.

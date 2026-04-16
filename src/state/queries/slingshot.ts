@@ -3,6 +3,7 @@ import {TID} from '@atproto/common-web'
 import {useQuery} from '@tanstack/react-query'
 
 import {getRecordByUri, resolveMiniDoc} from '#/lib/slingshot/client'
+import {getPostInteractionCounts} from '#/lib/slingshot/constellation'
 import {hydrateAvatarUrl, hydratePostViewRecord} from '#/lib/slingshot/hydrate'
 import {STALE} from '#/state/queries'
 
@@ -51,9 +52,10 @@ export function useSlingshotRecordQuery({
       const didMatch = atUri.match(/^at:\/\/(did:[^/]+)/)
       if (!didMatch) return undefined
 
-      const [record, miniDoc] = await Promise.all([
+      const [record, miniDoc, counts] = await Promise.all([
         getRecordByUri(atUri),
         resolveMiniDoc(didMatch[1]),
+        getPostInteractionCounts(atUri),
       ])
 
       if (!record || !miniDoc) return undefined
@@ -63,6 +65,7 @@ export function useSlingshotRecordQuery({
         record.uri,
         record.cid ?? '',
         miniDoc,
+        counts,
       )
     },
     staleTime: STALE.MINUTES.FIVE,

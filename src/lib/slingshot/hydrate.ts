@@ -10,7 +10,7 @@ import {
 } from '@atproto/api'
 
 import {buildPdsBlobUrl} from './blobs'
-import {type SlingshotMiniDoc} from './types'
+import {type PostInteractionCounts, type SlingshotMiniDoc} from './types'
 
 type BlobRef = {
   $type?: 'blob'
@@ -159,6 +159,7 @@ export function hydratePostView(
   uri: string,
   cid: string,
   miniDoc: SlingshotMiniDoc,
+  counts?: PostInteractionCounts,
 ): AppBskyFeedDefs.PostView {
   const author: AppBskyActorDefs.ProfileViewBasic = {
     $type: 'app.bsky.actor.defs#profileViewBasic',
@@ -178,10 +179,10 @@ export function hydratePostView(
     author,
     record,
     embed,
-    replyCount: 0,
-    repostCount: 0,
-    likeCount: 0,
-    quoteCount: 0,
+    replyCount: counts?.replyCount ?? 0,
+    repostCount: counts?.repostCount ?? 0,
+    likeCount: counts?.likeCount ?? 0,
+    quoteCount: counts?.quoteCount ?? 0,
     indexedAt:
       typeof record.createdAt === 'string'
         ? record.createdAt
@@ -194,6 +195,7 @@ export function hydratePostViewRecord(
   uri: string,
   cid: string,
   miniDoc: SlingshotMiniDoc,
+  counts?: PostInteractionCounts,
 ): $Typed<AppBskyEmbedRecord.ViewRecord> {
   const author: AppBskyActorDefs.ProfileViewBasic = {
     $type: 'app.bsky.actor.defs#profileViewBasic',
@@ -213,10 +215,10 @@ export function hydratePostViewRecord(
     author,
     value: record,
     embeds: embed ? [embed] : undefined,
-    replyCount: 0,
-    repostCount: 0,
-    likeCount: 0,
-    quoteCount: 0,
+    replyCount: counts?.replyCount ?? 0,
+    repostCount: counts?.repostCount ?? 0,
+    likeCount: counts?.likeCount ?? 0,
+    quoteCount: counts?.quoteCount ?? 0,
     indexedAt:
       typeof record.createdAt === 'string'
         ? record.createdAt

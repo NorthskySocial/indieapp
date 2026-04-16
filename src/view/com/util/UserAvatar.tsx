@@ -35,6 +35,7 @@ import {
   compressImage,
   createComposerImage,
 } from '#/state/gallery'
+import {useSlingshotAvatarQuery} from '#/state/queries/slingshot'
 import {unstableCacheProfileView} from '#/state/queries/unstable-profile-cache'
 import {EditImageDialog} from '#/view/com/composer/photos/EditImageDialog'
 import {atoms as a, tokens, useTheme} from '#/alf'
@@ -71,6 +72,7 @@ interface BaseUserAvatarProps {
 
 interface UserAvatarProps extends BaseUserAvatarProps {
   type: UserAvatarType
+  did?: string
   moderation?: ModerationUI
   usePlainRNImage?: boolean
   noBorder?: boolean
@@ -216,7 +218,8 @@ let UserAvatar = ({
   type = 'user',
   shape: overrideShape,
   size,
-  avatar,
+  avatar: avatarProp,
+  did,
   moderation,
   usePlainRNImage = false,
   onLoad,
@@ -226,6 +229,11 @@ let UserAvatar = ({
   noBorder,
 }: UserAvatarProps): React.ReactNode => {
   const t = useTheme()
+  const {data: slingshotAvatar} = useSlingshotAvatarQuery({
+    did: did ?? '',
+    enabled: !avatarProp && !!did,
+  })
+  const avatar = avatarProp || slingshotAvatar || undefined
   const finalShape = overrideShape ?? (type === 'user' ? 'circle' : 'square')
 
   const aviStyle = useMemo(() => {
@@ -554,6 +562,7 @@ let PreviewableUserAvatar = ({
   const avatarEl = (
     <UserAvatar
       avatar={profile.avatar}
+      did={profile.did}
       moderation={moderation}
       type={profile.associated?.labeler ? 'labeler' : 'user'}
       live={status.isActive || live}

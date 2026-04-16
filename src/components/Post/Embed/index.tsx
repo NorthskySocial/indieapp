@@ -36,6 +36,7 @@ import {ModeratedFeedEmbed} from './FeedEmbed'
 import {ImageEmbed} from './ImageEmbed'
 import {ModeratedListEmbed} from './ListEmbed'
 import {PostPlaceholder as PostPlaceholderText} from './PostPlaceholder'
+import {SlingshotFallbackEmbed} from './SlingshotFallbackEmbed'
 import {
   type CommonProps,
   type EmbedProps,
@@ -175,11 +176,7 @@ function RecordEmbed({
       )
     }
     case 'post_not_found': {
-      return (
-        <PostPlaceholderText>
-          <Trans>Deleted</Trans>
-        </PostPlaceholderText>
-      )
+      return <SlingshotFallbackEmbed embed={embed} {...rest} />
     }
     case 'post_blocked': {
       return (

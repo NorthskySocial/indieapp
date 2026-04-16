@@ -3,7 +3,7 @@ import {
   hydratePostView,
   hydratePostViewRecord,
 } from '../hydrate'
-import {type SlingshotMiniDoc} from '../types'
+import {type PostInteractionCounts, type SlingshotMiniDoc} from '../types'
 
 const MOCK_MINIDOC: SlingshotMiniDoc = {
   did: 'did:plc:testuser123',
@@ -44,6 +44,32 @@ describe('hydratePostView', () => {
     expect(view.likeCount).toBe(0)
     expect(view.quoteCount).toBe(0)
     expect(view.indexedAt).toBe('2026-04-10T12:00:00.000Z')
+  })
+
+  it('uses provided interaction counts', () => {
+    const record = {
+      $type: 'app.bsky.feed.post',
+      text: 'Hello world',
+      createdAt: '2026-04-10T12:00:00.000Z',
+    }
+    const counts: PostInteractionCounts = {
+      likeCount: 42,
+      repostCount: 7,
+      replyCount: 13,
+      quoteCount: 3,
+    }
+    const view = hydratePostView(
+      record,
+      BASE_URI,
+      BASE_CID,
+      MOCK_MINIDOC,
+      counts,
+    )
+
+    expect(view.likeCount).toBe(42)
+    expect(view.repostCount).toBe(7)
+    expect(view.replyCount).toBe(13)
+    expect(view.quoteCount).toBe(3)
   })
 
   it('uses current time as indexedAt when createdAt missing', () => {
@@ -228,6 +254,32 @@ describe('hydratePostViewRecord', () => {
     expect(vr.embeds![0].$type).toBe('app.bsky.embed.images#view')
     expect(vr.replyCount).toBe(0)
     expect(vr.likeCount).toBe(0)
+  })
+
+  it('uses provided interaction counts', () => {
+    const record = {
+      $type: 'app.bsky.feed.post',
+      text: 'test',
+      createdAt: '2026-04-10T12:00:00.000Z',
+    }
+    const counts: PostInteractionCounts = {
+      likeCount: 99,
+      repostCount: 15,
+      replyCount: 8,
+      quoteCount: 2,
+    }
+    const vr = hydratePostViewRecord(
+      record,
+      'at://did:plc:testuser123/app.bsky.feed.post/3abc',
+      'bafyrei123',
+      MOCK_MINIDOC,
+      counts,
+    )
+
+    expect(vr.likeCount).toBe(99)
+    expect(vr.repostCount).toBe(15)
+    expect(vr.replyCount).toBe(8)
+    expect(vr.quoteCount).toBe(2)
   })
 
   it('returns undefined embeds when no embed in record', () => {

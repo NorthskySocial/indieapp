@@ -5,6 +5,7 @@ import {GrowthBook} from '@growthbook/growthbook-react'
 import {Logger} from '#/logger'
 import {getNavigationMetadata, type Metadata} from '#/analytics/metadata'
 import * as env from '#/env'
+import {ANALYTICS_ENABLED} from '#/indie-settings/settings'
 
 export {Features} from '#/analytics/features/types'
 
@@ -46,6 +47,10 @@ export const features = new GrowthBook({
  * initialization completes.
  */
 export const init = new Promise<void>(async y => {
+  if (!ANALYTICS_ENABLED) {
+    y()
+    return
+  }
   const res = await features.init({timeout: TIMEOUT_INIT})
   if (!res.success) {
     logger.warn('GrowthBook initialization failed or timed out', {
@@ -61,6 +66,7 @@ export const init = new Promise<void>(async y => {
  * provided account, if any.
  */
 export async function refresh({strategy}: {strategy: FeatureFetchStrategy}) {
+  if (!ANALYTICS_ENABLED) return
   await features.refreshFeatures({
     timeout:
       strategy === 'prefer-low-latency'

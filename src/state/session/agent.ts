@@ -368,6 +368,46 @@ export class Agent extends BaseAgent {
 // Ideally, we wouldn't be doing this. However, since there is so much logic that requires making calls to the PDS right now, it
 // feels safer to just let those run as-is and set the header afterward.
 let realFetch = globalThis.fetch
+
+/**
+ * Lexicons that are served directly by the PDS from the user's actor store,
+ * not by the AppView. When `configureProxy` is set to a non-default AppView
+ * DID, the PDS will forward these calls to that AppView (which will 404 if
+ * it does not implement them). Strip the `atproto-proxy` header on these
+ * requests so the PDS handles them locally.
+ *
+ * See:
+ * https://github.com/bluesky-social/atproto/blob/main/packages/pds/src/api/app/bsky/actor/getPreferences.ts
+ */
+const PDS_LOCAL_LEXICONS = new Set<string>([
+  'app.bsky.actor.getPreferences',
+  'app.bsky.actor.putPreferences',
+])
+
+function stripProxyHeaderForPdsLocalLexicons(
+  input: Parameters<typeof fetch>[0],
+  init: Parameters<typeof fetch>[1],
+): Parameters<typeof fetch>[1] {
+  const url =
+    typeof input === 'string'
+      ? input
+      : input instanceof URL
+        ? input.href
+        : input.url
+  const xrpcIdx = url.indexOf('/xrpc/')
+  if (xrpcIdx === -1) return init
+  const pathEnd = url.indexOf('?', xrpcIdx)
+  const nsid = url.slice(
+    xrpcIdx + '/xrpc/'.length,
+    pathEnd === -1 ? undefined : pathEnd,
+  )
+  if (!PDS_LOCAL_LEXICONS.has(nsid)) return init
+  const headers = new Headers(init?.headers)
+  if (!headers.has('atproto-proxy')) return init
+  headers.delete('atproto-proxy')
+  return {...init, headers}
+}
+
 class BskyAppAgent extends BskyAgent {
   persistSessionHandler: ((event: AtpSessionEvent) => void) | undefined =
     undefined
@@ -375,10 +415,11 @@ class BskyAppAgent extends BskyAgent {
   constructor({service}: {service: string}) {
     super({
       service,
-      async fetch(...args) {
+      async fetch(input, init) {
+        const patchedInit = stripProxyHeaderForPdsLocalLexicons(input, init)
         let success = false
         try {
-          const result = await realFetch(...args)
+          const result = await realFetch(input, patchedInit)
           success = true
           return result
         } catch (e) {

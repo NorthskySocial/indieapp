@@ -6,7 +6,7 @@ const HELP_DESK_LANG = 'en-us'
 // Northsky Settings
 export const NorthSkyAppSettings: Partial<IndieAppSettings> = {
   ANALYTICS_ENABLED: false,
-  AGE_ASSURANCE_ENABLED: true,
+  AGE_ASSURANCE_ENABLED: false,
   APP_NAME: 'Northsky',
   BASE_URL: 'https://northsky.app',
   BSKY_DOWNLOAD_URL: 'https://northsky.app/download',

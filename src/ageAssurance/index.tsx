@@ -68,7 +68,31 @@ export function useAgeAssurance() {
   return useContext(AgeAssuranceStateContext)
 }
 
+const DISABLED_VALUE = {
+  Access: AgeAssuranceAccess,
+  Status: AgeAssuranceStatus,
+  state: {
+    lastInitiatedAt: undefined,
+    status: AgeAssuranceStatus.Unknown,
+    access: AgeAssuranceAccess.Full,
+  },
+  flags: {
+    adultContentDisabled: false,
+    chatDisabled: false,
+    isOverRegionMinAccessAge: true,
+    isOverAppMinAccessAge: true,
+  },
+} as const
+
 export function Provider({children}: {children: React.ReactNode}) {
+  if (!AppSettings.AGE_ASSURANCE_ENABLED) {
+    return (
+      <AgeAssuranceStateContext.Provider value={DISABLED_VALUE}>
+        {children}
+      </AgeAssuranceStateContext.Provider>
+    )
+  }
+
   return (
     <AgeAssuranceDataProvider>
       <InnerProvider>
@@ -101,23 +125,6 @@ function InnerProvider({children}: {children: React.ReactNode}) {
   return (
     <AgeAssuranceStateContext.Provider
       value={useMemo(() => {
-        if (!AppSettings.AGE_ASSURANCE_ENABLED) {
-          return {
-            Access: AgeAssuranceAccess,
-            Status: AgeAssuranceStatus,
-            state: {
-              lastInitiatedAt: undefined,
-              status: AgeAssuranceStatus.Unknown,
-              access: AgeAssuranceAccess.Full,
-            },
-            flags: {
-              adultContentDisabled: false,
-              chatDisabled: false,
-              isOverRegionMinAccessAge: true,
-              isOverAppMinAccessAge: true,
-            },
-          }
-        }
         const chatDisabled = state.access !== AgeAssuranceAccess.Full
         const isUnderAdultAge = data?.birthdate
           ? isUnderAge(data.birthdate, 18)

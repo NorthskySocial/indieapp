@@ -2,7 +2,7 @@ import {onAppStateChange} from '#/lib/appState'
 import {isNetworkError} from '#/lib/strings/errors'
 import {Logger} from '#/logger'
 import * as env from '#/env'
-import {ANALYTICS_ENABLED} from '#/indie-settings/settings'
+import {AppSettings} from '#/indie-settings/settings'
 
 type Event<M extends Record<string, any>> = {
   source: 'app'
@@ -43,7 +43,7 @@ export class MetricsClient<M extends Record<string, any>> {
     payload: M[E],
     metadata: Record<string, any> = {},
   ) {
-    if (!ANALYTICS_ENABLED) return
+    if (!AppSettings.ANALYTICS_ENABLED) return
     this.start()
 
     const e: Event<M> = {

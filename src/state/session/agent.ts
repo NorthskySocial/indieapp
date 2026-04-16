@@ -387,7 +387,10 @@ const PDS_LOCAL_LEXICONS = new Set<string>([
 function stripProxyHeaderForPdsLocalLexicons(
   input: Parameters<typeof fetch>[0],
   init: Parameters<typeof fetch>[1],
-): Parameters<typeof fetch>[1] {
+): {
+  input: Parameters<typeof fetch>[0]
+  init: Parameters<typeof fetch>[1]
+} {
   const url =
     typeof input === 'string'
       ? input
@@ -395,17 +398,26 @@ function stripProxyHeaderForPdsLocalLexicons(
         ? input.href
         : input.url
   const xrpcIdx = url.indexOf('/xrpc/')
-  if (xrpcIdx === -1) return init
+  if (xrpcIdx === -1) return {input, init}
   const pathEnd = url.indexOf('?', xrpcIdx)
   const nsid = url.slice(
     xrpcIdx + '/xrpc/'.length,
     pathEnd === -1 ? undefined : pathEnd,
   )
-  if (!PDS_LOCAL_LEXICONS.has(nsid)) return init
+  if (!PDS_LOCAL_LEXICONS.has(nsid)) return {input, init}
+  // The @atproto/api CredentialSession.fetchHandler constructs a Request
+  // object and passes it as the first arg to our fetch (with no init), so
+  // headers live on the Request, not init. Handle both cases.
+  if (input instanceof Request) {
+    if (!input.headers.has('atproto-proxy')) return {input, init}
+    const headers = new Headers(input.headers)
+    headers.delete('atproto-proxy')
+    return {input: new Request(input, {headers}), init}
+  }
   const headers = new Headers(init?.headers)
-  if (!headers.has('atproto-proxy')) return init
+  if (!headers.has('atproto-proxy')) return {input, init}
   headers.delete('atproto-proxy')
-  return {...init, headers}
+  return {input, init: {...init, headers}}
 }
 
 class BskyAppAgent extends BskyAgent {
@@ -416,10 +428,10 @@ class BskyAppAgent extends BskyAgent {
     super({
       service,
       async fetch(input, init) {
-        const patchedInit = stripProxyHeaderForPdsLocalLexicons(input, init)
+        const patched = stripProxyHeaderForPdsLocalLexicons(input, init)
         let success = false
         try {
-          const result = await realFetch(input, patchedInit)
+          const result = await realFetch(patched.input, patched.init)
           success = true
           return result
         } catch (e) {

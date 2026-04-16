@@ -16,3 +16,13 @@ export type SlingshotMiniDoc = {
   pds: string
   signing_key: string
 }
+
+/**
+ * Interaction counts for a post, fetched from Constellation backlinks.
+ */
+export type PostInteractionCounts = {
+  likeCount: number
+  repostCount: number
+  replyCount: number
+  quoteCount: number
+}

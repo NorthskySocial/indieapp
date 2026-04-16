@@ -31,7 +31,8 @@ import {PreviewableUserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a, useBreakpoints, useTheme, web} from '#/alf'
 import {AvatarBubbles} from '#/components/AvatarBubbles'
 import {Button, type ButtonColor, ButtonIcon} from '#/components/Button'
-import type * as Dialog from '#/components/Dialog'
+import * as Dialog from '#/components/Dialog'
+import {AddMembersFlow} from '#/components/dms/AddMembersFlow'
 import {Error} from '#/components/Error'
 import * as TextField from '#/components/forms/TextField'
 import {useInteractionState} from '#/components/hooks/useInteractionState'
@@ -138,11 +139,11 @@ function SettingsInner() {
     },
     ...[...data]
       .sort((a, b) => {
-        const aIsAdmin = a.did === primaryMember?.did
-        const bIsAdmin = b.did === primaryMember?.did
+        const aIsOwner = a.did === primaryMember?.did
+        const bIsOwner = b.did === primaryMember?.did
         const aIsSelf = a.did === currentAccount?.did
         const bIsSelf = b.did === currentAccount?.did
-        if (aIsAdmin !== bIsAdmin) return aIsAdmin ? -1 : 1
+        if (aIsOwner !== bIsOwner) return aIsOwner ? -1 : 1
         if (aIsSelf !== bIsSelf) return aIsSelf ? -1 : 1
         return 0
       })
@@ -216,6 +217,14 @@ function MembersAndRequests({
   const t = useTheme()
   const {t: l} = useLingui()
 
+  const convoState = useConvo()
+  const {currentAccount} = useSession()
+
+  const isOwner =
+    currentAccount?.did == null
+      ? false
+      : convoState.getPrimaryMember?.()?.did === currentAccount.did
+
   return (
     <View style={[a.flex_row, a.justify_between, a.mx_xl, a.mt_lg, a.mb_sm]}>
       <View style={[a.flex_row, a.align_center]}>
@@ -229,7 +238,7 @@ function MembersAndRequests({
             {color: t.palette.contrast_500},
           ]}>{l`${memberCount}/${MEMBER_LIMIT}`}</Text>
       </View>
-      {requestCount > 0 ? (
+      {isOwner && requestCount > 0 ? (
         <InlineLinkText
           label={l`View incoming group chat requests`}
           style={[a.text_sm, a.text_right, a.font_semi_bold]}
@@ -246,63 +255,98 @@ function MembersAndRequests({
 
 function AddMembersLink() {
   const t = useTheme()
+  const {t: l} = useLingui()
+
+  const convoState = useConvo()
+  const {currentAccount} = useSession()
+
+  const addMembersControl = Dialog.useDialogControl()
+
+  const isOwner =
+    currentAccount?.did == null
+      ? false
+      : convoState.getPrimaryMember?.()?.did === currentAccount.did
+
+  if (!isOwner) {
+    return null
+  }
 
   return (
-    <SubtleHoverWrapper>
-      <View
-        style={[
-          a.mx_xl,
-          {
-            marginTop: ROW_SPACING,
-            marginBottom: ROW_SPACING,
-          },
-        ]}>
-        <Pressable
-          accessibilityRole="button"
-          style={({pressed}) => [
-            a.flex_row,
-            a.align_center,
-            a.justify_between,
-            pressed && web({outline: 'none'}),
+    <>
+      <SubtleHoverWrapper>
+        <View
+          style={[
+            a.mx_xl,
+            {
+              marginTop: ROW_SPACING,
+              marginBottom: ROW_SPACING,
+            },
           ]}>
-          {({pressed}) => (
-            <>
-              <View>
-                <View style={[a.flex_row, a.align_center]}>
-                  <View
-                    style={[
-                      a.flex_row,
-                      a.align_center,
-                      a.justify_center,
-                      a.p_lg,
-                      a.rounded_full,
-                      pressed
-                        ? t.atoms.bg_contrast_100
-                        : t.atoms.bg_contrast_50,
-                      {
-                        height: 48,
-                        width: 48,
-                      },
-                    ]}>
-                    <PlusIcon style={[t.atoms.text_contrast_high]} size="sm" />
+          <Pressable
+            accessibilityRole="button"
+            style={({pressed}) => [
+              a.flex_row,
+              a.align_center,
+              a.justify_between,
+              pressed && web({outline: 'none'}),
+            ]}
+            onPress={() => addMembersControl.open()}>
+            {({pressed}) => (
+              <>
+                <View>
+                  <View style={[a.flex_row, a.align_center]}>
+                    <View
+                      style={[
+                        a.flex_row,
+                        a.align_center,
+                        a.justify_center,
+                        a.p_lg,
+                        a.rounded_full,
+                        pressed
+                          ? t.atoms.bg_contrast_100
+                          : t.atoms.bg_contrast_50,
+                        {
+                          height: 48,
+                          width: 48,
+                        },
+                      ]}>
+                      <PlusIcon
+                        style={[t.atoms.text_contrast_high]}
+                        size="sm"
+                      />
+                    </View>
+                    <Text
+                      style={[
+                        a.text_md,
+                        a.font_semi_bold,
+                        a.pl_sm,
+                        t.atoms.text,
+                      ]}>
+                      <Trans>Add members</Trans>
+                    </Text>
                   </View>
-                  <Text
-                    style={[
-                      a.text_md,
-                      a.font_semi_bold,
-                      a.pl_sm,
-                      t.atoms.text,
-                    ]}>
-                    <Trans>Add members</Trans>
-                  </Text>
                 </View>
-              </View>
-              <ChevronIcon style={[t.atoms.text_contrast_medium]} size="md" />
-            </>
-          )}
-        </Pressable>
-      </View>
-    </SubtleHoverWrapper>
+                <ChevronIcon style={[t.atoms.text_contrast_medium]} size="md" />
+              </>
+            )}
+          </Pressable>
+        </View>
+      </SubtleHoverWrapper>
+
+      <Dialog.Outer
+        control={addMembersControl}
+        testID="addChatMembersDialog"
+        nativeOptions={{fullHeight: true}}>
+        <Dialog.Handle />
+        <AddMembersFlow
+          title={l`Add members`}
+          onAddMembers={(_dids: string[]) => {
+            // TODO Add members here
+            addMembersControl.close()
+          }}
+        />
+      </Dialog.Outer>
+    </>
   )
 }
 

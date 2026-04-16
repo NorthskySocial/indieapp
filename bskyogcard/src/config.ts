@@ -1,3 +1,4 @@
+// eslint-disable-next-line import-x/no-unresolved
 import {envInt, envStr} from '@atproto/common'
 
 export type Config = {
@@ -35,7 +36,7 @@ export const envToCfg = (env: Environment): Config => {
     port: env.port ?? 3000,
     metricsPort: env.metricsPort ?? 3001,
     version: env.version,
-    appviewUrl: env.appviewUrl ?? 'https://api.bsky.app',
+    appviewUrl: env.appviewUrl ?? 'https://api.blacksky.community',
     originVerify: env.originVerify,
   }
   return {

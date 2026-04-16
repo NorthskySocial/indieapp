@@ -9,6 +9,7 @@ import {
 } from '#/lib/strings/starter-pack'
 import {messages} from '#/locale/locales/en/messages'
 import {tenorUrlToBskyGifUrl} from '#/state/queries/tenor'
+import {AppSettings} from '#/indie-settings/settings'
 import {cleanError} from '../../src/lib/strings/errors'
 import {createFullHandle, makeValidHandle} from '../../src/lib/strings/handles'
 import {enforceLen} from '../../src/lib/strings/helpers'
@@ -272,11 +273,11 @@ describe('toShortUrl', () => {
 })
 
 describe('toShareUrl', () => {
-  const inputs = ['https://bsky.app', '/3jk7x4irgv52r', 'item/test/123']
+  const inputs = [`${AppSettings.BASE_URL}`, '/3jk7x4irgv52r', 'item/test/123']
   const outputs = [
-    'https://bsky.app',
-    'https://bsky.app/3jk7x4irgv52r',
-    'https://bsky.app/item/test/123',
+    `${AppSettings.BASE_URL}`,
+    `${AppSettings.BASE_URL}/3jk7x4irgv52r`,
+    `${AppSettings.BASE_URL}/item/test/123`,
   ]
 
   it('appends https, when not present', () => {
@@ -456,58 +457,58 @@ describe('parseEmbedPlayerFromUrl', () => {
     {
       type: 'youtube_video',
       source: 'youtube',
-      playerUri: 'https://bsky.app/iframe/youtube.html?videoId=videoId&start=0',
+      playerUri: `${AppSettings.BASE_URL}/iframe/youtube.html?videoId=videoId&start=0`,
     },
     {
       type: 'youtube_video',
       source: 'youtube',
-      playerUri: 'https://bsky.app/iframe/youtube.html?videoId=videoId&start=1',
+      playerUri: `${AppSettings.BASE_URL}/iframe/youtube.html?videoId=videoId&start=1`,
     },
     {
       type: 'youtube_video',
       source: 'youtube',
-      playerUri: 'https://bsky.app/iframe/youtube.html?videoId=videoId&start=0',
+      playerUri: `${AppSettings.BASE_URL}/iframe/youtube.html?videoId=videoId&start=0`,
     },
     {
       type: 'youtube_video',
       source: 'youtube',
-      playerUri: 'https://bsky.app/iframe/youtube.html?videoId=videoId&start=0',
+      playerUri: `${AppSettings.BASE_URL}/iframe/youtube.html?videoId=videoId&start=0`,
     },
     {
       type: 'youtube_video',
       source: 'youtube',
-      playerUri: 'https://bsky.app/iframe/youtube.html?videoId=videoId&start=1',
+      playerUri: `${AppSettings.BASE_URL}/iframe/youtube.html?videoId=videoId&start=1`,
     },
     {
       type: 'youtube_video',
       source: 'youtube',
-      playerUri: 'https://bsky.app/iframe/youtube.html?videoId=videoId&start=0',
+      playerUri: `${AppSettings.BASE_URL}/iframe/youtube.html?videoId=videoId&start=0`,
     },
     {
       type: 'youtube_video',
       source: 'youtube',
-      playerUri: 'https://bsky.app/iframe/youtube.html?videoId=videoId&start=0',
+      playerUri: `${AppSettings.BASE_URL}/iframe/youtube.html?videoId=videoId&start=0`,
     },
     {
       type: 'youtube_short',
       source: 'youtubeShorts',
       hideDetails: true,
-      playerUri: 'https://bsky.app/iframe/youtube.html?videoId=videoId&start=0',
+      playerUri: `${AppSettings.BASE_URL}/iframe/youtube.html?videoId=videoId&start=0`,
     },
     {
       type: 'youtube_video',
       source: 'youtube',
-      playerUri: 'https://bsky.app/iframe/youtube.html?videoId=videoId&start=0',
+      playerUri: `${AppSettings.BASE_URL}/iframe/youtube.html?videoId=videoId&start=0`,
     },
     {
       type: 'youtube_video',
       source: 'youtube',
-      playerUri: 'https://bsky.app/iframe/youtube.html?videoId=videoId&start=0',
+      playerUri: `${AppSettings.BASE_URL}/iframe/youtube.html?videoId=videoId&start=0`,
     },
     {
       type: 'youtube_video',
       source: 'youtube',
-      playerUri: 'https://bsky.app/iframe/youtube.html?videoId=videoId&start=0',
+      playerUri: `${AppSettings.BASE_URL}/iframe/youtube.html?videoId=videoId&start=0`,
     },
 
     undefined,

@@ -5,6 +5,7 @@ import * as WebBrowser from 'expo-web-browser'
 
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {parseLinkingUrl} from '#/lib/parseLinkingUrl'
+import {BSKY_APP_HOSTNAME} from '#/lib/strings/url-helpers'
 import {useSession} from '#/state/session'
 import {useCloseAllActiveElements} from '#/state/util'
 import {useIntentDialogs} from '#/components/intents/IntentDialogs'
@@ -36,7 +37,7 @@ export function useIntentHandler() {
       }
 
       const referrerInfo = Referrer.getReferrerInfo()
-      if (referrerInfo && referrerInfo.hostname !== 'bsky.app') {
+      if (referrerInfo && referrerInfo.hostname !== BSKY_APP_HOSTNAME) {
         ax.metric('deepLink:referrerReceived', {
           to: url,
           referrer: referrerInfo?.referrer,

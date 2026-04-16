@@ -21,7 +21,7 @@ import {
   MIN_ACCESS_AGE,
   useAgeAssuranceRegionConfigWithFallback,
 } from '#/ageAssurance/util'
-import {AGE_ASSURANCE_ENABLED} from '#/indie-settings/settings'
+import {AppSettings} from '#/indie-settings/settings'
 
 export {
   prefetchConfig as prefetchAgeAssuranceConfig,
@@ -101,7 +101,7 @@ function InnerProvider({children}: {children: React.ReactNode}) {
   return (
     <AgeAssuranceStateContext.Provider
       value={useMemo(() => {
-        if (!AGE_ASSURANCE_ENABLED) {
+        if (!AppSettings.AGE_ASSURANCE_ENABLED) {
           return {
             Access: AgeAssuranceAccess,
             Status: AgeAssuranceStatus,

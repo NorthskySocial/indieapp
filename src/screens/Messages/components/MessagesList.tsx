@@ -1,4 +1,11 @@
-import {useCallback, useEffect, useId, useRef, useState} from 'react'
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import {type LayoutChangeEvent, type ScrollViewProps, View} from 'react-native'
 import {
   KeyboardChatScrollView,
@@ -62,6 +69,7 @@ import {useAnalytics} from '#/analytics'
 import {IS_ANDROID, IS_NATIVE, IS_WEB} from '#/env'
 import {ChatStatusInfo} from './ChatStatusInfo'
 import {MessageInputEmbed, useMessageEmbed} from './MessageInputEmbed'
+import {MessagesListInfoPanel} from './MessagesListInfoPanel'
 import {KeyboardStickyView} from './vendor/KeyboardStickyView'
 
 function MaybeLoader({isLoading}: {isLoading: boolean}) {
@@ -151,10 +159,12 @@ export function MessagesList({
   // Reset when hasScrolled goes back to false (e.g. convo re-initialization after backgrounding).
   const hasInitiallyScrolled = useRef(false)
   const prevHasScrolled = useRef(hasScrolled)
-  if (prevHasScrolled.current && !hasScrolled) {
-    hasInitiallyScrolled.current = false
-  }
-  prevHasScrolled.current = hasScrolled
+  useLayoutEffect(() => {
+    if (prevHasScrolled.current && !hasScrolled) {
+      hasInitiallyScrolled.current = false
+    }
+    prevHasScrolled.current = hasScrolled
+  }, [hasScrolled])
 
   // -- Keep track of background state and positioning for new pill
   const layoutHeight = useSharedValue(0)
@@ -384,7 +394,7 @@ export function MessagesList({
           profile={convoState.convo.members.find(
             member => member.did === item.message.sender.did,
           )}
-          isGroupChat={convoState.getGroupInfo?.() != null}
+          isGroupChat={convoState.isGroup()}
         />
       )
     } else if (item.type === 'deleted-message') {
@@ -416,6 +426,8 @@ export function MessagesList({
     ),
     [inputHeightUI],
   )
+
+  console.log('DEBUG >>>', 'convoState.hasAllHistory', convoState.hasAllHistory)
 
   return (
     <DateDividerToggleProvider>
@@ -449,7 +461,12 @@ export function MessagesList({
             showsVerticalScrollIndicator={!IS_ANDROID}
             scrollEventThrottle={100}
             ListHeaderComponent={
-              <MaybeLoader isLoading={convoState.isFetchingHistory} />
+              <>
+                <MaybeLoader isLoading={convoState.isFetchingHistory} />
+                {convoState.isGroup() && convoState.hasAllHistory ? (
+                  <MessagesListInfoPanel convoState={convoState} />
+                ) : null}
+              </>
             }
             // native only (prop is not supported on web)
             renderScrollComponent={renderScrollComponent}

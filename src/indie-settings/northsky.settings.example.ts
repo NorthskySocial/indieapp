@@ -2,6 +2,7 @@
 
 // Northsky Settings
 export enum NorthSkyAppSettings {
+  ANALYTICS_ENABLED = 'false',
   APP_NAME = 'Northsky',
   BASE_URL = 'https://northsky.app',
   BSKY_DOWNLOAD_URL = 'https://northsky.app/download',

@@ -25,6 +25,10 @@ jest.mock('#/env', () => ({
   IS_WEB: false,
 }))
 
+jest.mock('#/indie-settings/settings', () => ({
+  ANALYTICS_ENABLED: true,
+}))
+
 type TestEvents = {
   click: {button: string}
   view: {screen: string}
@@ -172,5 +176,36 @@ describe('MetricsClient', () => {
     await jest.advanceTimersByTimeAsync(0)
 
     expect(fetchRequests).toHaveLength(1)
+  })
+})
+
+describe('MetricsClient (analytics disabled)', () => {
+  let fetchMock: jest.Mock
+
+  beforeEach(() => {
+    jest.useFakeTimers({advanceTimers: true})
+    jest.resetModules()
+    jest.doMock('#/indie-settings/settings', () => ({
+      ANALYTICS_ENABLED: false,
+    }))
+    fetchMock = jest.fn().mockResolvedValue({ok: true, status: 200})
+    global.fetch = fetchMock
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
+    jest.clearAllMocks()
+    jest.dontMock('#/indie-settings/settings')
+  })
+
+  it('drops events when ANALYTICS_ENABLED is false', async () => {
+    const {MetricsClient: DisabledClient} = require('./client')
+    const client = new DisabledClient()
+    client.track('click', {button: 'submit'})
+    client.track('view', {screen: 'home'})
+
+    await jest.advanceTimersByTimeAsync(30_000)
+
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 })

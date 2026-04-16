@@ -21,6 +21,7 @@ import {
   MIN_ACCESS_AGE,
   useAgeAssuranceRegionConfigWithFallback,
 } from '#/ageAssurance/util'
+import {AGE_ASSURANCE_ENABLED} from '#/indie-settings/settings'
 
 export {
   prefetchConfig as prefetchAgeAssuranceConfig,
@@ -100,6 +101,23 @@ function InnerProvider({children}: {children: React.ReactNode}) {
   return (
     <AgeAssuranceStateContext.Provider
       value={useMemo(() => {
+        if (!AGE_ASSURANCE_ENABLED) {
+          return {
+            Access: AgeAssuranceAccess,
+            Status: AgeAssuranceStatus,
+            state: {
+              lastInitiatedAt: undefined,
+              status: AgeAssuranceStatus.Unknown,
+              access: AgeAssuranceAccess.Full,
+            },
+            flags: {
+              adultContentDisabled: false,
+              chatDisabled: false,
+              isOverRegionMinAccessAge: true,
+              isOverAppMinAccessAge: true,
+            },
+          }
+        }
         const chatDisabled = state.access !== AgeAssuranceAccess.Full
         const isUnderAdultAge = data?.birthdate
           ? isUnderAge(data.birthdate, 18)

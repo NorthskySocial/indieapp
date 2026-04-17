@@ -29,11 +29,12 @@ jobs:
 
       - name: Get PR branch name
         id: pr
-        run: |
-          BRANCH=$(gh pr view ${{ inputs.pr_number }} --json headRefName -q .headRefName)
-          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          BRANCH=$(gh pr view "$PR_NUMBER" --json headRefName -q .headRefName)
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
 
       - name: Rebase main onto upstream
         id: rebase_main
@@ -44,20 +45,26 @@ jobs:
 
       - name: Rebase feature branch onto main
         id: rebase_branch
+        env:
+          BRANCH: ${{ steps.pr.outputs.branch }}
         run: |
-          git checkout ${{ steps.pr.outputs.branch }}
+          git checkout "$BRANCH"
           git rebase origin/main
-          git push origin ${{ steps.pr.outputs.branch }} --force-with-lease
+          git push origin "$BRANCH" --force-with-lease
 
       - name: Merge PR
-        run: gh pr merge ${{ inputs.pr_number }} --rebase
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: gh pr merge "$PR_NUMBER" --rebase --auto
 
       - name: Comment on PR if rebase of main failed
         if: failure() && steps.rebase_main.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ inputs.pr_number }}
         run: |
-          gh pr comment ${{ inputs.pr_number }} --body "❌ **Merge workflow failed: conflict rebasing \`main\` onto upstream.**
+          gh pr comment "$PR_NUMBER" --body "❌ **Merge workflow failed: conflict rebasing \`main\` onto upstream.**
 
           Someone needs to resolve this manually:
           \`\`\`bash
@@ -69,23 +76,23 @@ jobs:
           \`\`\`
 
           Once \`main\` is clean, re-run the workflow."
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Comment on PR if rebase of feature branch failed
         if: failure() && steps.rebase_main.outcome == 'success' && steps.rebase_branch.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          BRANCH: ${{ steps.pr.outputs.branch }}
         run: |
-          gh pr comment ${{ inputs.pr_number }} --body "❌ **Merge workflow failed: conflict rebasing \`${{ steps.pr.outputs.branch }}\` onto \`main\`.**
+          gh pr comment "$PR_NUMBER" --body "❌ **Merge workflow failed: conflict rebasing \`$BRANCH\` onto \`main\`.**
 
           The PR author needs to resolve this:
           \`\`\`bash
           git fetch origin
-          git checkout ${{ steps.pr.outputs.branch }}
+          git checkout $BRANCH
           git rebase origin/main
           # resolve conflicts
-          git push origin ${{ steps.pr.outputs.branch }} --force-with-lease
+          git push origin $BRANCH --force-with-lease
           \`\`\`
 
           Once resolved, re-run the workflow."
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

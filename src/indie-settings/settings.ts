@@ -17,6 +17,9 @@ export interface IndieAppSettings {
   EMBED_SCRIPT: string
   EMBED_SERVICE: string
   FAVICON_PATH: string
+  SPLASH_IMAGE_PATH: string
+  SPLASH_IMAGE_DARK_PATH: string
+  SPLASH_ANDROID_IMAGE_PATH: string
   HELP_DESK_LANG: string
   HELP_DESK_URL: string
   LOGO_SVG_PATH: string
@@ -49,6 +52,9 @@ export const BlueSkyAppSettings: IndieAppSettings = {
   EMBED_SCRIPT: 'https://embed.bsky.app/static/embed.js',
   EMBED_SERVICE: 'https://embed.bsky.app',
   FAVICON_PATH: './assets/favicon.png',
+  SPLASH_IMAGE_PATH: './assets/splash/splash.png',
+  SPLASH_IMAGE_DARK_PATH: './assets/splash/splash-dark.png',
+  SPLASH_ANDROID_IMAGE_PATH: './assets/splash/android-splash-logo-white.png',
   HELP_DESK_LANG,
   HELP_DESK_URL: `https://blueskyweb.zendesk.com/hc/${HELP_DESK_LANG}`,
   LOGO_SVG_PATH: 'indie-settings/assets/bluesky/SvgLogo',

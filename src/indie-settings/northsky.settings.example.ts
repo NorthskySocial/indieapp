@@ -22,6 +22,12 @@ export const NorthSkyAppSettings: Partial<IndieAppSettings> = {
   EMBED_SERVICE,
   EMBED_SCRIPT: `${EMBED_SERVICE}/static/embed.js`,
   FAVICON_PATH: 'src/indie-settings/assets/northsky/Northsky-Icon-Color.png',
+  SPLASH_IMAGE_PATH:
+    'src/indie-settings/assets/northsky/Northsky-Icon-Color.png',
+  SPLASH_IMAGE_DARK_PATH:
+    'src/indie-settings/assets/northsky/Northsky-Icon-Color.png',
+  SPLASH_ANDROID_IMAGE_PATH:
+    'src/indie-settings/assets/northsky/Northsky-Icon-Color.png',
   HELP_DESK_LANG,
   HELP_DESK_URL: `https://blueskyweb.zendesk.com/hc/${HELP_DESK_LANG}`,
   LOGO_SVG_PATH: 'indie-settings/assets/northsky/SvgLogo',

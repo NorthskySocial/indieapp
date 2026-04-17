@@ -1,11 +1,31 @@
 import {NorthSkyAppSettings} from './northsky.settings.example'
 
+/**
+ * Maps a set of PDS hostnames to the appview that should serve them.
+ *
+ * Matching is done on the hostname of the account's PDS URL at login time.
+ * The PDS host is always known and valid by the time the agent is configured
+ * (if it weren't, login would have failed).
+ */
+export interface AppviewRoute {
+  /**
+   * Lowercase PDS hostnames this route applies to (e.g. `blacksky.community`).
+   * Match is exact, no wildcards.
+   */
+  pdsHosts: string[]
+  /** Appview service URL (e.g. `https://api.blacksky.community`). */
+  BSKY_SERVICE: string
+  /** Appview DID (e.g. `did:web:api.blacksky.community`). */
+  BSKY_SERVICE_DID: string
+}
+
 export interface IndieAppSettings {
   // Feature flags
   ANALYTICS_ENABLED: boolean
   AGE_ASSURANCE_ENABLED: boolean
   // App identity
   APP_NAME: string
+  APPVIEW_ROUTES: AppviewRoute[]
   BASE_URL: string
   BSKY_DOWNLOAD_URL: string
   BSKY_SERVICE: string
@@ -20,8 +40,8 @@ export interface IndieAppSettings {
   HELP_DESK_LANG: string
   HELP_DESK_URL: string
   LOGO_SVG_PATH: string
-  PUBLIC_BSKY_SERVICE: string
-  PUBLIC_BSKY_SERVICE_DID: string
+  DEFAULT_BSKY_SERVICE: string
+  DEFAULT_BSKY_SERVICE_DID: string
   STAGING_SERVICE: string
   STAGING_DEFAULT_FEED_URI: string
   STAGING_VIDEO_FEED_URI: string
@@ -35,6 +55,7 @@ export const BlueSkyAppSettings: IndieAppSettings = {
   ANALYTICS_ENABLED: false,
   AGE_ASSURANCE_ENABLED: true,
   APP_NAME: 'Bluesky',
+  APPVIEW_ROUTES: [],
   BASE_URL: 'https://bsky.app',
   BSKY_DOWNLOAD_URL: 'https://bsky.app/download',
   BSKY_SERVICE: 'https://bsky.social',
@@ -52,8 +73,8 @@ export const BlueSkyAppSettings: IndieAppSettings = {
   HELP_DESK_LANG,
   HELP_DESK_URL: `https://blueskyweb.zendesk.com/hc/${HELP_DESK_LANG}`,
   LOGO_SVG_PATH: 'indie-settings/assets/bluesky/SvgLogo',
-  PUBLIC_BSKY_SERVICE: 'https://api.bsky.app',
-  PUBLIC_BSKY_SERVICE_DID: 'did:web:api.bsky.app',
+  DEFAULT_BSKY_SERVICE: 'https://api.bsky.app',
+  DEFAULT_BSKY_SERVICE_DID: 'did:web:api.bsky.app',
   STAGING_SERVICE: 'https://staging.bsky.dev',
   STAGING_DEFAULT_FEED_URI:
     'at://did:plc:yofh3kx63drvfljkibw5zuxo/app.bsky.feed.generator/whats-hot',
@@ -67,4 +88,34 @@ export const BlueSkyAppSettings: IndieAppSettings = {
 export const AppSettings: IndieAppSettings = {
   ...BlueSkyAppSettings,
   ...NorthSkyAppSettings,
+}
+
+/**
+ * Resolve the appview (service URL + DID) to use for an account whose PDS is
+ * hosted on `pdsHost`. The first matching entry in
+ * {@link IndieAppSettings.APPVIEW_ROUTES} wins; otherwise falls back to the
+ * configured public appview.
+ *
+ * @param pdsHost - Hostname of the account's PDS (e.g. `blacksky.community`).
+ *   Undefined for guest/public agents.
+ */
+export function resolveAppviewForPdsHost(pdsHost: string | undefined): {
+  BSKY_SERVICE: string
+  BSKY_SERVICE_DID: string
+} {
+  if (pdsHost) {
+    const normalized = pdsHost.toLowerCase()
+    for (const route of AppSettings.APPVIEW_ROUTES) {
+      if (route.pdsHosts.some(h => h.toLowerCase() === normalized)) {
+        return {
+          BSKY_SERVICE: route.BSKY_SERVICE,
+          BSKY_SERVICE_DID: route.BSKY_SERVICE_DID,
+        }
+      }
+    }
+  }
+  return {
+    BSKY_SERVICE: AppSettings.DEFAULT_BSKY_SERVICE,
+    BSKY_SERVICE_DID: AppSettings.DEFAULT_BSKY_SERVICE_DID,
+  }
 }

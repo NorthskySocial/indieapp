@@ -17,9 +17,9 @@ import {networkRetry} from '#/lib/async/retry'
 import {
   BLUESKY_PROXY_HEADER,
   BSKY_SERVICE,
+  DEFAULT_BSKY_SERVICE,
   DISCOVER_SAVED_FEED,
   IS_PROD_SERVICE,
-  PUBLIC_BSKY_SERVICE,
   TIMELINE_SAVED_FEED,
 } from '#/lib/constants'
 import {getAge} from '#/lib/strings/time'
@@ -32,7 +32,7 @@ import {
   setCreatedAtForDid,
 } from '#/ageAssurance/data'
 import {features} from '#/analytics'
-import {AppSettings} from '#/indie-settings/settings'
+import {AppSettings, resolveAppviewForPdsHost} from '#/indie-settings/settings'
 import {emitNetworkConfirmed, emitNetworkLost} from '../events'
 import {addSessionErrorLog} from './logging'
 import {
@@ -44,11 +44,48 @@ import {isSessionExpired, isSignupQueued} from './util'
 
 export type ProxyHeaderValue = `${Did}#${AtprotoServiceType}`
 
+/**
+ * Resolved appview (service URL + DID) for an agent's account. Populated once
+ * at login / session resume / account switch by {@link configureAppviewProxy}
+ * and read by consumers via {@link useAppview}.
+ */
+export interface Appview {
+  BSKY_SERVICE: string
+  BSKY_SERVICE_DID: string
+}
+
+/**
+ * Configure the `atproto-proxy` header on `agent` so PDS requests for appview
+ * lexicons are forwarded to the correct appview for the agent's PDS host,
+ * and store the resolved appview on `agent.appview` for direct-to-appview
+ * call sites (notifications, age assurance, ...).
+ *
+ * The PDS host is determined from `agent.pdsUrl` (populated after login /
+ * session resume) and matched against {@link IndieAppSettings.APPVIEW_ROUTES}.
+ * If no route matches, the default appview is used. An E2E override via
+ * {@link BLUESKY_PROXY_HEADER} takes precedence over the proxy header only;
+ * `agent.appview` still reflects the resolved route.
+ */
+function configureAppviewProxy(agent: BskyAppAgent) {
+  const pdsHost = agent.pdsUrl?.hostname ?? new URL(agent.serviceUrl).hostname
+  const resolved = resolveAppviewForPdsHost(pdsHost)
+  agent.appview = resolved
+
+  const override = BLUESKY_PROXY_HEADER.getOverride()
+  if (override) {
+    agent.configureProxy(override)
+    return
+  }
+  agent.configureProxy(
+    `${resolved.BSKY_SERVICE_DID}#bsky_appview` as ProxyHeaderValue,
+  )
+}
+
 export function createPublicAgent() {
   configureModerationForGuest() // Side effect but only relevant for tests
 
-  const agent = new BskyAppAgent({service: PUBLIC_BSKY_SERVICE})
-  agent.configureProxy(BLUESKY_PROXY_HEADER.get())
+  const agent = new BskyAppAgent({service: DEFAULT_BSKY_SERVICE})
+  configureAppviewProxy(agent)
   return agent
 }
 
@@ -80,7 +117,7 @@ export async function createAgentAndResume(
     ? prefetchAgeAssuranceData({agent})
     : Promise.resolve()
 
-  agent.configureProxy(BLUESKY_PROXY_HEADER.get())
+  configureAppviewProxy(agent)
 
   return agent.prepare({
     resolvers: [gates, moderation, aa],
@@ -121,7 +158,7 @@ export async function createAgentAndLogin(
     ? prefetchAgeAssuranceData({agent})
     : Promise.resolve()
 
-  agent.configureProxy(BLUESKY_PROXY_HEADER.get())
+  configureAppviewProxy(agent)
 
   return agent.prepare({
     resolvers: [gates, moderation, aa],
@@ -292,7 +329,7 @@ export async function createAgentAndCreateAccount(
     logger.error(e, {message: `session: failed snoozeEmailConfirmationPrompt`})
   }
 
-  agent.configureProxy(BLUESKY_PROXY_HEADER.get())
+  configureAppviewProxy(agent)
 
   return agent.prepare({
     resolvers: [gates, moderation, aa],
@@ -423,6 +460,15 @@ function stripProxyHeaderForPdsLocalLexicons(
 class BskyAppAgent extends BskyAgent {
   persistSessionHandler: ((event: AtpSessionEvent) => void) | undefined =
     undefined
+  /**
+   * Resolved appview for this agent's account. Defaults to the configured
+   * fallback; replaced with the route match (if any) by
+   * {@link configureAppviewProxy} once the PDS host is known.
+   */
+  appview: Appview = {
+    BSKY_SERVICE: AppSettings.DEFAULT_BSKY_SERVICE,
+    BSKY_SERVICE_DID: AppSettings.DEFAULT_BSKY_SERVICE_DID,
+  }
 
   constructor({service}: {service: string}) {
     super({
@@ -486,3 +532,23 @@ class BskyAppAgent extends BskyAgent {
 }
 
 export type {BskyAppAgent}
+
+/**
+ * Returns the resolved appview for the given agent. Falls back to the default
+ * appview when called with an agent that hasn't been configured (e.g. a
+ * plain {@link Agent} used ad-hoc outside the session provider).
+ */
+export function getAppviewForAgent(agent: BskyAgent | BaseAgent): Appview {
+  const candidate = (agent as unknown as {appview?: Appview}).appview
+  if (
+    candidate &&
+    typeof candidate.BSKY_SERVICE === 'string' &&
+    typeof candidate.BSKY_SERVICE_DID === 'string'
+  ) {
+    return candidate
+  }
+  return {
+    BSKY_SERVICE: AppSettings.DEFAULT_BSKY_SERVICE,
+    BSKY_SERVICE_DID: AppSettings.DEFAULT_BSKY_SERVICE_DID,
+  }
+}

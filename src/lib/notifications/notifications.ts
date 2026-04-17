@@ -7,16 +7,17 @@ import debounce from 'lodash.debounce'
 
 import {
   BLUESKY_NOTIF_SERVICE_HEADERS,
-  PUBLIC_APPVIEW_DID,
   PUBLIC_STAGING_APPVIEW_DID,
 } from '#/lib/constants'
 import {logger as notyLogger} from '#/lib/notifications/util'
 import {isNetworkError} from '#/lib/strings/errors'
 import {type SessionAccount, useAgent, useSession} from '#/state/session'
+import {getAppviewForAgent} from '#/state/session/agent'
 import BackgroundNotificationHandler from '#/../modules/expo-background-notification-handler'
 import {useAgeAssurance} from '#/ageAssurance'
 import {useAnalytics} from '#/analytics'
 import {IS_DEV, IS_NATIVE} from '#/env'
+import {AppSettings} from '#/indie-settings/settings'
 
 /**
  * @private
@@ -36,10 +37,18 @@ async function _registerPushToken({
   }
 }) {
   try {
-    const payload: AppBskyNotificationRegisterPush.InputSchema = {
-      serviceDid: currentAccount.service?.includes('staging')
+    const appview = getAppviewForAgent(agent)
+    const usingDefaultAppview =
+      appview.BSKY_SERVICE_DID === AppSettings.DEFAULT_BSKY_SERVICE_DID
+    // When a route matched, it already points to the correct appview for the
+    // account's PDS. Only apply the staging-vs-prod bluesky fallback when no
+    // route matched (i.e. we're on the default appview).
+    const serviceDid =
+      usingDefaultAppview && currentAccount.service?.includes('staging')
         ? PUBLIC_STAGING_APPVIEW_DID
-        : PUBLIC_APPVIEW_DID,
+        : appview.BSKY_SERVICE_DID
+    const payload: AppBskyNotificationRegisterPush.InputSchema = {
+      serviceDid,
       platform: Platform.OS,
       token: token.data,
       appId: 'xyz.blueskyweb.app',
@@ -301,11 +310,16 @@ export async function unregisterPushToken(agents: AtpAgent[]) {
     const token = await getPushToken()
     if (token) {
       for (const agent of agents) {
+        const appview = getAppviewForAgent(agent)
+        const usingDefaultAppview =
+          appview.BSKY_SERVICE_DID === AppSettings.DEFAULT_BSKY_SERVICE_DID
+        const serviceDid =
+          usingDefaultAppview && agent.serviceUrl.hostname.includes('staging')
+            ? PUBLIC_STAGING_APPVIEW_DID
+            : appview.BSKY_SERVICE_DID
         await agent.app.bsky.notification.unregisterPush(
           {
-            serviceDid: agent.serviceUrl.hostname.includes('staging')
-              ? PUBLIC_STAGING_APPVIEW_DID
-              : PUBLIC_APPVIEW_DID,
+            serviceDid,
             platform: Platform.OS,
             token: token.data,
             appId: 'xyz.blueskyweb.app',

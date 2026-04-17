@@ -10,7 +10,7 @@ export const LOCAL_DEV_SERVICE =
 export const STAGING_SERVICE = AppSettings.STAGING_SERVICE
 export const BSKY_SERVICE = AppSettings.BSKY_SERVICE
 export const BSKY_SERVICE_DID = AppSettings.BSKY_SERVICE_DID
-export const PUBLIC_BSKY_SERVICE = AppSettings.PUBLIC_BSKY_SERVICE
+export const DEFAULT_BSKY_SERVICE = AppSettings.DEFAULT_BSKY_SERVICE
 export const DEFAULT_SERVICE = BSKY_SERVICE
 export const HELP_DESK_URL = AppSettings.HELP_DESK_URL
 export const EMBED_SERVICE = AppSettings.EMBED_SERVICE
@@ -209,8 +209,8 @@ export const urls = {
   },
 }
 
-export const PUBLIC_APPVIEW = AppSettings.PUBLIC_BSKY_SERVICE
-export const PUBLIC_APPVIEW_DID = AppSettings.PUBLIC_BSKY_SERVICE_DID
+export const PUBLIC_APPVIEW = AppSettings.DEFAULT_BSKY_SERVICE
+export const PUBLIC_APPVIEW_DID = AppSettings.DEFAULT_BSKY_SERVICE_DID
 export const PUBLIC_STAGING_APPVIEW_DID = 'did:web:api.staging.bsky.dev'
 
 export const DEV_ENV_APPVIEW = `http://localhost:2584` // always the same
@@ -218,12 +218,12 @@ export const DEV_ENV_APPVIEW_DID = `did:plc:dw4kbjf5mn7nhenabiqpkyh3` // always 
 
 // temp hack for e2e - esb
 export const BLUESKY_PROXY_HEADER = {
-  value: `${BLUESKY_PROXY_DID}#bsky_appview`,
-  get() {
-    return this.value as ProxyHeaderValue
+  override: undefined as ProxyHeaderValue | undefined,
+  getOverride() {
+    return this.override
   },
   set(value: string) {
-    this.value = value
+    this.override = value as ProxyHeaderValue
   },
 }
 

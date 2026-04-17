@@ -49,3 +49,33 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy_indieapp:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: bskyweb-container-ghcr
+    steps:
+      - name: Trigger release through webhook
+        uses: peter-evans/repository-dispatch@v4
+        with:
+          token: ${{ secrets.DEPLOYMENT_WEBHOOK_TOKEN }}
+          repository: ${{ secrets.DEPLOYMENT_WEBHOOK_REPOSITORY }}
+          event-type: restart-indieapp
+
+  notify_deployment:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: deploy_indieapp
+    steps:
+      - name: Wait for successful deployment
+        run: sleep 30s
+
+      - name: Notify Discord of successful deployment
+        uses: rjstone/discord-webhook-notify@v2
+        with:
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+          severity: info
+          username: 'Github Actions deployment'
+          title: 'Indieapp deployment successful!'
+          description: 'Latest indieapp build has been deployed successfully!'
+          details: 'Commit: ${{ github.event.head_commit.message }}'

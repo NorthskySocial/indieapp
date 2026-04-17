@@ -1,4 +1,4 @@
-import React from 'react'
+import {forwardRef} from 'react'
 import {type TextProps} from 'react-native'
 import Svg, {
   Defs,
@@ -18,10 +18,7 @@ type Props = {
   style?: TextProps['style']
 } & Omit<SvgProps, 'style'>
 
-export const SvgLogo = React.forwardRef(function SvgLogoImpl(
-  props: Props,
-  ref,
-) {
+export const SvgLogo = forwardRef(function SvgLogoImpl(props: Props, ref) {
   const t = useTheme()
   const {fill, ...rest} = props
   const gradient = fill === 'sky'

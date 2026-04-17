@@ -1,4 +1,4 @@
-import React from 'react'
+import {forwardRef} from 'react'
 import {type TextProps} from 'react-native'
 import Svg, {
   Defs,
@@ -14,10 +14,7 @@ type Props = {
   style?: TextProps['style']
 } & Omit<SvgProps, 'style'>
 
-export const SvgLogo = React.forwardRef(function SvgLogoImpl(
-  props: Props,
-  ref,
-) {
+export const SvgLogo = forwardRef(function SvgLogoImpl(props: Props, ref) {
   // @ts-ignore it's fiiiiine
   const size = parseInt(props.width || 32, 10)
 

@@ -1,7 +1,8 @@
 import {Platform} from 'react-native'
 
+import {BSKY_APP_HOSTNAME} from '#/lib/strings/url-helpers'
 import {NotImplementedError} from '../NotImplemented'
-import {GooglePlayReferrerInfo, ReferrerInfo} from './types'
+import {type GooglePlayReferrerInfo, type ReferrerInfo} from './types'
 
 export function getGooglePlayReferrerInfoAsync(): Promise<GooglePlayReferrerInfo> {
   throw new NotImplementedError()
@@ -17,7 +18,7 @@ export function getReferrerInfo(): ReferrerInfo | null {
   ) {
     try {
       const url = new URL(document.referrer)
-      if (url.hostname !== 'bsky.app') {
+      if (url.hostname !== BSKY_APP_HOSTNAME) {
         return {
           referrer: url.href,
           hostname: url.hostname,

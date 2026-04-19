@@ -1,6 +1,7 @@
 import {Dimensions} from 'react-native'
 
 import {IS_WEB, IS_WEB_SAFARI} from '#/env'
+import {AppSettings} from '#/indie-settings/settings'
 
 const {height: SCREEN_HEIGHT} = Dimensions.get('window')
 
@@ -8,10 +9,10 @@ const IFRAME_HOST = IS_WEB
   ? // @ts-ignore only for web
     window.location.host === 'localhost:8100'
     ? 'http://localhost:8100'
-    : 'https://bsky.app'
+    : AppSettings.BASE_URL
   : __DEV__ && !process.env.JEST_WORKER_ID
     ? 'http://localhost:8100'
-    : 'https://bsky.app'
+    : AppSettings.BASE_URL
 
 export const embedPlayerSources = [
   'youtube',

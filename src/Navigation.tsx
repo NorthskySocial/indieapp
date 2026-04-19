@@ -43,6 +43,7 @@ import {
   type State,
 } from '#/lib/routes/types'
 import {bskyTitle} from '#/lib/strings/headings'
+import {BSKY_APP_HOST, BSKY_APP_HOSTNAME} from '#/lib/strings/url-helpers'
 import {useUnreadNotifications} from '#/state/queries/notifications/unread'
 import {useSession} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
@@ -851,7 +852,7 @@ const FlatNavigator = ({
 const LINKING = {
   // TODO figure out what we are going to use
   // note: `bluesky://` is what is used in app.config.js
-  prefixes: ['bsky://', 'bluesky://', 'https://bsky.app'],
+  prefixes: ['bsky://', 'bluesky://', BSKY_APP_HOST],
 
   getPathFromState(state: State) {
     // find the current node in the navigation tree
@@ -1035,7 +1036,7 @@ function RoutesContainer({children}: React.PropsWithChildren<{}>) {
 
     if (IS_WEB) {
       const referrerInfo = Referrer.getReferrerInfo()
-      if (referrerInfo && referrerInfo.hostname !== 'bsky.app') {
+      if (referrerInfo && referrerInfo.hostname !== BSKY_APP_HOSTNAME) {
         ax.metric('deepLink:referrerReceived', {
           to: window.location.href,
           referrer: referrerInfo?.referrer,

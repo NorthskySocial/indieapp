@@ -5,9 +5,21 @@ import TLDs from 'tlds'
 import {isInvalidHandle} from '#/lib/strings/handles'
 import {startUriToStarterPackUri} from '#/lib/strings/starter-pack'
 import {logger} from '#/logger'
-import {BlueSkyAppSettings} from '#/indie-settings/settings'
+import {AppSettings, BlueSkyAppSettings} from '#/indie-settings/settings'
 
-export const BSKY_APP_HOST = 'https://bsky.app'
+export const BSKY_APP_HOST: string = AppSettings.BASE_URL
+/**
+ * Hostname extracted from {@link BSKY_APP_HOST}, used for deep-link / referrer
+ * host comparisons. Falls back to the raw string if URL parsing fails (e.g.
+ * when `BASE_URL` is misconfigured).
+ */
+export const BSKY_APP_HOSTNAME: string = (() => {
+  try {
+    return new URL(AppSettings.BASE_URL).hostname
+  } catch {
+    return AppSettings.BASE_URL
+  }
+})()
 const BSKY_TRUSTED_HOSTS = [
   'bsky\\.app',
   'bsky\\.social',
@@ -80,7 +92,7 @@ export function toShortUrl(url: string): string {
 
 export function toShareUrl(url: string): string {
   if (!url.startsWith('https')) {
-    const urlp = new URL('https://bsky.app')
+    const urlp = new URL(BSKY_APP_HOST)
     urlp.pathname = url
     url = urlp.toString()
   }
@@ -92,7 +104,7 @@ export function toBskyAppUrl(url: string): string {
 }
 
 export function isBskyAppUrl(url: string): boolean {
-  return url.startsWith('https://bsky.app/')
+  return url.startsWith(`${BSKY_APP_HOST}/`)
 }
 
 export function isRelativeUrl(url: string): boolean {

@@ -128,6 +128,25 @@ let PostMeta = (opts: PostMetaOpts): React.ReactNode => {
               ]}>
               {NON_BREAKING_SPACE + sanitizeHandle(handle, '@')}
             </MaybeLinkText>
+            {author.pronouns && (
+              <View
+                style={[
+                  t.atoms.bg_contrast_50,
+                  a.rounded_full,
+                  a.px_xs,
+                  a.ml_2xs,
+                  a.self_center,
+                ]}>
+                <Text
+                  style={[
+                    t.atoms.text_contrast_medium,
+                    a.text_xs,
+                    a.font_medium,
+                  ]}>
+                  {author.pronouns}
+                </Text>
+              </View>
+            )}
           </View>
         </ProfileHoverCard>
 

@@ -11,6 +11,9 @@ import {logger} from '#/ageAssurance/logger'
 import {useAnalytics} from '#/analytics'
 import {BLUESKY_PROXY_DID} from '#/env'
 import {useGeolocation} from '#/geolocation'
+import {AppSettings} from '#/indie-settings/settings'
+
+const IS_DEV_ENV = BLUESKY_PROXY_DID !== AppSettings.DEFAULT_BSKY_SERVICE_DID
 
 export function useBeginAgeAssurance() {
   const ax = useAnalytics()
@@ -19,11 +22,7 @@ export function useBeginAgeAssurance() {
   const geolocation = useGeolocation()
   const patchAgeAssuranceStateResponse = usePatchAgeAssuranceServerState()
 
-  // Dev env is detected when the runtime proxy DID differs from the appview
-  // DID that was resolved for this session (e.g. tests override via
-  // `BLUESKY_PROXY_DID`).
-  const isDevEnv = BLUESKY_PROXY_DID !== appview.BSKY_SERVICE_DID
-  const appviewUrl = isDevEnv ? DEV_ENV_APPVIEW : appview.BSKY_SERVICE
+  const appviewUrl = IS_DEV_ENV ? DEV_ENV_APPVIEW : appview.BSKY_SERVICE
 
   return useMutation({
     async mutationFn(

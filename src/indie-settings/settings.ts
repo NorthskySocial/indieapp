@@ -1,22 +1,26 @@
 import {NorthSkyAppSettings} from './northsky.settings.example'
 
+/** Resolved appview (service URL + DID) for an account or route. */
+export interface Appview {
+  BSKY_SERVICE: string
+  BSKY_SERVICE_DID: string
+}
+
 /**
- * Maps a set of PDS hostnames to the appview that should serve them.
+ * Maps a set of PDS hostnames to the appview that should serve accounts
+ * signed in through them.
  *
- * Matching is done on the hostname of the account's PDS URL at login time.
- * The PDS host is always known and valid by the time the agent is configured
- * (if it weren't, login would have failed).
+ * Matching is done on the hostname of the service URL the user selected as
+ * their hosting provider in the login form (e.g. `bsky.social`), i.e.
+ * `agent.serviceUrl`. For most deployments this is the same host that runs
+ * the PDS for those accounts.
  */
-export interface AppviewRoute {
+export interface AppviewRoute extends Appview {
   /**
-   * Lowercase PDS hostnames this route applies to (e.g. `blacksky.community`).
+   * Lowercase PDS hostnames this route applies to (e.g. `bsky.social`).
    * Match is exact, no wildcards.
    */
   pdsHosts: string[]
-  /** Appview service URL (e.g. `https://api.blacksky.community`). */
-  BSKY_SERVICE: string
-  /** Appview DID (e.g. `did:web:api.blacksky.community`). */
-  BSKY_SERVICE_DID: string
 }
 
 export interface IndieAppSettings {
@@ -91,18 +95,16 @@ export const AppSettings: IndieAppSettings = {
 }
 
 /**
- * Resolve the appview (service URL + DID) to use for an account whose PDS is
- * hosted on `pdsHost`. The first matching entry in
+ * Resolve the appview (service URL + DID) to use for an account whose
+ * hosting provider is at `pdsHost`. The first matching entry in
  * {@link IndieAppSettings.APPVIEW_ROUTES} wins; otherwise falls back to the
- * configured public appview.
+ * configured default appview.
  *
- * @param pdsHost - Hostname of the account's PDS (e.g. `blacksky.community`).
- *   Undefined for guest/public agents.
+ * @param pdsHost - Hostname of the hosting provider selected at login, i.e.
+ *   `new URL(agent.serviceUrl).hostname` (e.g. `northsky.social`). Undefined
+ *   for guest/public agents.
  */
-export function resolveAppviewForPdsHost(pdsHost: string | undefined): {
-  BSKY_SERVICE: string
-  BSKY_SERVICE_DID: string
-} {
+export function resolveAppviewForPdsHost(pdsHost: string | undefined): Appview {
   if (pdsHost) {
     const normalized = pdsHost.toLowerCase()
     for (const route of AppSettings.APPVIEW_ROUTES) {

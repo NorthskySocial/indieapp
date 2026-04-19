@@ -219,9 +219,6 @@ export const DEV_ENV_APPVIEW_DID = `did:plc:dw4kbjf5mn7nhenabiqpkyh3` // always 
 // temp hack for e2e - esb
 export const BLUESKY_PROXY_HEADER = {
   override: undefined as ProxyHeaderValue | undefined,
-  getOverride() {
-    return this.override
-  },
   set(value: string) {
     this.override = value as ProxyHeaderValue
   },

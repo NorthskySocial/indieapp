@@ -32,7 +32,11 @@ import {
   setCreatedAtForDid,
 } from '#/ageAssurance/data'
 import {features} from '#/analytics'
-import {AppSettings, resolveAppviewForPdsHost} from '#/indie-settings/settings'
+import {
+  AppSettings,
+  type Appview,
+  resolveAppviewForPdsHost,
+} from '#/indie-settings/settings'
 import {emitNetworkConfirmed, emitNetworkLost} from '../events'
 import {addSessionErrorLog} from './logging'
 import {
@@ -45,33 +49,30 @@ import {isSessionExpired, isSignupQueued} from './util'
 export type ProxyHeaderValue = `${Did}#${AtprotoServiceType}`
 
 /**
- * Resolved appview (service URL + DID) for an agent's account. Populated once
- * at login / session resume / account switch by {@link configureAppviewProxy}
- * and read by consumers via {@link useAppview}.
- */
-export interface Appview {
-  BSKY_SERVICE: string
-  BSKY_SERVICE_DID: string
-}
-
-/**
  * Configure the `atproto-proxy` header on `agent` so PDS requests for appview
- * lexicons are forwarded to the correct appview for the agent's PDS host,
- * and store the resolved appview on `agent.appview` for direct-to-appview
- * call sites (notifications, age assurance, ...).
+ * lexicons are forwarded to the correct appview for the hosting provider the
+ * user selected at login, and store the resolved appview on `agent.appview`
+ * for direct-to-appview call sites (notifications, age assurance, ...).
  *
- * The PDS host is determined from `agent.pdsUrl` (populated after login /
- * session resume) and matched against {@link IndieAppSettings.APPVIEW_ROUTES}.
- * If no route matches, the default appview is used. An E2E override via
- * {@link BLUESKY_PROXY_HEADER} takes precedence over the proxy header only;
- * `agent.appview` still reflects the resolved route.
+ * The hosting provider is `agent.serviceUrl` (what the user entered/selected
+ * as "Hosting provider" in the login form) and is matched against
+ * {@link IndieAppSettings.APPVIEW_ROUTES}. If no route matches, the default
+ * appview is used. An E2E override via {@link BLUESKY_PROXY_HEADER} takes
+ * precedence over the proxy header only; `agent.appview` still reflects the
+ * resolved route.
  */
-function configureAppviewProxy(agent: BskyAppAgent) {
-  const pdsHost = agent.pdsUrl?.hostname ?? new URL(agent.serviceUrl).hostname
+export function configureAppviewProxy(agent: BskyAppAgent) {
+  const pdsHost = agent.serviceUrl
+    ? new URL(agent.serviceUrl).hostname
+    : undefined
   const resolved = resolveAppviewForPdsHost(pdsHost)
   agent.appview = resolved
+  logger.debug('configureAppviewProxy', {
+    pdsHost,
+    appview: resolved.BSKY_SERVICE,
+  })
 
-  const override = BLUESKY_PROXY_HEADER.getOverride()
+  const override = BLUESKY_PROXY_HEADER.override
   if (override) {
     agent.configureProxy(override)
     return
@@ -532,6 +533,7 @@ class BskyAppAgent extends BskyAgent {
 }
 
 export type {BskyAppAgent}
+export type {Appview}
 
 /**
  * Returns the resolved appview for the given agent. Falls back to the default
@@ -539,16 +541,5 @@ export type {BskyAppAgent}
  * plain {@link Agent} used ad-hoc outside the session provider).
  */
 export function getAppviewForAgent(agent: BskyAgent | BaseAgent): Appview {
-  const candidate = (agent as unknown as {appview?: Appview}).appview
-  if (
-    candidate &&
-    typeof candidate.BSKY_SERVICE === 'string' &&
-    typeof candidate.BSKY_SERVICE_DID === 'string'
-  ) {
-    return candidate
-  }
-  return {
-    BSKY_SERVICE: AppSettings.DEFAULT_BSKY_SERVICE,
-    BSKY_SERVICE_DID: AppSettings.DEFAULT_BSKY_SERVICE_DID,
-  }
+  return (agent as BskyAppAgent).appview ?? resolveAppviewForPdsHost(undefined)
 }

@@ -32,8 +32,10 @@ export const NorthSkyAppSettings: Partial<IndieAppSettings> = {
   HELP_DESK_LANG,
   HELP_DESK_URL: `https://blueskyweb.zendesk.com/hc/${HELP_DESK_LANG}`,
   LOGO_SVG_PATH: 'indie-settings/assets/northsky/SvgLogo',
-  DEFAULT_BSKY_SERVICE: 'https://api.blacksky.community',
-  DEFAULT_BSKY_SERVICE_DID: 'did:web:api.blacksky.community',
+  // Fallback appview for accounts whose PDS host isn't listed in
+  // APPVIEW_ROUTES above (e.g. bsky.social accounts on *.host.bsky.network).
+  DEFAULT_BSKY_SERVICE: 'https://api.bsky.app',
+  DEFAULT_BSKY_SERVICE_DID: 'did:web:api.bsky.app',
   STAGING_SERVICE: 'https://staging.bsky.dev',
   STAGING_DEFAULT_FEED_URI:
     'at://did:plc:23cnpffmuf4vkpsnwhgyvljw/app.bsky.feed.generator/NorthskySocial',

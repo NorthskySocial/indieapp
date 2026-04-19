@@ -1,4 +1,4 @@
-import {type Theme} from '@bsky.app/alf'
+import {createTheme, type Theme} from '@bsky.app/alf'
 
 import {themes as baseThemes} from '#/alf/themes'
 import {themes as overrides} from './northskyTheme'
@@ -10,11 +10,20 @@ type ThemeOverride = {
 
 function mergeTheme(base: Theme, override?: ThemeOverride): Theme {
   if (!override) return base
+  const mergedPalette = {
+    ...base.palette,
+    ...override.palette,
+  } as Theme['palette']
+  const rebuilt = createTheme({
+    scheme: base.scheme,
+    name: base.name,
+    palette: mergedPalette,
+    options: {shadowOpacity: base.scheme === 'dark' ? 0.4 : 0.1},
+  })
   return {
-    ...base,
-    palette: {...base.palette, ...override.palette},
-    atoms: {...base.atoms, ...override.atoms},
-  } as Theme
+    ...rebuilt,
+    atoms: {...rebuilt.atoms, ...override.atoms},
+  }
 }
 
 const mergedLight = mergeTheme(baseThemes.light, overrides?.light)

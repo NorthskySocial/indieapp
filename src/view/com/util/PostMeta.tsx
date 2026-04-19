@@ -82,109 +82,107 @@ let PostMeta = (opts: PostMetaOpts): React.ReactNode => {
           />
         </View>
       )}
-      <View style={[a.flex_row, a.align_end, a.flex_shrink]}>
-        <ProfileHoverCard did={author.did}>
-          <View style={[a.flex_row, a.align_end, a.flex_shrink]}>
-            <MaybeLinkText
-              emoji
-              numberOfLines={1}
-              to={profileLink}
-              label={_(msg`View profile`)}
-              disableMismatchWarning
-              onPress={opts.linkDisabled ? undefined : onBeforePressAuthor}
-              style={[
-                a.text_md,
-                a.font_semi_bold,
-                t.atoms.text,
-                a.leading_tight,
-                a.flex_shrink_0,
-                {maxWidth: '70%'},
-              ]}>
-              {forceLTR(
-                sanitizeDisplayName(
-                  displayName,
-                  opts.moderation?.ui('displayName'),
-                ),
-              )}
-            </MaybeLinkText>
-            <ProfileBadges
-              profile={author}
-              size="sm"
-              style={[a.pl_2xs, a.self_center]}
-            />
-            <MaybeLinkText
-              emoji
-              numberOfLines={1}
-              to={profileLink}
-              label={_(msg`View profile`)}
-              disableMismatchWarning
-              disableUnderline
-              onPress={opts.linkDisabled ? undefined : onBeforePressAuthor}
-              style={[
-                a.text_md,
-                t.atoms.text_contrast_medium,
-                a.leading_tight,
-                {flexShrink: 10},
-              ]}>
-              {NON_BREAKING_SPACE + sanitizeHandle(handle, '@')}
-            </MaybeLinkText>
-            {author.pronouns && (
-              <View
+      <View style={[a.flex_1, a.flex_col]}>
+        <View style={[a.flex_row, a.align_end, a.flex_shrink]}>
+          <ProfileHoverCard did={author.did}>
+            <View style={[a.flex_row, a.align_end, a.flex_shrink]}>
+              <MaybeLinkText
+                emoji
+                numberOfLines={1}
+                to={profileLink}
+                label={_(msg`View profile`)}
+                disableMismatchWarning
+                onPress={opts.linkDisabled ? undefined : onBeforePressAuthor}
                 style={[
-                  t.atoms.bg_contrast_50,
-                  a.rounded_full,
-                  a.px_xs,
-                  a.ml_2xs,
-                  a.self_center,
+                  a.text_md,
+                  a.font_semi_bold,
+                  t.atoms.text,
+                  a.leading_tight,
+                  a.flex_shrink_0,
+                  {maxWidth: '70%'},
                 ]}>
-                <Text
-                  style={[
-                    t.atoms.text_contrast_medium,
-                    a.text_xs,
-                    a.font_medium,
-                  ]}>
-                  {author.pronouns}
-                </Text>
-              </View>
-            )}
-          </View>
-        </ProfileHoverCard>
+                {forceLTR(
+                  sanitizeDisplayName(
+                    displayName,
+                    opts.moderation?.ui('displayName'),
+                  ),
+                )}
+              </MaybeLinkText>
+              <ProfileBadges
+                profile={author}
+                size="sm"
+                style={[a.pl_2xs, a.self_center]}
+              />
+              <MaybeLinkText
+                emoji
+                numberOfLines={1}
+                to={profileLink}
+                label={_(msg`View profile`)}
+                disableMismatchWarning
+                disableUnderline
+                onPress={opts.linkDisabled ? undefined : onBeforePressAuthor}
+                style={[
+                  a.text_md,
+                  t.atoms.text_contrast_medium,
+                  a.leading_tight,
+                  {flexShrink: 10},
+                ]}>
+                {NON_BREAKING_SPACE + sanitizeHandle(handle, '@')}
+              </MaybeLinkText>
+            </View>
+          </ProfileHoverCard>
 
-        <TimeElapsed timestamp={opts.timestamp}>
-          {({timeElapsed}) => (
-            <MaybeLinkText
-              to={opts.postHref}
-              label={timestampLabel}
-              title={timestampLabel}
-              disableMismatchWarning
-              disableUnderline
-              onPress={opts.linkDisabled ? undefined : onBeforePressPost}
-              style={[
-                a.pl_xs,
-                a.text_md,
-                a.leading_tight,
-                IS_ANDROID && a.flex_grow,
-                a.text_right,
-                t.atoms.text_contrast_medium,
-                web({
-                  whiteSpace: 'nowrap',
-                }),
-              ]}>
-              {!IS_ANDROID && (
-                <Text
-                  style={[
-                    a.text_md,
-                    a.leading_tight,
-                    t.atoms.text_contrast_medium,
-                  ]}
-                  accessible={false}>
-                  &middot;{' '}
-                </Text>
-              )}
-              {timeElapsed}
-            </MaybeLinkText>
-          )}
-        </TimeElapsed>
+          <TimeElapsed timestamp={opts.timestamp}>
+            {({timeElapsed}) => (
+              <MaybeLinkText
+                to={opts.postHref}
+                label={timestampLabel}
+                title={timestampLabel}
+                disableMismatchWarning
+                disableUnderline
+                onPress={opts.linkDisabled ? undefined : onBeforePressPost}
+                style={[
+                  a.pl_xs,
+                  a.text_md,
+                  a.leading_tight,
+                  IS_ANDROID && a.flex_grow,
+                  a.text_right,
+                  t.atoms.text_contrast_medium,
+                  web({
+                    whiteSpace: 'nowrap',
+                  }),
+                ]}>
+                {!IS_ANDROID && (
+                  <Text
+                    style={[
+                      a.text_md,
+                      a.leading_tight,
+                      t.atoms.text_contrast_medium,
+                    ]}
+                    accessible={false}>
+                    &middot;{' '}
+                  </Text>
+                )}
+                {timeElapsed}
+              </MaybeLinkText>
+            )}
+          </TimeElapsed>
+        </View>
+        {author.pronouns && (
+          <View
+            style={[
+              t.atoms.bg_contrast_50,
+              a.rounded_full,
+              a.px_xs,
+              a.self_start,
+              a.mt_2xs,
+            ]}>
+            <Text
+              style={[t.atoms.text_contrast_medium, a.text_xs, a.font_medium]}>
+              {author.pronouns}
+            </Text>
+          </View>
+        )}
       </View>
     </View>
   )

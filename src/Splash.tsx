@@ -1,4 +1,4 @@
-import {forwardRef, useCallback, useEffect, useState} from 'react'
+import {useCallback, useEffect, useState} from 'react'
 import {
   AccessibilityInfo,
   Image as RNImage,
@@ -15,37 +15,16 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
-import Svg, {Path, type SvgProps} from 'react-native-svg'
 import {Image} from 'expo-image'
 import * as SplashScreen from 'expo-splash-screen'
 
 import {Logotype} from '#/view/icons/Logotype'
-// @ts-ignore
-import splashImagePointer from '../assets/splash/splash.png'
-// @ts-ignore
-import darkSplashImagePointer from '../assets/splash/splash-dark.png'
-const splashImageUri = RNImage.resolveAssetSource(splashImagePointer).uri
-const darkSplashImageUri = RNImage.resolveAssetSource(
-  darkSplashImagePointer,
-).uri
+import {loadSvgLogo} from '#/indie-settings/logoLoader'
+import {splashImageDark, splashImageLight} from '#/indie-settings/splashAssets'
 
-export const Logo = forwardRef(function LogoImpl(props: SvgProps, ref) {
-  const width = 1000
-  const height = width * (67 / 64)
-  return (
-    <Svg
-      fill="none"
-      // @ts-ignore it's fiiiiine
-      ref={ref}
-      viewBox="0 0 64 66"
-      style={[{width, height}, props.style]}>
-      <Path
-        fill={props.fill || '#fff'}
-        d="M13.873 3.77C21.21 9.243 29.103 20.342 32 26.3v15.732c0-.335-.13.043-.41.858-1.512 4.414-7.418 21.642-20.923 7.87-7.111-7.252-3.819-14.503 9.125-16.692-7.405 1.252-15.73-.817-18.014-8.93C1.12 22.804 0 8.431 0 6.488 0-3.237 8.579-.18 13.873 3.77ZM50.127 3.77C42.79 9.243 34.897 20.342 32 26.3v15.732c0-.335.13.043.41.858 1.512 4.414 7.418 21.642 20.923 7.87 7.111-7.252 3.819-14.503-9.125-16.692 7.405 1.252 15.73-.817 18.014-8.93C62.88 22.804 64 8.431 64 6.488 64-3.237 55.422-.18 50.127 3.77Z"
-      />
-    </Svg>
-  )
-})
+const splashImageUri = RNImage.resolveAssetSource(splashImageLight).uri
+const darkSplashImageUri = RNImage.resolveAssetSource(splashImageDark).uri
+const SvgLogo = loadSvgLogo()
 
 type Props = {
   isReady: boolean
@@ -233,7 +212,7 @@ export function Splash(props: React.PropsWithChildren<Props>) {
                 },
               ]}>
               <Animated.View style={[logoAnimations]}>
-                <Logo fill={logoBg} />
+                {SvgLogo && <SvgLogo fill={logoBg} width={1000} />}
               </Animated.View>
             </Animated.View>
           )}

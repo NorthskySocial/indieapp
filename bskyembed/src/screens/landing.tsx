@@ -25,7 +25,7 @@ if (!root) throw new Error('No root element')
 initSystemColorMode({additionalBodyClasses: 'dark:bg-dimmedBgDarken'})
 
 const agent = new AtpAgent({
-  service: AppSettings.PUBLIC_BSKY_SERVICE,
+  service: AppSettings.DEFAULT_BSKY_SERVICE,
 })
 
 const baseHostname = new URL(AppSettings.BASE_URL).hostname

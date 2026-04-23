@@ -1,7 +1,7 @@
 import {BskyAgent} from '@atproto/api'
 import {describe, expect, it, jest} from '@jest/globals'
 
-import {PUBLIC_BSKY_SERVICE} from '#/lib/constants'
+import {DEFAULT_BSKY_SERVICE} from '#/lib/constants'
 import {agentToSessionAccountOrThrow} from '../agent'
 import {type Action, getInitialState, reducer, type State} from '../reducer'
 
@@ -27,7 +27,7 @@ describe('session', () => {
         "accounts": [],
         "currentAgentState": {
           "agent": {
-            "service": "${PUBLIC_BSKY_SERVICE}/",
+            "service": "${DEFAULT_BSKY_SERVICE}/",
           },
           "did": undefined,
         },
@@ -116,7 +116,7 @@ describe('session', () => {
         ],
         "currentAgentState": {
           "agent": {
-            "service": "${PUBLIC_BSKY_SERVICE}/",
+            "service": "${DEFAULT_BSKY_SERVICE}/",
           },
           "did": undefined,
         },
@@ -454,7 +454,7 @@ describe('session', () => {
         ],
         "currentAgentState": {
           "agent": {
-            "service": "${PUBLIC_BSKY_SERVICE}/",
+            "service": "${DEFAULT_BSKY_SERVICE}/",
           },
           "did": undefined,
         },
@@ -516,7 +516,7 @@ describe('session', () => {
         ],
         "currentAgentState": {
           "agent": {
-            "service": "${PUBLIC_BSKY_SERVICE}/",
+            "service": "${DEFAULT_BSKY_SERVICE}/",
           },
           "did": undefined,
         },
@@ -609,7 +609,7 @@ describe('session', () => {
         "accounts": [],
         "currentAgentState": {
           "agent": {
-            "service": "${PUBLIC_BSKY_SERVICE}/",
+            "service": "${DEFAULT_BSKY_SERVICE}/",
           },
           "did": undefined,
         },
@@ -789,7 +789,7 @@ describe('session', () => {
         ],
         "currentAgentState": {
           "agent": {
-            "service": "${PUBLIC_BSKY_SERVICE}/",
+            "service": "${DEFAULT_BSKY_SERVICE}/",
           },
           "did": undefined,
         },
@@ -1438,7 +1438,7 @@ describe('session', () => {
         ],
         "currentAgentState": {
           "agent": {
-            "service": "${PUBLIC_BSKY_SERVICE}/",
+            "service": "${DEFAULT_BSKY_SERVICE}/",
           },
           "did": undefined,
         },
@@ -1504,7 +1504,7 @@ describe('session', () => {
         ],
         "currentAgentState": {
           "agent": {
-            "service": "${PUBLIC_BSKY_SERVICE}/",
+            "service": "${DEFAULT_BSKY_SERVICE}/",
           },
           "did": undefined,
         },
@@ -1667,7 +1667,7 @@ describe('session', () => {
         ],
         "currentAgentState": {
           "agent": {
-            "service": "${PUBLIC_BSKY_SERVICE}/",
+            "service": "${DEFAULT_BSKY_SERVICE}/",
           },
           "did": undefined,
         },

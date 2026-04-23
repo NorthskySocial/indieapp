@@ -16,7 +16,7 @@ const root = document.getElementById('app')
 if (!root) throw new Error('No root element')
 
 const agent = new AtpAgent({
-  service: AppSettings.PUBLIC_BSKY_SERVICE,
+  service: AppSettings.DEFAULT_BSKY_SERVICE,
 })
 
 const uri = `at://${window.location.pathname.slice('/embed/'.length)}`

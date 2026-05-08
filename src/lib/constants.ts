@@ -7,6 +7,7 @@ import {AppSettings} from '#/indie-settings/settings'
 
 export const LOCAL_DEV_SERVICE =
   Platform.OS === 'android' ? 'http://10.0.2.2:2583' : 'http://localhost:2583'
+export const APP_NAME = AppSettings.APP_NAME
 export const STAGING_SERVICE = AppSettings.STAGING_SERVICE
 export const BSKY_SERVICE = AppSettings.BSKY_SERVICE
 export const BSKY_SERVICE_DID = AppSettings.BSKY_SERVICE_DID

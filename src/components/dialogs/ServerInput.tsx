@@ -142,9 +142,7 @@ function DialogInner({
             testID="bskyServiceSelectBtn"
             value={BSKY_SERVICE}
             label={APP_NAME}>
-            <SegmentedControl.ItemText>
-              {APP_NAME}
-            </SegmentedControl.ItemText>
+            <SegmentedControl.ItemText>{APP_NAME}</SegmentedControl.ItemText>
           </SegmentedControl.Item>
           <SegmentedControl.Item
             testID="customSelectBtn"

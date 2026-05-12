@@ -12,7 +12,7 @@ import {persistQueryClient} from '@tanstack/react-query-persist-client'
 import debounce from 'lodash.debounce'
 
 import {networkRetry} from '#/lib/async/retry'
-import {PUBLIC_BSKY_SERVICE} from '#/lib/constants'
+import {DEFAULT_BSKY_SERVICE} from '#/lib/constants'
 import {createPersistedQueryStorage} from '#/lib/persisted-query-storage'
 import {getAge} from '#/lib/strings/time'
 import {
@@ -92,7 +92,7 @@ export const configQueryKey = ['config']
 export async function getConfig() {
   if (debug.enabled) return debug.resolve(debug.config)
   const agent = new AtpAgent({
-    service: PUBLIC_BSKY_SERVICE,
+    service: DEFAULT_BSKY_SERVICE,
   })
   const res = await agent.app.bsky.ageassurance.getConfig()
   return res.data

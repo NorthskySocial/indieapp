@@ -18,10 +18,12 @@ import {IS_WEB} from '#/env'
 import {emitSessionDropped} from '../events'
 import {
   agentToSessionAccount,
+  type Appview,
   type BskyAppAgent,
   createAgentAndCreateAccount,
   createAgentAndLogin,
   createAgentAndResume,
+  getAppviewForAgent,
   sessionAccountToSession,
 } from './agent'
 import {type Action, getInitialState, reducer, type State} from './reducer'
@@ -457,4 +459,14 @@ export function useAgent(): AtpAgent {
     throw Error('useAgent() must be below <SessionProvider>.')
   }
   return agent
+}
+
+/**
+ * Returns the appview (service URL + DID) resolved for the current session's
+ * PDS at login / resume / account switch. Use this instead of the static
+ * `DEFAULT_BSKY_SERVICE` / `DEFAULT_BSKY_SERVICE_DID` constants whenever the
+ * call is scoped to the active account.
+ */
+export function useAppview(): Appview {
+  return getAppviewForAgent(useAgent())
 }

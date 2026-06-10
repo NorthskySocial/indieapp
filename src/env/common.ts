@@ -78,7 +78,7 @@ export const LOG_DEBUG: string = process.env.EXPO_PUBLIC_LOG_DEBUG || ''
  */
 export const BLUESKY_PROXY_DID: Did =
   process.env.EXPO_PUBLIC_BLUESKY_PROXY_DID ||
-  (AppSettings.PUBLIC_BSKY_SERVICE_DID as Did)
+  (AppSettings.DEFAULT_BSKY_SERVICE_DID as Did)
 
 /**
  * The DID of the chat service to proxy to

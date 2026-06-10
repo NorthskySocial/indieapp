@@ -4,7 +4,7 @@ import {useQuery} from '@tanstack/react-query'
 import {
   BSKY_SERVICE,
   BSKY_SERVICE_DID,
-  PUBLIC_BSKY_SERVICE,
+  DEFAULT_BSKY_SERVICE,
 } from '#/lib/constants'
 import {useDebouncedValue} from '#/lib/hooks/useDebouncedValue'
 import {createFullHandle} from '#/lib/strings/handles'
@@ -111,7 +111,7 @@ export async function checkHandleAvailability(
     }
   } else {
     // 3rd party PDSes won't have this API so just try and resolve the handle
-    const agent = new Agent(null, {service: PUBLIC_BSKY_SERVICE})
+    const agent = new Agent(null, {service: DEFAULT_BSKY_SERVICE})
     try {
       const res = await agent.resolveHandle({
         handle,

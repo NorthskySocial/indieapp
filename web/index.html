@@ -119,6 +119,20 @@
         top: -50px;
         width: 100px;
       }
+      /* Default (no ALF_THEME class set): follow OS preference */
+      #splash .splash-dark { display: none; }
+      #splash .splash-light { display: flex; }
+      @media (prefers-color-scheme: dark) {
+        #splash .splash-light { display: none; }
+        #splash .splash-dark { display: flex; }
+      }
+      /* Persisted ALF theme overrides OS preference (class on <html>) */
+      html.theme--light #splash .splash-light { display: flex; }
+      html.theme--light #splash .splash-dark  { display: none; }
+      html.theme--dark  #splash .splash-light,
+      html.theme--dim   #splash .splash-light  { display: none; }
+      html.theme--dark  #splash .splash-dark,
+      html.theme--dim   #splash .splash-dark   { display: flex; }
       /**
        * We need these styles to prevent shifting due to scrollbar show/hide on
        * OSs that have them enabled by default. This also handles cases where the
@@ -190,8 +204,8 @@
 
     <!-- The root element for your Expo app. -->
     <div id="splash">
-      <!-- Bluesky SVG -->
-      <!-- <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 57"><path fill="#006AFF" d="M13.873 3.805C21.21 9.332 29.103 20.537 32 26.55v15.882c0-.338-.13.044-.41.867-1.512 4.456-7.418 21.847-20.923 7.944-7.111-7.32-3.819-14.64 9.125-16.85-7.405 1.264-15.73-.825-18.014-9.015C1.12 23.022 0 8.51 0 6.55 0-3.268 8.579-.182 13.873 3.805ZM50.127 3.805C42.79 9.332 34.897 20.537 32 26.55v15.882c0-.338.13.044.41.867 1.512 4.456 7.418 21.847 20.923 7.944 7.111-7.32 3.819-14.64-9.125-16.85 7.405 1.264 15.73-.825 18.014-9.015C62.88 23.022 64 8.51 64 6.55c0-9.818-8.578-6.732-13.873-2.745Z"/></svg> -->
+      <span class="splash-light"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 57"><path fill="#006AFF" d="M13.873 3.805C21.21 9.332 29.103 20.537 32 26.55v15.882c0-.338-.13.044-.41.867-1.512 4.456-7.418 21.847-20.923 7.944-7.111-7.32-3.819-14.64 9.125-16.85-7.405 1.264-15.73-.825-18.014-9.015C1.12 23.022 0 8.51 0 6.55 0-3.268 8.579-.182 13.873 3.805ZM50.127 3.805C42.79 9.332 34.897 20.537 32 26.55v15.882c0-.338.13.044.41.867 1.512 4.456 7.418 21.847 20.923 7.944 7.111-7.32 3.819-14.64-9.125-16.85 7.405 1.264 15.73-.825 18.014-9.015C62.88 23.022 64 8.51 64 6.55c0-9.818-8.578-6.732-13.873-2.745Z"/></svg></span>
+      <span class="splash-dark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 57"><path fill="#006AFF" d="M13.873 3.805C21.21 9.332 29.103 20.537 32 26.55v15.882c0-.338-.13.044-.41.867-1.512 4.456-7.418 21.847-20.923 7.944-7.111-7.32-3.819-14.64 9.125-16.85-7.405 1.264-15.73-.825-18.014-9.015C1.12 23.022 0 8.51 0 6.55 0-3.268 8.579-.182 13.873 3.805ZM50.127 3.805C42.79 9.332 34.897 20.537 32 26.55v15.882c0-.338.13.044.41.867 1.512 4.456 7.418 21.847 20.923 7.944 7.111-7.32 3.819-14.64-9.125-16.85 7.405 1.264 15.73-.825 18.014-9.015C62.88 23.022 64 8.51 64 6.55c0-9.818-8.578-6.732-13.873-2.745Z"/></svg></span>
     </div>
     <div id="root">
     </div>

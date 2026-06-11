@@ -29,6 +29,15 @@ export interface IndieAppSettings {
   STAGING_DEFAULT_FEED_URI: string
   STAGING_VIDEO_FEED_URI: string
   VIDEO_FEED_URI: string
+  // Web brand surfaces (pre-React shell)
+  SPLASH_SVG_LIGHT_PATH: string
+  SPLASH_SVG_DARK_PATH: string
+  OG_SITE_NAME: string
+  THEME_COLOR: string
+  TWITTER_HANDLE: string
+  APPLICATION_NAME: string
+  MASK_ICON_COLOR: string
+  WEB_STATIC_BRAND_DIR: string
 }
 
 const HELP_DESK_LANG = 'en-us'
@@ -67,6 +76,15 @@ export const BlueSkyAppSettings: IndieAppSettings = {
     'at://did:plc:yofh3kx63drvfljkibw5zuxo/app.bsky.feed.generator/thevids',
   VIDEO_FEED_URI:
     'at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/thevids',
+  // Web brand surfaces (pre-React shell)
+  SPLASH_SVG_LIGHT_PATH: 'src/indie-settings/assets/bluesky/splash-light.svg',
+  SPLASH_SVG_DARK_PATH: 'src/indie-settings/assets/bluesky/splash-dark.svg',
+  OG_SITE_NAME: 'Bluesky Social',
+  THEME_COLOR: '',
+  TWITTER_HANDLE: '@bluesky',
+  APPLICATION_NAME: 'Bluesky',
+  MASK_ICON_COLOR: '#1185fe',
+  WEB_STATIC_BRAND_DIR: 'bskyweb/static',
 }
 
 // Replace the example NorthSkyAppSettings with your own indie settings

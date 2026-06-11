@@ -40,4 +40,15 @@ export const NorthSkyAppSettings: Partial<IndieAppSettings> = {
     'at://did:plc:yofh3kx63drvfljkibw5zuxo/app.bsky.feed.generator/thevids',
   VIDEO_FEED_URI:
     'at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/thevids',
+  // Web brand surfaces (pre-React shell)
+  SPLASH_SVG_LIGHT_PATH:
+    'src/indie-settings/assets/northsky/Northsky-Icon-Color.svg',
+  SPLASH_SVG_DARK_PATH:
+    'src/indie-settings/assets/northsky/Northsky-Icon-Color.svg',
+  OG_SITE_NAME: 'Northsky',
+  THEME_COLOR: '#0A2A43',
+  TWITTER_HANDLE: '@northsky',
+  APPLICATION_NAME: 'Northsky',
+  MASK_ICON_COLOR: '#0A2A43',
+  WEB_STATIC_BRAND_DIR: 'src/indie-settings/assets/northsky/web-static',
 }

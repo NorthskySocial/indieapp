@@ -276,6 +276,7 @@
     "eslint-plugin-react-native": "^5.0.0",
     "eslint-plugin-react-native-a11y": "^3.5.1",
     "eslint-plugin-simple-import-sort": "^13.0.0",
+    "fast-check": "^4.8.0",
     "file-loader": "6.2.0",
     "globals": "^17.0.0",
     "husky": "^8.0.3",
@@ -290,9 +291,9 @@
     "react-refresh": "^0.14.0",
     "svgo": "^3.3.2",
     "ts-plugin-sort-import-suggestions": "^1.0.4",
+    "tsx": "^4.21.0",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.58.0",
-    "tsx": "^4.21.0",
     "webpack-bundle-analyzer": "^4.10.1"
   },
   "resolutions": {

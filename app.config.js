@@ -47,7 +47,7 @@ module.exports = function (_config) {
   return {
     expo: {
       version: VERSION,
-      name: 'Bluesky',
+      name: AppSettings.APP_NAME,
       slug: 'bluesky',
       scheme: 'bluesky',
       owner: 'blueskysocial',

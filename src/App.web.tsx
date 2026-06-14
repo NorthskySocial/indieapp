@@ -47,6 +47,10 @@ import {Provider as OnboardingProvider} from '#/state/shell/onboarding'
 import {Provider as ProgressGuideProvider} from '#/state/shell/progress-guide'
 import {Provider as SelectedFeedProvider} from '#/state/shell/selected-feed'
 import {Provider as StarterPackProvider} from '#/state/shell/starter-pack'
+import {
+  Provider as StratosProvider,
+  StratosSessionListener,
+} from '#/state/stratos'
 import {Provider as HiddenRepliesProvider} from '#/state/threadgate-hidden-replies'
 import {Shell} from '#/view/shell/index'
 import {ThemeProvider as Alf} from '#/alf'
@@ -225,9 +229,12 @@ function App() {
                           <DialogStateProvider>
                             <LightboxStateProvider>
                               <PortalProvider>
-                                <StarterPackProvider>
-                                  <InnerApp />
-                                </StarterPackProvider>
+                                <StratosProvider>
+                                  <StarterPackProvider>
+                                    <InnerApp />
+                                    <StratosSessionListener />
+                                  </StarterPackProvider>
+                                </StratosProvider>
                               </PortalProvider>
                             </LightboxStateProvider>
                           </DialogStateProvider>

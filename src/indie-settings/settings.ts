@@ -6,6 +6,7 @@ export interface IndieAppSettings {
   AGE_ASSURANCE_ENABLED: boolean
   // App identity
   APP_NAME: string
+  STRATOS_SERVICE_DID: string
   BASE_URL: string
   BSKY_DOWNLOAD_URL: string
   BSKY_SERVICE: string
@@ -35,6 +36,7 @@ export const BlueSkyAppSettings: IndieAppSettings = {
   ANALYTICS_ENABLED: false,
   AGE_ASSURANCE_ENABLED: true,
   APP_NAME: 'Bluesky',
+  STRATOS_SERVICE_DID: '',
   BASE_URL: 'https://bsky.app',
   BSKY_DOWNLOAD_URL: 'https://bsky.app/download',
   BSKY_SERVICE: 'https://bsky.social',

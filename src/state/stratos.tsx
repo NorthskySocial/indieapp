@@ -67,7 +67,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
  */
 export function StratosSessionListener() {
   const agent = useAgent()
-  const {reset, setEnrollment} = useStratosApi()
+  const {reset, setEnrollment} = useStratos()
 
   const serviceDid = STRATOS_SERVICE_DID
 
@@ -114,21 +114,7 @@ export function StratosSessionListener() {
 }
 
 export function useStratos() {
-  return useContext(StateContext)
-}
-
-export function useStratosApi() {
-  return useContext(ApiContext)
-}
-
-export function useStratosEnrollment() {
-  return useContext(StateContext).enrollment
-}
-
-export function useStratosActive() {
-  return useContext(StateContext).active
-}
-
-export function useSetStratosActive() {
-  return useContext(ApiContext).setActive
+  const state = useContext(StateContext)
+  const api = useContext(ApiContext)
+  return {...state, ...api}
 }

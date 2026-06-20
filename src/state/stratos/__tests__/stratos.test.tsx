@@ -296,7 +296,7 @@ describe('StratosSessionListener', () => {
 
   it('calls reset when STRATOS_SERVICE_DID is not set', () => {
     // Temporarily override env mock for this test
-    const origMock = jest.requireMock('#/env')
+    const origMock = jest.requireMock('#/env') as {STRATOS_SERVICE_DID: string}
     const origDid = origMock.STRATOS_SERVICE_DID
     origMock.STRATOS_SERVICE_DID = ''
 

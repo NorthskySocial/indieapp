@@ -25,6 +25,55 @@ The Authenticated Transfer Protocol ("AT Protocol" or "atproto") is a decentrali
 
 The Bluesky Social application encompasses a set of schemas and APIs built in the overall AT Protocol framework. The namespace for these "Lexicons" is `app.bsky.*`.
 
+## Stratos Integration
+
+This app includes integration with [Stratos](https://github.com/NorthskySocial/stratos), a boundary-aware private namespace service for the AT Protocol.
+
+### Configuration
+
+Set the Stratos service DID via environment variable or indie settings:
+
+```bash
+EXPO_PUBLIC_STRATOS_SERVICE_DID=did:web:stratos.northsky.com
+```
+
+Or in your `src/indie-settings/settings.ts`:
+
+```typescript
+STRATOS_SERVICE_DID: 'did:web:stratos.northsky.com'
+```
+
+### Architecture
+
+The Stratos integration is managed through `src/state/stratos.tsx` which provides:
+
+- **`StratosProvider`** — React context provider wrapping the app with Stratos state.
+- **`StratosSessionListener`** — Auto-discovers the user's Stratos enrollment when they log in and manages XRPC routing.
+- **`useStratos()`** — Hook returning `{enrollment, active, serviceUrl, setEnrollment, setActive, reset}`.
+- **`useStratosServiceUrl()`** — Convenience hook for the resolved Stratos service URL.
+- **`useStratosFetchHandler()`** — Returns an authenticated fetch handler that routes XRPC calls to the Stratos service (or `null` if not enrolled/active).
+- **`createStratosAuthHandler(accessJwt)`** — Pure function that creates a fetch handler attaching Bearer token auth, for use with `createServiceFetchHandler` from `@northskysocial/stratos-client`.
+
+### XRPC Routing
+
+When Stratos is **active** and a valid **enrollment** exists, all XRPC calls from the app's `BskyAppAgent` are automatically routed through the Stratos service. This is managed by `StratosSessionListener`, which installs a fetch override (`setStratosFetchOverride` in `src/state/session/agent.ts`) whenever Stratos becomes active with an enrollment, and clears it when Stratos is inactive, the user logs out, or the listener unmounts.
+
+### Enrollment Flow
+
+1. User logs in → `StratosSessionListener` calls `getEnrollmentByServiceDid()` on the user's PDS.
+2. If an enrollment record exists → stored in React context as `enrollment`.
+3. `serviceUrl` is derived from the enrollment via `resolveServiceUrl()`.
+4. If `active` is `true` and enrollment exists → the listener installs a fetch override that routes all XRPC calls through the Stratos service.
+5. Components can use `useStratosFetchHandler()` to make authenticated XRPC calls routed to the Stratos service.
+
+### Settings UI
+
+The **StratosSettings** screen (`src/screens/Settings/StratosSettings.tsx`) lets users:
+- Set or override the Stratos service DID manually.
+- Toggle Stratos on/off via an **Active** switch.
+- View their current enrollment status (checking / not enrolled / connected).
+- Refresh enrollment discovery or reset Stratos state.
+
 ## Contributions
 
 > [!NOTE]

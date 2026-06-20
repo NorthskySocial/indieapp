@@ -58,6 +58,16 @@ export type Device = {
   trendingBetaEnabled: boolean
   devMode: boolean
   demoMode: boolean
+
+  /**
+   * Whether Stratos is currently active for this device.
+   */
+  stratosActive?: boolean
+
+  /**
+   * Custom Stratos service DID override, if set by the user.
+   */
+  stratosServiceDid?: string
   activitySubscriptionsNudged?: boolean
   threadgateNudged?: boolean
 

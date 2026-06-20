@@ -17,6 +17,7 @@ permissions:
   pull-requests: write
   actions: write
   contents: read
+  packages: read
 
 jobs:
   webpack-analyzer:
@@ -56,6 +57,14 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           git merge --no-edit $HEAD_REF
+
+      - name: Authenticate with GitHub Packages
+        run: |
+          npm config set @northskysocial:registry https://npm.pkg.github.com
+          npm config set //npm.pkg.github.com/:_authToken ${{ secrets.GH_PACKAGES_TOKEN }}
+
+      - name: Install dependencies & build
+        run: |
           yarn install
           yarn intl:build
 
@@ -121,6 +130,11 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: yarn
+
+      - name: Authenticate with GitHub Packages
+        run: |
+          npm config set @northskysocial:registry https://npm.pkg.github.com
+          npm config set //npm.pkg.github.com/:_authToken ${{ secrets.GH_PACKAGES_TOKEN }}
 
       - name: 📷 Check fingerprint and install dependencies
         id: fingerprint

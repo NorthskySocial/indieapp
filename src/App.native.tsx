@@ -54,6 +54,10 @@ import {Provider as OnboardingProvider} from '#/state/shell/onboarding'
 import {Provider as ProgressGuideProvider} from '#/state/shell/progress-guide'
 import {Provider as SelectedFeedProvider} from '#/state/shell/selected-feed'
 import {Provider as StarterPackProvider} from '#/state/shell/starter-pack'
+import {
+  Provider as StratosProvider,
+  StratosSessionListener,
+} from '#/state/stratos'
 import {Provider as HiddenRepliesProvider} from '#/state/threadgate-hidden-replies'
 import {TestCtrls} from '#/view/com/testing/TestCtrls'
 import {Shell} from '#/view/shell'
@@ -247,12 +251,15 @@ function App() {
                             <LightboxStateProvider>
                               <PortalProvider>
                                 <BottomSheetProvider>
-                                  <StarterPackProvider>
-                                    <SafeAreaProvider
-                                      initialMetrics={initialWindowMetrics}>
-                                      <InnerApp />
-                                    </SafeAreaProvider>
-                                  </StarterPackProvider>
+                                  <StratosProvider>
+                                    <StarterPackProvider>
+                                      <SafeAreaProvider
+                                        initialMetrics={initialWindowMetrics}>
+                                        <InnerApp />
+                                        <StratosSessionListener />
+                                      </SafeAreaProvider>
+                                    </StarterPackProvider>
+                                  </StratosProvider>
                                 </BottomSheetProvider>
                               </PortalProvider>
                             </LightboxStateProvider>

@@ -370,6 +370,28 @@ export class Agent extends BaseAgent {
 let realFetch = globalThis.fetch
 
 /**
+ * Module-level override for routing XRPC calls through a Stratos service.
+ * When set, all fetch calls from the active BskyAppAgent will be delegated
+ * to this handler instead of the normal PDS flow. Cleared when Stratos is
+ * toggled off or the listener unmounts.
+ *
+ * The handler receives full URLs (RequestInfo | URL) and must return a
+ * Response, matching the global fetch signature.
+ */
+let stratosFetchOverride: typeof globalThis.fetch | null = null
+
+/**
+ * Set (or clear) the Stratos fetch override.
+ * Called by the StratosSessionListener whenever the Stratos routing state
+ * changes (enrollment toggled on/off, service DID changes, etc.).
+ */
+export function setStratosFetchOverride(
+  handler: typeof globalThis.fetch | null,
+) {
+  stratosFetchOverride = handler
+}
+
+/**
  * Lexicons that are served directly by the PDS from the user's actor store,
  * not by the AppView. When `configureProxy` is set to a non-default AppView
  * DID, the PDS will forward these calls to that AppView (which will 404 if
@@ -428,6 +450,26 @@ class BskyAppAgent extends BskyAgent {
     super({
       service,
       async fetch(input, init) {
+        // When Stratos routing is active, delegate all XRPC calls to the
+        // Stratos service instead of the normal PDS flow.
+        if (stratosFetchOverride) {
+          let success = false
+          try {
+            const result = await stratosFetchOverride(input, init)
+            success = true
+            return result
+          } catch (e) {
+            success = false
+            throw e
+          } finally {
+            if (success) {
+              emitNetworkConfirmed()
+            } else {
+              emitNetworkLost()
+            }
+          }
+        }
+
         const patched = stripProxyHeaderForPdsLocalLexicons(input, init)
         let success = false
         try {

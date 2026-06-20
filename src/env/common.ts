@@ -148,6 +148,9 @@ export const LIVE_EVENTS_URL = IS_DEV
  * URLs for the app-config web worker. Can be a
  * locally running server, see `env.example` for more.
  */
+export const STRATOS_SERVICE_DID: string =
+  process.env.EXPO_PUBLIC_STRATOS_SERVICE_DID || AppSettings.STRATOS_SERVICE_DID
+
 export const APP_CONFIG_DEV_URL = process.env.APP_CONFIG_DEV_URL
 export const APP_CONFIG_PROD_URL = `https://app-config.workers.bsky.app`
 export const APP_CONFIG_URL = IS_DEV

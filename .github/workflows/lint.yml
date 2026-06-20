@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - main
+permissions:
+  contents: read
+  packages: read
 concurrency:
   group: "${{ github.workflow }}-${{ github.head_ref || github.ref }}"
   cancel-in-progress: true
@@ -21,6 +24,10 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: yarn
+      - name: Authenticate with GitHub Packages
+        run: |
+          npm config set @northskysocial:registry https://npm.pkg.github.com
+          npm config set //npm.pkg.github.com/:_authToken ${{ secrets.GH_PACKAGES_TOKEN }}
       - name: Yarn install
         uses: Wandalen/wretry.action@master
         with:
@@ -48,6 +55,10 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: yarn
+      - name: Authenticate with GitHub Packages
+        run: |
+          npm config set @northskysocial:registry https://npm.pkg.github.com
+          npm config set //npm.pkg.github.com/:_authToken ${{ secrets.GH_PACKAGES_TOKEN }}
       - name: Yarn install
         uses: Wandalen/wretry.action@master
         with:

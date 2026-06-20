@@ -126,6 +126,7 @@ import {RepostNotificationSettingsScreen} from '#/screens/Settings/NotificationS
 import {RepostsOnRepostsNotificationSettingsScreen} from '#/screens/Settings/NotificationSettings/RepostsOnRepostsNotificationSettings'
 import {PrivacyAndSecuritySettingsScreen} from '#/screens/Settings/PrivacyAndSecuritySettings'
 import {SettingsScreen} from '#/screens/Settings/Settings'
+import {StratosSettingsScreen} from '#/screens/Settings/StratosSettings'
 import {ThreadPreferencesScreen} from '#/screens/Settings/ThreadPreferences'
 import {
   StarterPackScreen,
@@ -536,6 +537,14 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         getComponent={() => InterestsSettingsScreen}
         options={{
           title: title(msg`Your interests`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="StratosSettings"
+        getComponent={() => StratosSettingsScreen}
+        options={{
+          title: title(msg`Stratos`),
           requireAuth: true,
         }}
       />

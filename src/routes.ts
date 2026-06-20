@@ -55,6 +55,7 @@ export const router = new Router<AllNavigatableRoutes>({
   ActivityPrivacySettings: '/settings/privacy-and-security/activity',
   ContentAndMediaSettings: '/settings/content-and-media',
   InterestsSettings: '/settings/interests',
+  StratosSettings: '/settings/stratos',
   AboutSettings: '/settings/about',
   AppIconSettings: '/settings/app-icon',
   NotificationSettings: '/settings/notifications',

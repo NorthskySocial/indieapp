@@ -82,7 +82,7 @@
   },
   "dependencies": {
     "@atproto/api": "^0.19.9",
-    "@northskysocial/stratos-client": "file:./stratos/stratos-client",
+    "@northskysocial/stratos-client": "^0.1.2-ripperoni",
     "@bitdrift/react-native": "^0.6.8",
     "@braintree/sanitize-url": "^6.0.2",
     "@bsky.app/alf": "^0.1.7",
@@ -332,7 +332,7 @@
       "__tests__/.*/__mocks__",
       "__e2e__/.*",
       "bskylink/.*",
-      "stratos/.*"
+      "^stratos/.*"
     ],
     "coveragePathIgnorePatterns": [
       "<rootDir>/node_modules/",

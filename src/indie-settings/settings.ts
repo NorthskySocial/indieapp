@@ -1,4 +1,4 @@
-import {NorthSkyAppSettings} from './northsky.settings.example'
+import {IndieAppSettings as IndieAppOverrides} from './indieapp.settings'
 
 export interface IndieAppSettings {
   // Feature flags
@@ -65,8 +65,8 @@ export const BlueSkyAppSettings: IndieAppSettings = {
     'at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/thevids',
 }
 
-// Replace the example NorthSkyAppSettings with your own indie settings
+// Merge base Bluesky settings with indieapp deployment overrides
 export const AppSettings: IndieAppSettings = {
   ...BlueSkyAppSettings,
-  ...NorthSkyAppSettings,
+  ...IndieAppOverrides,
 }

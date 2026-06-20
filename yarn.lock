@@ -4265,8 +4265,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@northskysocial/stratos-client@file:./stratos/stratos-client":
-  version "0.1.1"
+"@northskysocial/stratos-client@^0.1.2-ripperoni":
+  version "0.1.2-ripperoni"
+  resolved "https://npm.pkg.github.com/download/@northskysocial/stratos-client/0.1.2-ripperoni/efcb958b9c06f30387e2e17548ed72a807ec61b7#efcb958b9c06f30387e2e17548ed72a807ec61b7"
+  integrity sha512-jYTG7unzoNi8RW5PULOC7/r48INna6i17N0y18QO1+e5Atl0p1pNGiShZwH2iGkyIzasQ8O5424F6yaKcr7Myw==
   dependencies:
     "@atcute/atproto" "^3.1.10"
     "@atcute/car" "^5.1.1"

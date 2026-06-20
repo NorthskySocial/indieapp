@@ -2,6 +2,9 @@ name: Lockfile
 
 on:
   pull_request:
+permissions:
+  contents: read
+  packages: read
 concurrency:
   group: "${{ github.workflow }}-${{ github.head_ref || github.ref }}"
   cancel-in-progress: true
@@ -30,6 +33,11 @@ jobs:
         env:
           BASE_REF: ${{ github.base_ref }}
         run: git show "origin/$BASE_REF:yarn.lock" > yarn.lock
+
+      - name: Authenticate with GitHub Packages
+        run: |
+          npm config set @northskysocial:registry https://npm.pkg.github.com
+          npm config set //npm.pkg.github.com/:_authToken ${{ secrets.GH_PACKAGES_TOKEN }}
 
       - name: Yarn install
         uses: Wandalen/wretry.action@master

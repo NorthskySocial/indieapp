@@ -99,6 +99,9 @@ stats.json
 .env
 .env.*
 
+# npm/npmrc (may contain auth tokens)
+.npmrc
+
 # Firebase (Android) Google services
 google-services.json
 

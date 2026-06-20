@@ -1,4 +1,4 @@
-import {IndieAppSettings as IndieAppOverrides} from './indieapp.settings'
+import {indieAppSettings as IndieAppOverrides} from './indieapp.settings'
 
 export interface IndieAppSettings {
   // Feature flags
